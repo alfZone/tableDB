@@ -1,0 +1,22 @@
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(60) NOT NULL DEFAULT '',
+  `login` varchar(40) NOT NULL DEFAULT '',
+  `pass` varchar(64) NOT NULL DEFAULT '',
+  `email` varchar(200) DEFAULT NULL,
+  `postar` enum('S','N') NOT NULL DEFAULT 'S',
+  `ultimo_acesso` datetime DEFAULT NULL,
+  `num_acessos` int(11) NOT NULL DEFAULT '0',
+  `tipo` int(11) NOT NULL,
+  `ativo` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+INSERT INTO `users` (`id`, `nome`, `login`, `pass`, `email`, `postar`, `ultimo_acesso`, `num_acessos`, `tipo`, `ativo`) VALUES
+(2, 'Admin', 'admin', 'c99b5e8c22376084429e03dd3c588bc0', NULL, 'S', NULL, 0, 3, 1)
+
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
+
+
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
