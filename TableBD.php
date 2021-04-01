@@ -19,7 +19,7 @@ use DomXPath;
 //echo "aquui";
 class TableBD{
 	// REQUIRES
-	// Database.php
+	// Database.php; simple_html_dom.
 	
   // MISSION: generate a table to manage a query to the database. Considers 4 actions: view, new, edit and import
   
