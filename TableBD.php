@@ -4,9 +4,22 @@
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.2
+ * @version 8.3
  * @updated 21-03-2021 21:50:00
  */
+
+// problems detected
+// - Need more testing
+// - When using a null value, the field content is not deleted. Probably not considered
+// - Return errors
+
+
+
+//news of version: 
+//                  some comments in English
+//                  corrections in jquery
+
+
 
 namespace classes\db;
 use classes\db\Database;
@@ -19,7 +32,7 @@ use DomXPath;
 //echo "aquui";
 class TableBD{
 	// REQUIRES
-	// Database.php; simple_html_dom.
+	// Database.php
 	
   // MISSION: generate a table to manage a query to the database. Considers 4 actions: view, new, edit and import
   
@@ -86,7 +99,6 @@ class TableBD{
 // setLimites($ NumReg, $ LimInf = 0) - Sets the number of resistors in a select where $ NumReg is the number of records and $ LimInf is the initial record
 // setPaginaVer($ page) - Stores the name of the page that should be opened to show the record where the page is the address for an html page for the record
 // setTemplate($ path) * - Assign the template to the table. Where path is the path and the template file
-// setTexts($ text, $ value) - Load the class with the texts to be used in the graphical interface - it's an arrey [$ text] = $ value
 // setTitulo($ value) - sets the title of the page / or form 
 	
 	
@@ -94,20 +106,17 @@ class TableBD{
 //########################################## Variaveis ###############################################################################	
 	
 	/**
-	 * Este array vai receber todos os textos de output da classe
+	 * This array will receive all the output texts of the class.
 	 */
   private $textos=array("titulo"=>"Lista de registios da tabela");
   /**
-	 * array de pares id e valor para tag HTML
+	 * array of id and value pairs for HTML tag
 	 */
   private $id;
 	
-	/**
-	 * ainda n�o sei para que vai servir
-	 */
+
   private $camposLista;
-  //private $template="http://www.site.pt/template/TabelaBD.html";
-  private $template="../classes/db/TableBD.html";
+  private $template="../templates/base/tables.php";
   private $tabela;
   private $sqlGeral;
   private $chave;
@@ -115,14 +124,10 @@ class TableBD{
   private $PagVer="";
   private $PagImp=0;
   private $criterio="(1=1)";
-  private $tema="c";  //define os css a serem usados:
-                      //            c - todo o bootstrap (para usar a tabela numa página sozinha)
-                      //            m - com um css mínimo
-                      //            s - sem css
-  private $autenticacao="a";   //define se por defeito o user tem permissões para:
-                              //      a - all tempo a possibilidade de ver, criar novo, apagar e alterar
-                              //      u - update Só pode alterar os dados
-                              //      r - read só pode ver
+  private $autenticacao="a";  //defines if by default the user has permissions to:
+                                  // a - all tempo the possibility to view, create new, delete and change
+                                  // u - update Can only change data
+                                  // r - read can only see
   private $limites=array(0,0);
 
   //###################################################################################################################################
@@ -131,21 +136,16 @@ class TableBD{
 	 * Construtor de Classe
 	 */
   public function __construct(){  
-    	$this->setTextos("gravar", "Gravar");
-    	$this->setTextos("fechar", "Fechar");
-			$this->setTextos("apagar", "Apagar");
-    	$this->setTextos("importa", "Importa");
-			$this->setTextos("perguntaApagar", "Pretende apagar este registo ?");
-    	//print_r($this->textos);
+
   }
   
 //###################################################################################################################################	
 	/**
   *
-  * @param $valor    quando valor passado é 1 o campo fica ativo(visível) e qunado o campoé 0 o campo fica desativo
-  * @param $accao    define o comportavemento em ver, novo, editar
+  * @param $valor    when the value passed is 1 the field is active (visible) and when the field is 0 the field is disabled
+  * @param $accao    sets behavior in see, new, edit
 	*
-  * Torna visiveis os campos a serem mostrados passando o valor=1 (ou não passando valor) e esconde passando o valor=0
+  * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
 	*/
 	private function ativaCampos($valor, $accao){
 		$i=0;
@@ -154,16 +154,19 @@ class TableBD{
 				$i++;
 		}
 	}
+  
 
+  
+ 
 
   //###################################################################################################################################
 	/**
 	 * 
-	 * @param sql    instrução SQL
+	 * @param sql    SQL Instruction
 	 *
-	 * dado um sql devolve uma lista de dados.
+	 * given a sql returns a list of data.
 	 */
-	function consultaSQL($sql){
+	public function consultaSQL($sql){
 		$database = new Database(_BDUSER, _BDPASS, _BD);
         $database->query($sql);
 		//$database->execute();
@@ -172,6 +175,9 @@ class TableBD{
 	
 	}
   
+  public function querySQL($sql){
+    return $this->consultaSQL($sql);
+	}
 	  
   	//###################################################################################################################################	
 	
@@ -923,8 +929,16 @@ class TableBD{
           }
          
           $("#txt" + x).attr("value", evento[x] )
-          aux=`select#txt${x} option[value="${evento[x]}"]`
-          $(aux).attr('selected','selected');
+          var aux=`select#txt${x}`;
+          //console.log(aux);
+          //console.log($(`select#txt${x}`).length)
+          if ($(`select#txt${x}`).length){
+             $(`#txt${x} option:selected`).attr('selected',false);
+            aux=`#txt${x} option[value=${evento[x]}]`
+            //console.log(aux);
+            $(aux).attr('selected','selected');
+          }
+          
         }
       }
     
@@ -934,79 +948,32 @@ class TableBD{
    <script>
   
   $("#bnew").click(function() {
-    cleanForm();
+    var markupStr = "";
     <?php
+    //print_r($this->camposLista);
       foreach($this->camposLista as $campoaux){
-        if (isset($campoaux['default'])){
+        if (($campoaux['Type']!="lst") && ($campoaux['Type']!="text")){
           ?>
-          x=<?php echo $campoaux['Field']?>;
-          y=<?php echo $campoaux['default']?>;
-          $("textarea#txt" + x).val(y)
-          $("#txt" + x).attr("value",y )
-          aux=`select#txt${x} option[value="${y}"]`
-          $(aux).attr('selected','selected');
+          $("#txt<?php echo $campoaux['Field']?>").attr("value","<?php echo $campoaux['Default']?>")
         <?php
           
+        }else{
+          if (($campoaux['Type']=="lst") && ($campoaux['Default']!=null)){
+            ?>
+            $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
+            <?php
+          }else{
+            if ($campoaux['Type']=="text"){
+              ?>
+              $('textarea#txt<?php echo $campoaux['Field']?>').summernote('destroy');
+              $('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', markupStr);
+             <?php
+            }
+          }
         }
       }
     ?>
   });
-     
- // $(".bdel").click(function(){
- //   alert($(this).attr("data"));
- //   $("#delText").html($(this).closest("tr").find("td").eq(0).html() + " - " + $(this).closest("tr").find("td").eq(1).html()) 
- //   $("input#deleteKey").attr("value", $(this).attr("data"));  
- // });
- 
-     /*
-  $(".bedit").click(function(){
-    //$("#teste").html("aaaa" ) 
-    //cleanForm()
-    //setTimeout(function(){alert("agoRa")},100); 
-    
-    let url="?do=e&id="+ $(this).attr("data")
-    $("#do").attr("value", "ce" )
-    $("input#editKey").attr("value", $(this).attr("data"));  
-       
-    
-     readForm()
-                    
-                    
-    async function readForm(){
-      
-      url= document.location.href +url
-      //alert("url: " + url);
-      const response = await fetch(url)
-      const eventos = await response.json()
-      
-      for (const evento of eventos) {
-        for (x in evento) {
-          //alert(x);
-          if ($('textarea').length >1){
-             var markupStr = evento[x];
-            $('textarea#txt'+ x).summernote('code', markupStr);
-          }
-         
-          $("#txt" + x).attr("value", evento[x] )
-          aux=`select#txt${x} option[value="${evento[x]}"]`
-          $(aux).attr('selected','selected');
-        }
-      }
-      
-    }
-       
-  });  
-  
-  */
-     
- function cleanForm(){
-  $("input[type=text], textarea, input[type=password], input[type=number]").val("");
-  var markupStr = "";
-  $('textarea').summernote('destroy');
-  $('textarea').summernote('code', markupStr);
-  //$("textarea").html("");
- }
-    
      
   
 </script>
@@ -1638,19 +1605,6 @@ class TableBD{
 		$this->PagVer=$pagina;
 	}
 
-  //###################################################################################################################################
-	/**
-	* 
-	* @param valor    letra com tipo a css a ser considerado
-	*                       c - todo o bootstrap (para usar a tabela numa página sozinha)
-  *                       m - com um css mínimo
-  *                       s - sem css
-	* Define os css a serem usados.
-  *                  
-	*/
-	public function setTema($valor){
-		$this->tema=$valor;
-	}
 
   //###################################################################################################################################
 	/**
@@ -1676,7 +1630,7 @@ class TableBD{
     $this->template=$page;
   }
   
-//###################################################################################################################################
+ //###################################################################################################################################
 	/**
 	* 
 	* @param texto    é o nome do campo que pretendemos guardar o valor
@@ -1686,8 +1640,9 @@ class TableBD{
 	*/
 	public function setTextos($texto,$valor){
 		$this->textos[$texto]=$valor;
-	}
-
+	} 
+  
+  
 //###################################################################################################################################
 	/**
 	 * 
@@ -1699,10 +1654,11 @@ class TableBD{
     
     $this->setTextos("titulo",$valor);      
   }
-
 	  
 }
 
+//###################################################################################################################################
+//###################################################################################################################################
 //###################################################################################################################################
 
 ?>
