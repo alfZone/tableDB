@@ -5,7 +5,7 @@
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
  * @version 8.3
- * @updated 21-03-2021 21:50:00
+ * @updated 21-06-2021 21:50:00
  */
 
 // problems detected
