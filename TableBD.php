@@ -4,14 +4,17 @@
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.3
- * @updated 21-06-2021 21:50:00
+ * @version 8.4
+ * @updated 27-06-2021 21:50:00
  */
 
 // problems detected
 // - Need more testing
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
+// - id editKey é necessário no ficheiro tabeladb??
+// - quando não é fornecido o "novo" não devia aparecer o botão
+// - colocar o valor do código tem de ser alternativo
 
 
 
@@ -38,13 +41,13 @@ class TableBD{
   
 // METHODS
 // __construct() - Class Constructor
-// ativaCampos($ value, $ action) - Makes visible the fields to be displayed by passing the value = 1 (or not passing a value) and hides it by passing the value = 0. When value //                                  passed is 1 the field is active (visible) and when the field is 0 the field is disabled. Action defines the behavior of seeing, new, 
+// fieldsActive($value, $action) | ativaCampos($ value, $ action) - Makes visible the fields to be displayed by passing the value = 1 (or not passing a value) and hides it by passing the value = 0. When value //                                  passed is 1 the field is active (visible) and when the field is 0 the field is disabled. Action defines the behavior of seeing, new, 
 //                                  editing.
 // consultaSQL($ sql) - given a sql it returns a list of data.
 // determinaChave() - Analyzes the structure of the database table and determines which is the key
 // devolveValorDaLista($ field, $ key) - Find the value of a field for a given key where the field is the name of the field to be consulted the list of values and key is the id //                                       of the value to be searched.
 // encriptar($ text, $ cipher = "md5") - encrypts a text according to a past method where text is the text to be encoded and encryption is the type of cipher used
-// fazHTML() - Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to 
+// showHTML() | fazHTML() - Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to 
 //             make decisions
 // fazLista() - Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows a
 //              set of records (25 by default) and allows browsing pages
@@ -63,18 +66,18 @@ class TableBD{
 // preparaSQLGeral() - Prepare a string with the table's SQL statement (of type SELECT * FROM Table). Included all fields
 // preparaSQLdelete() - Prepare an SQL string to delete the record
 // preparaSQLinsert() - Prepare an SQL string to insert the fields with value
-// preparaSQLparaAccao($ accao) - Prepare a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included fields marked as visible 
+// prepareSQLtoAction($action) | preparaSQLparaAccao($ accao) - Prepare a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included fields marked as visible 
 //                                in the chosen action where in action We may want to see the fields in three types of action: New (novo), Edit (editar), List (ver) Import (csv) 
 // preparaSQLupdate() - Prepare an SQL string to update fields with value
 // preparaTabela($ table) - Prepare a table, creating the list of fields in the table, determining its key, preparing a general SQL for all fields define the tags - table is
 //                          the name of the table in the database
 // redirecciona($ url = "? do = l") - redirects to the page showing the list
 // setAutenticacao($ value) - defines if by default the user has permissions to see, create new, delete and change where: a - all time the possibility to see, create new,
-//                            delete and change, u - update Can only change data, r - read can only see
-// setAtivaCampo($ campo, $ accao, $ valor) - Activates / deactivates (shows / hides) a field for an action where the field is the field we want to activate / deactivate
+//                            delete and change, u - update Can only change data, r - read can only see,  e - edit It only allows edition,  n - new It only allows creating new records     
+// setFieldAtive($field, $action, $value) | setAtivaCampo($ campo, $ accao, $ valor) - Activates / deactivates (shows / hides) a field for an action where the field is the field we want to activate / deactivate
 //                                            action is the type of action (list, edit and add) in which we want to activate / deactivate the field and value is 1 for
 //                                            show and 0 to hide
-// setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
+// setFieldsAtive($fields, $action) | setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
 //                                      in the sql table and action is the type of action (list, edit and add) in which we want enable / disable the field
 // setCampoCalculado($ field, $ calculation) - Adds a new calculated field in which field is the name for the field we want to add and calculate is the sql formula that we are
 //                                             going to apply
@@ -124,8 +127,8 @@ class TableBD{
   private $PagVer="";
   private $PagImp=0;
   private $criterio="(1=1)";
-  private $autenticacao="a";  //defines if by default the user has permissions to:
-                                  // a - all tempo the possibility to view, create new, delete and change
+  private $autenticacao="r";  //defines if by default the user has permissions to:
+                                  // a - all have the possibility to view, create new, delete and change
                                   // u - update Can only change data
                                   // r - read can only see
   private $limites=array(0,0);
@@ -142,21 +145,46 @@ class TableBD{
 //###################################################################################################################################	
 	/**
   *
+  * @param $value    when the value passed is 1 the field is active (visible) and when the field is 0 the field is disabled
+  * @param $action   sets behavior in see, new, edit
+	*
+  * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
+	*/
+	private function fieldsActive($value, $action){
+    
+    $action=str_replace("list","ver",$action);
+    $action=str_replace("see","ver",$action);
+    $action=str_replace("new","novo",$action);
+    $action=str_replace("edit","editar",$action);
+    /*if ((($action=="novo")||($action=="editar")) && $value==1){
+      //echo "acao=$action";
+      $this->autenticacao="a";
+    }*/
+		$i=0;
+		foreach($this->camposLista as $campo){
+				$this->camposLista[$i][$action]=$value;
+				$i++;
+		}
+	}
+  
+
+  //###################################################################################################################################	
+	/**
+  *
   * @param $valor    when the value passed is 1 the field is active (visible) and when the field is 0 the field is disabled
   * @param $accao    sets behavior in see, new, edit
 	*
   * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
 	*/
 	private function ativaCampos($valor, $accao){
-		$i=0;
+	/*	$i=0;
 		foreach($this->camposLista as $campo){
 				$this->camposLista[$i][$accao]=$valor;
 				$i++;
 		}
+    */
+    $this->fieldsActive($valor, $accao);
 	}
-  
-
-  
  
 
   //###################################################################################################################################
@@ -278,12 +306,89 @@ class TableBD{
 	
 	//###################################################################################################################################
   /**
+	* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
+	*/
+  // TEM DE SER TODO REFORMULADO
+	public function showHTML(){
+		
+    //lê o parametro 'do' do form HTML
+		$action=$this->getDo();
+    //echo "<br>Faz: $faz<br><br>";
+    
+		switch($action){
+				//options
+			case "":
+			case "l":
+				$this->prepareSQLtoAction('ver');
+				$this->fazlista();
+        $this->includes();
+				break;
+        //prepara a importação
+      case "pcsv":
+      case "pimp":
+        $this->includes();
+        $this->formImporta();
+        break;
+      case "csv":
+      case "imp":
+        $this->importarCSV();
+       
+        $this->redirecciona();
+        break;
+				//formulario para editar
+			case "e":
+			case "edit":
+				//echo "recebi";
+        //$chave=$this->getChave();
+        $chave=$this->getId();
+        //echo $chave;
+				$registo=$this->getDadosUpdate($chave);
+        //print_r($registo);
+        //return $registo;
+        echo $myJSON = json_encode($registo);
+				//$this->includes(); 
+				//$this->formulario($registo);
+				break;
+				//formulário para introduzir os valores
+			case "ci":
+				//efectuar a inserção
+        //echo "ci";
+				$this->getDadosForm();
+				$sql= $this->preparaSQLinsert();
+				//echo $sql;
+			  //$this->consultaSQL($sql);
+        $this->ExecuteSQL($sql);
+				$this->redirecciona();
+				break;
+			case "ce":
+				//efectuar a edição
+				$this->getDadosForm();
+				$sql= $this->preparaSQLupdate();
+				//echo $sql;
+				$this->ExecuteSQL($sql);
+				$this->redirecciona();
+				break;
+			case "cd":
+				//efectuar o apagar
+				$this->getDadosForm();
+				$sql= $this->preparaSQLdelete();
+				//echo $sql;
+				$this->ExecuteSQL($sql);
+				$this->redirecciona();
+				break;
+		}
+	}
+
+//###################################################################################################################################
+  /**
 	* Faz o que é necessaro para manter a tabela numa página html. Lista os dados e permite inserir novos, editar e apagar registos. Usa um parametro 'do' para tomar as decisões
 	*/
   // TEM DE SER TODO REFORMULADO
 	public function fazHTML(){
 		
-    //lê o parametro 'do' do form HTML
+    $this->showHTML();
+    
+    /*//lê o parametro 'do' do form HTML
 		$faz=$this->getDo();
     //echo "<br>Faz: $faz<br><br>";
     
@@ -348,14 +453,14 @@ class TableBD{
 				$this->ExecuteSQL($sql);
 				$this->redirecciona();
 				break;
-		}
+		}*/
 	}
-
 
   
    //###################################################################################################################################
   /**
-	* Faz uma tabela HTML com a lista de todos os registos da tabela. Essa tabela permite ordenar por coluna, procurar textos e mostra um
+	* Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
+  * a set of records (25 by default) and allows browsing pages
 	* conjunto de registos (25 por defeito) e permite navegar em páginas
 	*/
 	public function fazLista(){
@@ -1219,6 +1324,53 @@ class TableBD{
 			return $resposta;
 		}
 	
+  //###################################################################################################################################	
+		/**
+         * 
+         * @param $action    We might want to see the fields in three action types: New(new), Edit(edit) or List(view)
+         * 
+		 * Prepares a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included the
+         * fields marked as visible in the chosen action
+		 */
+	  public function prepareSQLtoAction($action){
+			$resposta= "SELECT " . $this->chave ;
+			$sep=",";
+      //$key=0;
+			//print_r($this->camposLista);
+			foreach($this->camposLista as $campo){
+			    //echo "<br>Campo1 = ";
+			    //print_r($campo);
+				if ($campo[$action]==1){
+          if ($campo['Type']=="calc"){
+            $resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
+          }else{
+            $resposta=$resposta . $sep . $campo['Field']; 
+          }
+					$sep=",";
+				} 
+				
+		}
+			$resposta= $resposta . " FROM " . $this->tabela;
+      
+      $resposta = $resposta . " WHERE " . $this->criterio;
+      //echo "<br> $resposta <br>";
+      
+      if ($this->limites[0]>0){
+        $resposta.= " Limit ". $this->limites[0];
+      }
+      if ($this->limites[1]>0){
+        $resposta.= " Step ". $this->limites[1];
+      }
+      
+      
+			return $resposta;
+			
+			
+			
+		}
+  
+  
+  
  	//###################################################################################################################################	
 		/**
          * 
@@ -1320,7 +1472,7 @@ class TableBD{
 		$this->determinaChave();
 		$this->setLabels();
 		$this->ativaCampos(1,'ver');
-		$this->ativaCampos(1,'novo');
+		$this->ativaCampos(1,'novo');  
 		$this->ativaCampos(1,'editar');
 		
 	}
@@ -1345,6 +1497,32 @@ class TableBD{
 	}
   
 	
+  //###################################################################################################################################	
+	/**
+     * 
+     * @param field    is the field we want to enable/disable
+     * @param action   is the type of action (list, edit and add) in which we want to enable/disable the field
+     * @param value    is 1 to show and 0 to hide
+	  * Activate/deactivate (show/hide) a field for an action
+	*/
+	private function setFieldAtive($field, $action, $value){
+		
+    $action=str_replace("list","ver",$action);
+    $action=str_replace("see","ver",$action);
+    $action=str_replace("new","novo",$action);
+    $action=str_replace("edit","editar",$action);
+    
+    $i=0;
+		//echo "<br> campo=$campo accao=$accao e valor=$valor";
+		foreach($this->camposLista as $campoaux){
+				if ($campoaux['Field']==$field){
+					$this->camposLista[$i][$action]=$value;
+				}
+				
+				$i++;
+		}
+	}
+
 	
 	
  //###################################################################################################################################	
@@ -1354,9 +1532,10 @@ class TableBD{
      * @param accao    é o tipo de acção (listar, editar e adicionar) em que pretendemos activar/desativar o campo
      * @param valor    é 1 para mostrar e 0 para esconder
 	* Activa/desativa (mostra/esconde) um campo para uma acção
+  * Este nome é para manter acompatibilidade com o Pt
 	*/
 	private function setAtivaCampo($campo, $accao, $valor){
-		$i=0;
+		/*$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
 				if ($campoaux['Field']==$campo){
@@ -1364,20 +1543,51 @@ class TableBD{
 				}
 				
 				$i++;
-		}
+		}*/
+   $this->setFieldAtive($campo, $accao, $valor);
 	}
 
+  //###################################################################################################################################	
+	/**
+     * 
+     * @param fields    is a list of sql table fields separated by ; and may or may not have to delimit them
+     * @param action    is the type of action (list, edit and add) in which we want to enable/disable the field
+	* Activates (displays) a comma-separated list of fields for an action. Fields not on the list are disabled.
+	*/
+	public function setFieldsAtive($fields, $action){
+		
+    $action=str_replace("list","ver",$action);
+    $action=str_replace("see","ver",$action);
+    $action=str_replace("new","novo",$action);
+    $action=str_replace("edit","editar",$action);
+    
+		$this->fieldsActive(0, $action);
+		$fields=str_replace("`","",$fields);
+    $fields=str_replace(" ","",$fields);
+		$campo=explode(",", $fields);
+		//echo "<br>campos = ";
+		//print_r($campo);
+		for($i = 0; $i < sizeof($campo);$i++) {
+			$this->setFieldAtive($campo[$i], $action, 1);
+		}
+    if ($action=="csv"){
+      $this->PagImp=1;
+    }
+	}
+  
+  
 //###################################################################################################################################	
 	/**
      * 
-     * @param campos    é uma lista de campos da tabela sql
+     * @param campos    é uma lista de campos da tabela sql separados por ; e podem ou não ter ` a delimita-los
      * @param accao    é o tipo de acção (listar, editar e adicionar) em que pretendemos activar/desativar o campo
 	* Activa (mostra) uma lista de campos separados por virgula para uma acção. Os campos que não estão na lsita são desativados
 	*/
 	public function setAtivaCampos($campos, $accao){
 		
-		$this->ativaCampos(0, $accao);
+		/*$this->ativaCampos(0, $accao);
 		$campos=str_replace(" ","",$campos);
+    $campos=str_replace("`","",$campos);
 		$campo=explode(",", $campos);
 		//echo "<br>campos = ";
 		//print_r($campo);
@@ -1386,7 +1596,26 @@ class TableBD{
 		}
     if ($accao=="csv"){
       $this->PagImp=1;
-    }
+    }*/
+    
+    $this->setFieldsAtive($campos, $accao);
+	}
+  
+    
+  //###################################################################################################################################
+	/**
+	* 
+	* @param value    letter with permission to be considered
+	*                       a - all has the ability to view, create new, delete and change
+  *                       u - update You can only change the data
+  *                       e - edit It only allows edition
+  *                       n - new It only allows creating new records                         
+  *                       r - read Can only see
+	* defines if by default the user has permissions to view, create new, delete and change
+  *                  
+	*/
+	public function setAutentication($value){
+		$this->autenticacao=$value;
 	}
   
   
@@ -1396,12 +1625,13 @@ class TableBD{
 	* @param valor    letra com tipo a permissão a ser considerado
 	*                       a - all tempo a possibilidade de ver, criar novo, apagar e alterar
   *                       u - update Só pode alterar os dados
+                          e - edit 
   *                       r - read só pode ver
 	* define se por defeito o user tem permissões para ver, criar novo, apagar e alterar
   *                  
 	*/
 	public function setAutenticacao($valor){
-		$this->autenticacao=$valor;
+		$this->setAutentication($valor);
 	}
    
 
