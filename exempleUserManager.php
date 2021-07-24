@@ -21,7 +21,7 @@ $table->setFieldsAtive("nome, login, pass, email, tipo, ativo", 'csv');
 $table->setFieldsAtive("nome, login, pass, email, tipo, ativo", 'edit');
 $table->setFieldList("tipo",1,"SELECT `id`, `userType` FROM `userTypes`  order by `userType` ");
 $table->setFieldList("ativo",2,"0=>inativo,1=>ativo");
-$table->setPaginaVer("viewRecordPage.php");
+$table->setLinkPage("viewRecordPage.php");
 //$tabela->setLabel('title',"Título");
 //$tabela->preparaSQLparaAccao('novo');
 //$tabela->fazlista();
