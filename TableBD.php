@@ -21,14 +21,15 @@
 //                  some comments in English
 //                  corrections in jquery
 
+//namespace classes\db;
+//use classes\db\Database;
+//use classes\simplehtmldom\simple_html_dom;
+//use DOMDocument;
+//use DomXPath;
 
 
-namespace classes\db;
-use classes\db\Database;
-use classes\simplehtmldom\simple_html_dom;
-use DOMDocument;
-use DomXPath;
-
+include_once("Database.php");
+include_once("simplehtmldom\simple_html_dom.php");
 
 
 //echo "aquui";
