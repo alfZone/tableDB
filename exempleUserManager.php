@@ -27,5 +27,5 @@ $table->setPaginaVer("viewRecordPage.php");
 //$tabela->fazlista();
 //$tabela->includes(); 
 //$tabela->formulario();
-$table->fazHTML();
+$table->showHTML();
 ?>
