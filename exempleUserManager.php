@@ -1,17 +1,21 @@
 <?php
-@session_start();
+//@session_start();
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../bootstrap.php';
+require_once 'config.php';
+//require_once __DIR__ . '/../bootstrap.php';
 
-use classes\db\Database;
-use classes\db\TableBD;
+//use classes\db\Database;
+//use classes\db\TableBD;
+
+//include_once("Database.php");
+include_once("TableBD.php");
+
 
 ini_set("error_reporting", E_ALL);
 
 
 $table= new TableBD();
-$table->setTemplate("templatePath/tables.html");
+$table->setTemplate("TableBD.html");
 $table->setTitle("Users list");
 $table->prepareTable("users");
 $table->setFieldsAtive("id, nome, login, email, ativo", 'list');
