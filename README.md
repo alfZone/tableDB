@@ -1,6 +1,8 @@
 # tabledb
  Generic class that allows managing a database table. Creates a page to perform basic operations with a table.
  
+https://github.com/alfZone/tabledb/wiki
+ 
  The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete a record and insert several records using a csv file.
  
  // REQUIRES: Database.php
