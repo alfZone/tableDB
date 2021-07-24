@@ -1,6 +1,6 @@
 <?php
-namespace classes\db;
-use PDO;
+//namespace classes\db;
+//use PDO;
 /**
  * the idea of this class is provide a interface for a mysql database.
  * @author António Lira Fernandes
