@@ -13,7 +13,7 @@ ini_set("error_reporting", E_ALL);
 $table= new TableBD();
 $table->setTemplate("templatePath/tables.html");
 $table->setTitle("Users list");
-$table->preparaTabela("users");
+$table->prepareTable("users");
 $table->setAtivaCampos("id, nome, login, email, ativo", 'ver');
 $table->setCampoPass("senha",0, "md5");
 $table->setAtivaCampos("nome, login, pass, email, tipo, ativo", 'novo');
