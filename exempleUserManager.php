@@ -11,8 +11,8 @@ ini_set("error_reporting", E_ALL);
 
 
 $table= new TableBD();
-$table->setTemplate("../templates/matrixAdmin/tables.html");
-$table->setTitulo("Lista de Utilizadores");
+$table->setTemplate("templatePath/tables.html");
+$table->setTitle("Users list");
 $table->preparaTabela("users");
 $table->setAtivaCampos("id, nome, login, email, ativo", 'ver');
 $table->setCampoPass("senha",0, "md5");
