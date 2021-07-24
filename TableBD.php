@@ -13,9 +13,8 @@
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
-// - quando não é fornecido o "novo" não devia aparecer o botão
 // - colocar o valor do código tem de ser alternativo
-
+// - tratar dos includes
 
 
 //news of version: 
@@ -69,7 +68,7 @@ class TableBD{
 // prepareSQLtoAction($action) | preparaSQLparaAccao($ accao) - Prepare a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included fields marked as visible 
 //                                in the chosen action where in action We may want to see the fields in three types of action: New (novo), Edit (editar), List (ver) Import (csv) 
 // preparaSQLupdate() - Prepare an SQL string to update fields with value
-// preparaTabela($ table) - Prepare a table, creating the list of fields in the table, determining its key, preparing a general SQL for all fields define the tags - table is
+// prepareTable($table) | preparaTabela($ table) - Prepare a table, creating the list of fields in the table, determining its key, preparing a general SQL for all fields define the tags - table is
 //                          the name of the table in the database
 // redirecciona($ url = "? do = l") - redirects to the page showing the list
 // setAutenticacao($ value) - defines if by default the user has permissions to see, create new, delete and change where: a - all time the possibility to see, create new,
@@ -78,14 +77,13 @@ class TableBD{
 //                                            action is the type of action (list, edit and add) in which we want to activate / deactivate the field and value is 1 for
 //                                            show and 0 to hide
 // setFieldsAtive($fields, $action) | setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
-//                                      in the sql table and action is the type of action (list, edit and add) in which we want enable / disable the field
+//                                      in the sql table and action is the type of action (list, edt and add) in which we want enable / disable the field
 // setCampoCalculado($ field, $ calculation) - Adds a new calculated field in which field is the name for the field we want to add and calculate is the sql formula that we are
 //                                             going to apply
-// setCampoLista($ field, $ mode, $ listSql) - Changes the field to the list type to have a description instead of the code and a combobox in the edition and introduction in 
+// setFieldList($field,$mode,$listOrSql, $hideCode=0) | setCampoLista($ field, $ mode, $ listSql) - Changes the field to the list type to have a description instead of the code and a combobox in the edition and introduction in 
 //                                             which field is the field that we want to change to the list type, mode is the way in which the fields are passed: 1 - SQL; 2 - 
-//                                             values ​​and listSql is the sql string or list of values ​​to be passed (the list has the format eg "1 => first, 2 => second, 
-//                                             3 => useful, a => like this")
-// setCampoPass($ field; $ mode = 0) - Change the field to the password type to have hidden text in the introduction, and to be encrypted before saving. It will include a mode
+//                                             values and listSql is the sql string or list of values to be passed (the list has the format eg "1 => first, 2 => second, 3 => useful, a => like this")
+// setFieldPass($field,$mode,$cipher) | setCampoPass($ field; $ mode = 0) - Change the field to the password type to have hidden text in the introduction, and to be encrypted before saving. It will include a mode
 //                                     field to determine the way in which it will be introduced so that there are no mistakes (repeat the introduction or show) and a field 
 //                                     with the number in which field is the field that we intend to change to the type and mode is to verify the correct writing of a new
 //                                     password. 0 - off; 1 - repeat the introduction; 2 - show password and cifa is the way the text is encrypted. "" - off; "md5" - md5; 
@@ -100,9 +98,9 @@ class TableBD{
 // setLabel($ field, $ value) - Assign a label to a field where the field is the field we want to change the label and the value is the text to be considered as a label
 // setLabels() - Assign field names in the database as a field label. This function is only performed when preparing the table
 // setLimites($ NumReg, $ LimInf = 0) - Sets the number of resistors in a select where $ NumReg is the number of records and $ LimInf is the initial record
-// setPaginaVer($ page) - Stores the name of the page that should be opened to show the record where the page is the address for an html page for the record
+// setLinkPage($page) | setPaginaVer($page) - Stores the name of the page that should be opened to show the record where the page is the address for an html page for the record
 // setTemplate($ path) * - Assign the template to the table. Where path is the path and the template file
-// setTitulo($ value) - sets the title of the page / or form 
+// setTitle($value) | setTitulo($ value) - sets the title of the page / or form 
 	
 	
 
@@ -127,7 +125,7 @@ class TableBD{
   private $PagVer="";
   private $PagImp=0;
   private $criterio="(1=1)";
-  private $autenticacao="r";  //defines if by default the user has permissions to:
+  private $autenticacao="a";  //defines if by default the user has permissions to:
                                   // a - all have the possibility to view, create new, delete and change
                                   // u - update Can only change data
                                   // r - read can only see
@@ -155,7 +153,7 @@ class TableBD{
     $action=str_replace("list","ver",$action);
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
-    $action=str_replace("edit","editar",$action);
+    $action=str_replace("edt","editar",$action);
     /*if ((($action=="novo")||($action=="editar")) && $value==1){
       //echo "acao=$action";
       $this->autenticacao="a";
@@ -1268,6 +1266,7 @@ class TableBD{
 			//$resto= ") VALUES (";
 			$sep="";
 			foreach($this->camposLista as $campo){
+          //print_r($campo);
 				if ($campo["editar"]==1){
           $campos.=$sep . $campo['Field'];
           $sep=",";
@@ -1447,7 +1446,36 @@ class TableBD{
       //echo $resposta;
 			return $resposta;
 		}    
-        
+       
+  
+       //###################################################################################################################################	
+		/**
+		* 
+	 	* @param $table    the name of the database table you want to use
+	 	*
+		* Prepare a table, create the table's field list, determine its key, prepare a general SQL for all fields
+		*/
+	function prepareTable($table){
+		//prepara o html para gerir a tabela
+
+		//prepara form de edição
+		//prrara form de visualização
+		$this->tabela=$table;
+		$this->preparaSQLGeral();
+		
+		$sql="DESCRIBE  $table ";
+		//echo $sql;
+		$this->camposLista=$this->consultaSQL($sql);
+		//$v=$this->camposLista;
+		//print_r($this->camposLista);
+		$this->determinaChave();
+		$this->setLabels();
+		$this->ativaCampos(1,'ver');
+		$this->ativaCampos(1,'novo');  
+		$this->ativaCampos(1,'editar');
+		
+	}
+  
         //###################################################################################################################################	
 		/**
 		* 
@@ -1458,7 +1486,7 @@ class TableBD{
 		*/
 	function preparaTabela($tabela){
 		//prepara o html para gerir a tabela
-
+/*
 		//prepara form de edição
 		//prrara form de visualização
 		$this->tabela=$tabela;
@@ -1475,6 +1503,8 @@ class TableBD{
 		$this->ativaCampos(1,'novo');  
 		$this->ativaCampos(1,'editar');
 		
+  */  
+    $this->prepareTable($tabela);
 	}
  
   	 
@@ -1510,7 +1540,7 @@ class TableBD{
     $action=str_replace("list","ver",$action);
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
-    $action=str_replace("edit","editar",$action);
+    $action=str_replace("edt","editar",$action);
     
     $i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
@@ -1559,7 +1589,7 @@ class TableBD{
     $action=str_replace("list","ver",$action);
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
-    $action=str_replace("edit","editar",$action);
+    $action=str_replace("edt","editar",$action);
     
 		$this->fieldsActive(0, $action);
 		$fields=str_replace("`","",$fields);
@@ -1676,6 +1706,58 @@ class TableBD{
 				$i++;
 		}
 	}	
+  
+  //###################################################################################################################################	
+	/**
+     * @param $field      is the field we want to change to list type.
+		 * @param $mode       how the field list should be constructed. 1 - SQL; 2 - values.
+		 * @param $listOrSql  listOrSql is the sql string or list of values to be passed (the list has the format eg: "1=>first,2=>second,3=>last,a=>like this")
+     * @param $hideCode   by default (0) then in the text that replaced the code, the code between [] is added. example: Show [1]
+     * 
+	* Change the field to list type to have a descriptive instead of the code and a combobox for editing and input and a text for view
+	*/
+	public function setFieldList($field,$mode,$listOrSql, $hideCode=0){
+		$i=0;
+		//echo "<br> campo=$campo accao=$modo e valor=$listaSql";
+		foreach($this->camposLista as $campoaux){
+				if ($campoaux['Field']==$field){
+					//echo "entrie";
+          $this->camposLista[$i]['hideCode']=$hideCode;
+					$this->camposLista[$i]['Type']="lst";
+					if ($mode=="1"){
+						// preenceh com sql
+						$listanova=new TableBD();
+						$lista=$listanova->consultaSQL($listOrSql);
+					} else {
+            //echo "<br>listasql=$listaSql";
+						$lista1=explode(",", $listOrSql);
+						$j=0;
+						//echo "<br><br><br><br><br><br><br><br><br>";
+						//print_r($lista1);
+						foreach ($lista1 as $ls){
+							$par=explode("=>", $ls);
+							$aux['id']=$par[0];
+							$aux['tx']=$par[1];
+							$lista[$j]= $aux;
+							$j++;
+						}
+						//$lista= array($listaSql);
+            //echo "<br><br>";
+						//print_r($lista);
+					}
+					//print_r($lista);
+					//echo "<br>";
+          //arsort($lista);
+					$this->camposLista[$i]['lista']=$lista;
+				}
+				
+				$i++;
+		}
+	}
+  
+  
+  
+  
 	//###################################################################################################################################	
 	/**
      * @param campo    é o campo que pretendemos alterar para o tipo lista
@@ -1685,7 +1767,10 @@ class TableBD{
 	* Altera o campo para o tipo lista para ter um descritivo em vez do código e uma combobox na edição e introdução
 	*/
 	public function setCampoLista($campo,$modo,$listaSql){
-		$i=0;
+    
+    $this->setFieldList($campo,$modo,$listaSql);
+    
+		/*$i=0;
 		//echo "<br> campo=$campo accao=$modo e valor=$listaSql";
 		foreach($this->camposLista as $campoaux){
 				if ($campoaux['Field']==$campo){
@@ -1719,8 +1804,38 @@ class TableBD{
 				}
 				
 				$i++;
+		}*/
+	}
+  
+  	//###################################################################################################################################	
+	/**
+     * @param campo   is the field we want to change to type password
+		 * @param mode    mode of verification of correct writing of new password. 0 - off; 1 - repeat the introduction; 2 - show password
+		 * @param cipher  Change the field to type password to have hidden text in the intro, and be encrypted before recording. It will include 
+     *                a mode field to determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field 
+     *                with the cipher
+     * 
+	* Change the field to type password to have hidden text in the intro, and be encrypted before recording. It will include a mode field to 
+  * determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field with the cipher
+	*/
+	public function setFieldPass($field,$mode,$cipher){
+		$i=0;
+		//echo "<br> campo=$campo accao=$accao e valor=$valor";
+		foreach($this->camposLista as $campoaux){
+				if ($campoaux['Field']==$field){
+					//echo "entrie";
+					$this->camposLista[$i]['Type']="pass";
+					$this->camposLista[$i]['modo']=$mode;
+					$this->camposLista[$i]['cifra']=$cipher;
+				}
+				
+				$i++;
 		}
 	}	
+  
+  
+  
+  
 		//###################################################################################################################################	
 	/**
      * @param campo    é o campo que pretendemos alterar para o tipo password
@@ -1731,7 +1846,7 @@ class TableBD{
 	* para determinar a forma com será introduzido para na haver enganos (repetir a introdução ou mostrar) e um campo com a cifra
 	*/
 	public function setCampoPass($campo,$modo,$cifra){
-		$i=0;
+		/*$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
 				if ($campoaux['Field']==$campo){
@@ -1742,7 +1857,8 @@ class TableBD{
 				}
 				
 				$i++;
-		}
+		}*/
+    $this->setFieldPass($campo,$modo,$cifra);
 	}	
 
   
@@ -1824,6 +1940,19 @@ class TableBD{
 		
 	}	
  
+  //###################################################################################################################################
+	/**
+	* 
+	* @param $page    link to a page to view a record. send the key
+	*
+	* Saves the name of the page that will show the record
+	*/
+	public function setLinkPage($page){
+		$this->PagVer=$page;
+	}
+
+
+  
  //###################################################################################################################################
 	/**
 	* 
@@ -1832,7 +1961,7 @@ class TableBD{
 	* Guarda o nome da página que mostra o artigo
 	*/
 	public function setPaginaVer($pagina){
-		$this->PagVer=$pagina;
+		$this->setLinkPage($pagina);
 	}
 
 
@@ -1872,6 +2001,18 @@ class TableBD{
 		$this->textos[$texto]=$valor;
 	} 
   
+ //###################################################################################################################################
+	/**
+	 * 
+	 * @param value   is the string with the text we want to have in the table list
+	 *
+	 * define the title of the page/or form
+	 */
+  public function setTitle($value){
+    
+    $this->setTextos("titulo",$value);      
+  } 
+  
   
 //###################################################################################################################################
 	/**
@@ -1882,7 +2023,7 @@ class TableBD{
 	 */
   public function setTitulo($valor){
     
-    $this->setTextos("titulo",$valor);      
+    $this->setTitle($valor);      
   }
 	  
 }
