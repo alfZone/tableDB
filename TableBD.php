@@ -24,8 +24,8 @@
 //namespace classes\db;
 //use classes\db\Database;
 //use classes\simplehtmldom\simple_html_dom;
-//use DOMDocument;
-//use DomXPath;
+use DOMDocument;
+use DomXPath;
 
 
 include_once("Database.php");
