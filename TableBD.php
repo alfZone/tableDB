@@ -735,7 +735,7 @@ class TableBD{
     
     
     $accao="editar";
-    if ($toDo="a"){
+    if ($toDo=="a"){
        $accao="novo";
     }
       
@@ -744,7 +744,9 @@ class TableBD{
    //preparing fields  
    foreach($this->camposLista as $campo){
 		//print_r($campo);
+     
 		//echo "<br>_____________________________<br>";
+     //echo "<br>accao:" . $accao ;
 		if ($campo[$accao]==1){
 			$aux="";
       if (isset($campo['default'])){
@@ -1598,6 +1600,7 @@ class TableBD{
     $action=str_replace("list","ver",$action);
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
+    $action=str_replace("edit","editar",$action);
     $action=str_replace("edt","editar",$action);
     
 		$this->fieldsActive(0, $action);
