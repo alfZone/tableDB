@@ -30,7 +30,7 @@
  The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete a record and insert several records using a csv file.
  
  This class handles all file operations. It presents several methods for manipulating the file system. The methods are in Portuguese.
-  Documentation can be found at https://github.com/alfZone/file/tree/main/documentation and https://github.com/alfZone/tabledb/wiki
+  Documentation can be found at https://github.com/alfZone/tabledb/tree/main/documentation and https://github.com/alfZone/tabledb/wiki
 
 2 - What's new
 ==============
@@ -70,7 +70,7 @@
 7 - Documentation
 =================
 
-  Documentation can be found at https://github.com/alfZone/file/tree/main/documentation and https://github.com/alfZone/tabledb/wiki
+  Documentation can be found at https://github.com/alfZone/tabledb/tree/main/documentation and https://github.com/alfZone/tabledb/wiki
 
 8 - Author
 ==========
