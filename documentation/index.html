@@ -11,79 +11,69 @@
     <h2>methods</h2>
     <p>
       <pre>  
-      LeFicheiro($ficheiro) - (pt) lé um ficheiro que é passado pelo caminho. $ficheiro é o nome mais o caminho. Devolve uma string com o conteudo do ficheiro.
-                              (en) reads a file that is passed by the path. $file is the name with the path. Returns a string with the content of the file.
-// add_lst($valor) - Adiciona novo ficheiro na lista de ficheiros da classe. $valor é um novo caminho de uma ficheiro
-// add_protocolos($valor) - Adiciona novo protocolos na listas de protocolos da classe. $valor é um novo protocolo.
-// chgrp($dir,$grupo) - Muda o dono de uma directoria de modo recursivo. $dir é a directoria. $grupo é o grupo em que pretendemos colocar os
-//                      ficheiros.
-// chown($dir,$dono) - muda o dono de uma directoria de modo recursivo. $dir é a directoria. $dono é o utilizador em que pretendemos colocar os
-//                      ficheiros.
-// deleteFiles($listaDeFicheiros) - apaga ficheiros de acordo com uma string com o critério. $listaDeFicheiros - é uma string com um 
-//                                  criterio que decreve os ficheiros a serem apagados
-    dir($dir) - (pt) mosta o conteudo de um directório. $dir é o caminho até ao directório que pretendemos obter a sua lista de ficheiros
-                (en) shows the contents of a directory. $dir is the path to the directory we want to get your file list
-// eLocal($caminho) - verifica se um caminho corresponde a um ficheiro local que não está associado a nenhum protocolo remoto. $caminho é o
-//                    caminho até ao ficheiro.
-// existeDir($caminho) - verifica se um caminho corresponde a uma directoria. $caminho é caminho até ao directório que pretendemos obter a 
-//                       sua lista de ficheiros
-// existeFicheiro($caminho) - verifica se um caminho corresponde a um ficheiro. $caminho é caminho até ao ficheiro. Pode ser absoluto ou 
-//                            relativo ao local onde está a ser executado o ficheiro
-// getCam() - devolve o caminho + ficheiro que resultaram da ultima operação
-// getEst() - devolve o estado do objecto depois de execuado a última operação
-// getFic() - devolve o ficheiro usado na última operação
-// getFileType($fileName) - Devolve o tipo de ficheiro. $fileName é o caminho e o ficheiro que queremos perceber o tipo
-// getLst() - Devolve a lista de ficheiros que resultaram da última operação
-// getMsg() - Devolve uma mensagem que resultou da última operação. A mensagem será uma string genérica que depois deve ser traduzida para 
-//            uma lingua.
-// getNome() - devolve o nome do ficheiro que resulta da operação anterior
-// get_lst($i) - devolve o elemento da lista de ficheiros na posição $i
-// get_protocolos($i) - devolve o protocolo na posição $i da lista. $i é a posição no array.
-// gravaFicheiroTexto($ficheiro,$texto) - guarda um ficheiro que é passado. $ficheiro é o nome mais o caminho para o ficheiro. $texto é o 
-//                                        conteudo a ser guardado no ficheiro
-// limpaCaca($string) - Limpa os caracteres especiais nos nomes dos ficheiros. $string é o texto em que pretendemos substituir caracteres
-//                      acentuados e por as mesmas letras sem acentos, o ç pelo c e os espaços por _. Devolve uma string "limpa".
-// makeDir($caminho) - cria directorios até ficarmos com a estrutura de ficheiros que é passada. Por exemplo se tivermos uma árvore até 
-//                     c:\aa\bb e enviarmos um caminho c:\aa\bb\cc\dd será criado o directório cc e o directorio dd. $caminho é o caminho
-//                     com a(s) nova(s) pasta(s) a ser(em) criada(s)
-// makeDirold($caminho) - DECREPTED
-// moveDir($origem, $destino) - Mover uma directoria
-// num_lst() - Devolve o número de ficheiros que existe na lista
-// num_protocolos() - devolve o número de elementos que existem na lista de protocolos
-// pos_lst($valor) - devolve a posicao de um elemento na lista de ficheiros. Se não existir devolve -1. $valor é o ficheiro que queremos 
-//                   pesquisar
-// pos_protocolos($valor) - devolve a posicao de um elemento na lista de protocolos. Se não existir devolve -1. $valor é o protocolo que 
-//                          queremos pesquisar
-// putArrayTiposAceites($ArrayTipos) - guardo o tipo de ficheiros que podem ser manipulados. $ArrayTipos é um array de tipos de ficheiros 
-//                                     como por exemplo: array("image/gif","image/pjpeg","image/x-png","image/bmp",
-//                                     "application/x-zip-compressed","application/octet-stream")
-// putCam($valor) - Guarda um caminho. $valor é um novo caminho
-// putFic($valor) - Guarda um nome de uma ficheiro. $valor é um novo ficheiro.
-// put_lst($valor,$i) - guarda na lista (lst) na posição i o valor. $valor é o novo valor. $i é a posicao na qual pretendemos escrever
-// put_protocolos($valor,$i) - guarda um protocolos na posição i. $valor é o novo valor para o protocolo. $i é a posicao na qual 
-//                             pretendemos escrever
-// removeDir($dir) - apaga um directório que pode conter ficheiros e outros directórios. $dir é o caminho até ao directório que pretendemos 
-//                   apagar
-// rm($fileglob) - rm() -- Vigorously erase files and directories. Adaptado do script de bishop in http://pt.php.net/function.unlink.
-//                 $fileglob mixed If string, must be a file name (foo.txt), glob pattern (*.txt), or directory name. If array, must be an 
-//                 array of file names, glob patterns, or directories.
-// soDir($fic) - dado um caminho+ficheiro devolve só o caminho. $fic  é o caminho + ficheiro que pretendemos separar.
-// temProtocolo($caminho) - verifica se um caminho começa com a indicação de um protocolo. $caminho é o string do caminho que pretendemos
-//                          investigar. Devolve true or false
-// toString() - descreve o objecto
-// unzips($ficheiro, $destino='', $informa=false) - serve para descompactar um ficheiro e devolve uma confirmação se tudo correr bem. Um 
-//                                                  erro de algo falhar. Devolve um array com quatro dimensões: ["msg"] - código da 
-//                                                  mensagem, ["est"] - estado da operação, ["cam"] - caminho onde foram guardados os 
-//                                                  ficheiros, ["lst"] - array com a lista de ficheiros descompactados. $ficheiro é o 
-//                                                  caminho + ficheiro que pretendemos descompactar. $destino é o directório destino dos 
-//                                                  ficheiros que serão descompactados. Se não for passado nenhum destino o ficheiro será 
-//                                                  descompactado para o mesmo local do ficheiro compactado. $informa define se devem ser 
-//                                                  devolvidas informações sobre a descompactação. Por defeito não serão devolvidas 
-//                                                  nenhumas informações.
-// uploadfile($controloOrigem, $destino) - faz o envio de um ficheiro e retorna o resultado que é um array com 3 dimensões: ["msg"] - código
-//                                         da mensagem, ["est"] - estado da operação, ["fic"] - caminho + nome do ficheiro do upload. 
-//                                         $controloOrigem é o nome do controlo onde é enviado o nome do ficheiro de origem. $destino é o 
-//                                         directório onde queremos alojamos o ficheiro como por exemplo: D:\\moodledata\\assessmentpack\\
+// METHODS
+// __construct() - Class Constructor
+// fieldsActive($value, $action) | ativaCampos($ value, $ action) - Makes visible the fields to be displayed by passing the value = 1 (or not passing a value) and hides it by passing the value = 0. When value //                                  passed is 1 the field is active (visible) and when the field is 0 the field is disabled. Action defines the behavior of seeing, new, 
+//                                  editing.
+// consultaSQL($ sql) - given a sql it returns a list of data.
+// determinaChave() - Analyzes the structure of the database table and determines which is the key
+// devolveValorDaLista($ field, $ key) - Find the value of a field for a given key where the field is the name of the field to be consulted the list of values and key is the id //                                       of the value to be searched.
+// encriptar($ text, $ cipher = "md5") - encrypts a text according to a past method where text is the text to be encoded and encryption is the type of cipher used
+// showHTML() | fazHTML() - Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to 
+//             make decisions
+// fazLista() - Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows a
+//              set of records (25 by default) and allows browsing pages
+// formConfirmacaoApagar($ record) - Displays a confirmation to delete the record
+// formulario($ record = "") - Displays an HTML form to edit or insert a record
+// getCampoValor($ campo) - returns an appropriate string to construct an SQL field with quotes and without quotes in which field and an array with the information of a field, //                          includes: label, Field, Type, value and etc
+// getCampos() - Returns the list of fields in the table
+// getChave() - reads the key parameter of the record sent by the HTML form and which corresponds to the value identified as key in the analysis of the table
+// getDados($ key) - given a key value it returns the results
+// getDadosForm() - Search $ _REQUEST for the fields to be read. Those with value will be read.
+// getDo() - read the 'do' parameter of the HTML form
+// getTextos($ key) - returns a pre-entered text where key is the name of the field we want to get the value
+// includes() - Set of includes necessary for the format of the list of records in the table
+// inputHTML($ field, $ value) - returns the appropriate html to construct a field of the type passed in the Type attribute. field is an array with the information of a
+//                               field, includes: label, Field, Type and etc and value is the default value to be included in the field
+// preparaSQLGeral() - Prepare a string with the table's SQL statement (of type SELECT * FROM Table). Included all fields
+// preparaSQLdelete() - Prepare an SQL string to delete the record
+// preparaSQLinsert() - Prepare an SQL string to insert the fields with value
+// prepareSQLtoAction($action) | preparaSQLparaAccao($ accao) - Prepare a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included fields marked as visible 
+//                                in the chosen action where in action We may want to see the fields in three types of action: New (novo), Edit (editar), List (ver) Import (csv) 
+// preparaSQLupdate() - Prepare an SQL string to update fields with value
+// prepareTable($table) | preparaTabela($ table) - Prepare a table, creating the list of fields in the table, determining its key, preparing a general SQL for all fields define the tags - table is
+//                          the name of the table in the database
+// redirecciona($ url = "? do = l") - redirects to the page showing the list
+// setAutenticacao($ value) - defines if by default the user has permissions to see, create new, delete and change where: a - all time the possibility to see, create new,
+//                            delete and change, u - update Can only change data, r - read can only see,  e - edit It only allows edition,  n - new It only allows creating new records     
+// setFieldAtive($field, $action, $value) | setAtivaCampo($ campo, $ accao, $ valor) - Activates / deactivates (shows / hides) a field for an action where the field is the field we want to activate / deactivate
+//                                            action is the type of action (list, edit and add) in which we want to activate / deactivate the field and value is 1 for
+//                                            show and 0 to hide
+// setFieldsAtive($fields, $action) | setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
+//                                      in the sql table and action is the type of action (list, edt and add) in which we want enable / disable the field
+// setCampoCalculado($ field, $ calculation) - Adds a new calculated field in which field is the name for the field we want to add and calculate is the sql formula that we are
+//                                             going to apply
+// setFieldList($field,$mode,$listOrSql, $hideCode=0) | setCampoLista($ field, $ mode, $ listSql) - Changes the field to the list type to have a description instead of the code and a combobox in the edition and introduction in 
+//                                             which field is the field that we want to change to the list type, mode is the way in which the fields are passed: 1 - SQL; 2 - 
+//                                             values and listSql is the sql string or list of values to be passed (the list has the format eg "1 => first, 2 => second, 3 => useful, a => like this")
+// setFieldPass($field,$mode,$cipher) | setCampoPass($ field; $ mode = 0) - Change the field to the password type to have hidden text in the introduction, and to be encrypted before saving. It will include a mode
+//                                     field to determine the way in which it will be introduced so that there are no mistakes (repeat the introduction or show) and a field 
+//                                     with the number in which field is the field that we intend to change to the type and mode is to verify the correct writing of a new
+//                                     password. 0 - off; 1 - repeat the introduction; 2 - show password and cifa is the way the text is encrypted. "" - off; "md5" - md5; 
+//                                     "sha1" - sha1; "base64" - base64
+// setCampoImagem($ field, $ path, $ percentage) - Change the field to the image type to be seen in the list in a special way where field is the field we want to change to the 
+//                                                 image type path is the path to be added to the image to reach the file and percentage is the% of the height of the image
+// setCriterio($ criterio) - defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
+// setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
+//                                      value is the initial value to be considered
+// setHTMLid($ id, $ value) - Writes in an HTML element of the page by default, which has the id. id is the id of an HTML tag and value is a string with the value to be loaded
+//                            into the element
+// setLabel($ field, $ value) - Assign a label to a field where the field is the field we want to change the label and the value is the text to be considered as a label
+// setLabels() - Assign field names in the database as a field label. This function is only performed when preparing the table
+// setLimites($ NumReg, $ LimInf = 0) - Sets the number of resistors in a select where $ NumReg is the number of records and $ LimInf is the initial record
+// setLinkPage($page) | setPaginaVer($page) - Stores the name of the page that should be opened to show the record where the page is the address for an html page for the record
+// setTemplate($ path) * - Assign the template to the table. Where path is the path and the template file
+// setTitle($value) | setTitulo($ value) - sets the title of the page / or form 
       </pre>
     </p>
     
