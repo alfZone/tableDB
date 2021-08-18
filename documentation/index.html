@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head lang="pt">
+    <meta charset=”UTF-8”>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <h1>General Propose</h1>
+    <p>This class handles all file operations</p>
+    
+    <h2>methods</h2>
+    <p>
+      <pre>  
+      LeFicheiro($ficheiro) - (pt) lé um ficheiro que é passado pelo caminho. $ficheiro é o nome mais o caminho. Devolve uma string com o conteudo do ficheiro.
+                              (en) reads a file that is passed by the path. $file is the name with the path. Returns a string with the content of the file.
+// add_lst($valor) - Adiciona novo ficheiro na lista de ficheiros da classe. $valor é um novo caminho de uma ficheiro
+// add_protocolos($valor) - Adiciona novo protocolos na listas de protocolos da classe. $valor é um novo protocolo.
+// chgrp($dir,$grupo) - Muda o dono de uma directoria de modo recursivo. $dir é a directoria. $grupo é o grupo em que pretendemos colocar os
+//                      ficheiros.
+// chown($dir,$dono) - muda o dono de uma directoria de modo recursivo. $dir é a directoria. $dono é o utilizador em que pretendemos colocar os
+//                      ficheiros.
+// deleteFiles($listaDeFicheiros) - apaga ficheiros de acordo com uma string com o critério. $listaDeFicheiros - é uma string com um 
+//                                  criterio que decreve os ficheiros a serem apagados
+    dir($dir) - (pt) mosta o conteudo de um directório. $dir é o caminho até ao directório que pretendemos obter a sua lista de ficheiros
+                (en) shows the contents of a directory. $dir is the path to the directory we want to get your file list
+// eLocal($caminho) - verifica se um caminho corresponde a um ficheiro local que não está associado a nenhum protocolo remoto. $caminho é o
+//                    caminho até ao ficheiro.
+// existeDir($caminho) - verifica se um caminho corresponde a uma directoria. $caminho é caminho até ao directório que pretendemos obter a 
+//                       sua lista de ficheiros
+// existeFicheiro($caminho) - verifica se um caminho corresponde a um ficheiro. $caminho é caminho até ao ficheiro. Pode ser absoluto ou 
+//                            relativo ao local onde está a ser executado o ficheiro
+// getCam() - devolve o caminho + ficheiro que resultaram da ultima operação
+// getEst() - devolve o estado do objecto depois de execuado a última operação
+// getFic() - devolve o ficheiro usado na última operação
+// getFileType($fileName) - Devolve o tipo de ficheiro. $fileName é o caminho e o ficheiro que queremos perceber o tipo
+// getLst() - Devolve a lista de ficheiros que resultaram da última operação
+// getMsg() - Devolve uma mensagem que resultou da última operação. A mensagem será uma string genérica que depois deve ser traduzida para 
+//            uma lingua.
+// getNome() - devolve o nome do ficheiro que resulta da operação anterior
+// get_lst($i) - devolve o elemento da lista de ficheiros na posição $i
+// get_protocolos($i) - devolve o protocolo na posição $i da lista. $i é a posição no array.
+// gravaFicheiroTexto($ficheiro,$texto) - guarda um ficheiro que é passado. $ficheiro é o nome mais o caminho para o ficheiro. $texto é o 
+//                                        conteudo a ser guardado no ficheiro
+// limpaCaca($string) - Limpa os caracteres especiais nos nomes dos ficheiros. $string é o texto em que pretendemos substituir caracteres
+//                      acentuados e por as mesmas letras sem acentos, o ç pelo c e os espaços por _. Devolve uma string "limpa".
+// makeDir($caminho) - cria directorios até ficarmos com a estrutura de ficheiros que é passada. Por exemplo se tivermos uma árvore até 
+//                     c:\aa\bb e enviarmos um caminho c:\aa\bb\cc\dd será criado o directório cc e o directorio dd. $caminho é o caminho
+//                     com a(s) nova(s) pasta(s) a ser(em) criada(s)
+// makeDirold($caminho) - DECREPTED
+// moveDir($origem, $destino) - Mover uma directoria
+// num_lst() - Devolve o número de ficheiros que existe na lista
+// num_protocolos() - devolve o número de elementos que existem na lista de protocolos
+// pos_lst($valor) - devolve a posicao de um elemento na lista de ficheiros. Se não existir devolve -1. $valor é o ficheiro que queremos 
+//                   pesquisar
+// pos_protocolos($valor) - devolve a posicao de um elemento na lista de protocolos. Se não existir devolve -1. $valor é o protocolo que 
+//                          queremos pesquisar
+// putArrayTiposAceites($ArrayTipos) - guardo o tipo de ficheiros que podem ser manipulados. $ArrayTipos é um array de tipos de ficheiros 
+//                                     como por exemplo: array("image/gif","image/pjpeg","image/x-png","image/bmp",
+//                                     "application/x-zip-compressed","application/octet-stream")
+// putCam($valor) - Guarda um caminho. $valor é um novo caminho
+// putFic($valor) - Guarda um nome de uma ficheiro. $valor é um novo ficheiro.
+// put_lst($valor,$i) - guarda na lista (lst) na posição i o valor. $valor é o novo valor. $i é a posicao na qual pretendemos escrever
+// put_protocolos($valor,$i) - guarda um protocolos na posição i. $valor é o novo valor para o protocolo. $i é a posicao na qual 
+//                             pretendemos escrever
+// removeDir($dir) - apaga um directório que pode conter ficheiros e outros directórios. $dir é o caminho até ao directório que pretendemos 
+//                   apagar
+// rm($fileglob) - rm() -- Vigorously erase files and directories. Adaptado do script de bishop in http://pt.php.net/function.unlink.
+//                 $fileglob mixed If string, must be a file name (foo.txt), glob pattern (*.txt), or directory name. If array, must be an 
+//                 array of file names, glob patterns, or directories.
+// soDir($fic) - dado um caminho+ficheiro devolve só o caminho. $fic  é o caminho + ficheiro que pretendemos separar.
+// temProtocolo($caminho) - verifica se um caminho começa com a indicação de um protocolo. $caminho é o string do caminho que pretendemos
+//                          investigar. Devolve true or false
+// toString() - descreve o objecto
+// unzips($ficheiro, $destino='', $informa=false) - serve para descompactar um ficheiro e devolve uma confirmação se tudo correr bem. Um 
+//                                                  erro de algo falhar. Devolve um array com quatro dimensões: ["msg"] - código da 
+//                                                  mensagem, ["est"] - estado da operação, ["cam"] - caminho onde foram guardados os 
+//                                                  ficheiros, ["lst"] - array com a lista de ficheiros descompactados. $ficheiro é o 
+//                                                  caminho + ficheiro que pretendemos descompactar. $destino é o directório destino dos 
+//                                                  ficheiros que serão descompactados. Se não for passado nenhum destino o ficheiro será 
+//                                                  descompactado para o mesmo local do ficheiro compactado. $informa define se devem ser 
+//                                                  devolvidas informações sobre a descompactação. Por defeito não serão devolvidas 
+//                                                  nenhumas informações.
+// uploadfile($controloOrigem, $destino) - faz o envio de um ficheiro e retorna o resultado que é um array com 3 dimensões: ["msg"] - código
+//                                         da mensagem, ["est"] - estado da operação, ["fic"] - caminho + nome do ficheiro do upload. 
+//                                         $controloOrigem é o nome do controlo onde é enviado o nome do ficheiro de origem. $destino é o 
+//                                         directório onde queremos alojamos o ficheiro como por exemplo: D:\\moodledata\\assessmentpack\\
+      </pre>
+    </p>
+    
+    <h2>Known Issues</h2>
+    <p>
+      
+    </p>
+  </body>
+</html>
