@@ -80,12 +80,39 @@
 // setTitle($value) | setTitulo($ value) - sets the title of the page / or form 
       </pre>
     </p>
+    <h2>Install</h2>
+    <p>Download files to a server folder. The Database and simple_html_dom classes must be included in the TableBD class</p>
+    <pre>
+    
+    </pre>
     <h2>Basic Configuration</h2>
     <p>To use the class, an external file must be created with a set of configurations to access and manage the database table.
     Below we present the basic configuration explained line by line.  
+
     </p>
+    <p>The php file to be created, as in the example exempleUserManager.php also included in the package</p>
     <pre>
+    $table= new TableBD();                                                    //create a object TableDB, named table
+    $table->setTemplate("templatePath/tables.html");                          //define the temple path
+    $table->setTitle("Users List");                                           //set a page title
+    $table->prepareTable("users");                                            //prepare a database table named users 
+    $table->setFieldsAtive("id, nome, login, email, ativo", 'see');           //set the fields you want to see in the list    
+    $table->setFieldPass("senha",0, "md5");                                   //define field name senha (in portuguese password) as a password, hidding the file when typing
+                                                                              //and encriped when saveded in database
+    $table->setFieldsAtive("nome, login, pass, email, tipo, ativo", 'new');   //set the fields you want fill when creating a new record
+    $table->setFieldsAtive("nome, login, pass, email, tipo, ativo", 'csv');   //set the fields you want fill when importing a set of records
+    $table->setFieldsAtive("nome, login, pass, email, tipo, ativo", 'edit');  //set the fields you want fill when editing a record
+ 
+    $table->setFieldList("tipo",1,"SELECT `id`,`userType` FROM `userTypes` order by `userType`");
+    $table->setFieldList("ativo",2,"0=>inativo,1=>ativo");
+    $table->setLinkPage("viewRecordPage.php");
+ //$tabela->setLabel('title',"Título");
+ //$tabela->preparaSQLparaAccao('novo');
+ //$tabela->fazlista();
+ //$tabela->includes(); 
+ //$tabela->formulario();
     
+    $table->showHTML();                                                       //prepare and show a html page with the resolts
     </pre>
     <h2>Known Issues</h2>
     <p>
