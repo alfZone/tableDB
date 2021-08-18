@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.4
+ * @version 8.4.1
  * @updated 27-06-2021 21:50:00
  */
 
@@ -13,23 +13,21 @@
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
-// - colocar o valor do código tem de ser alternativo
-// - tratar dos includes
+// - tratar dos includes - passam a comentários
 
 
 //news of version: 
 //                  some comments in English
 //                  corrections in jquery
 
-//namespace classes\db;
-//use classes\db\Database;
-//use classes\simplehtmldom\simple_html_dom;
+
+
+namespace classes\db;
+use classes\db\Database;
+use classes\simplehtmldom\simple_html_dom;
 use DOMDocument;
 use DomXPath;
 
-
-include_once("Database.php");
-include_once("simplehtmldom\simple_html_dom.php");
 
 
 //echo "aquui";
@@ -239,6 +237,7 @@ class TableBD{
 		$devolve=$chave;
 		foreach($this->camposLista as $campo1){
 			if ($campo1['Field']==$campo){
+        //print_r($campo1);
 				foreach($campo1['lista'] as $linha){
 					$i=0;
 					$proximo=0;
@@ -248,7 +247,12 @@ class TableBD{
 							$proximo=1;
 						}
 						if (($proximo==1) && ($i==1)){
-							$devolve=$x_value . " [" . $chave ."]";
+              if ($campo1['hideCode']==1){
+                $devolve=$x_value;
+              }else{
+                $devolve=$x_value . " [" . $chave ."]";
+              }
+							
 						}
 						$i++;
 					}
@@ -616,6 +620,7 @@ class TableBD{
                   
                 break;
         case "u":
+        case "e":
                 foreach($html->find('.bedit') as $e)
                   $e->onClick="preUp(" . $chave . ")";
                   $text .="<td class='buttons'>" . $ver. $e->outertext ."</td></tr>";
@@ -916,6 +921,9 @@ class TableBD{
 		//print_r($this->camposLista);
 	} 
 	
+  
+
+  
 	//###################################################################################################################################	
 	/**
 	 *
