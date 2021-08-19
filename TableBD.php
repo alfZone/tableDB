@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.4.1
+ * @version 8.4.2
  * @updated 27-06-2021 21:50:00
  */
 
@@ -391,72 +391,7 @@ class TableBD{
 		
     $this->showHTML();
     
-    /*//lê o parametro 'do' do form HTML
-		$faz=$this->getDo();
-    //echo "<br>Faz: $faz<br><br>";
-    
-		switch($faz){
-				//lista de valores
-			case "":
-			case "l":
-				$this->preparaSQLparaAccao('ver');
-				$this->fazlista();
-        $this->includes();
-				break;
-        //prepara a importação
-      case "pcsv":
-      case "pimp":
-        $this->includes();
-        $this->formImporta();
-        break;
-      case "csv":
-      case "imp":
-        $this->importarCSV();
-       
-        $this->redirecciona();
-        break;
-				//formulario para editar
-			case "e":
-			case "edit":
-				//echo "recebi";
-        //$chave=$this->getChave();
-        $chave=$this->getId();
-        //echo $chave;
-				$registo=$this->getDadosUpdate($chave);
-        //print_r($registo);
-        //return $registo;
-        echo $myJSON = json_encode($registo);
-				//$this->includes(); 
-				//$this->formulario($registo);
-				break;
-				//formulário para introduzir os valores
-			case "ci":
-				//efectuar a inserção
-        //echo "ci";
-				$this->getDadosForm();
-				$sql= $this->preparaSQLinsert();
-				//echo $sql;
-			  //$this->consultaSQL($sql);
-        $this->ExecuteSQL($sql);
-				$this->redirecciona();
-				break;
-			case "ce":
-				//efectuar a edição
-				$this->getDadosForm();
-				$sql= $this->preparaSQLupdate();
-				//echo $sql;
-				$this->ExecuteSQL($sql);
-				$this->redirecciona();
-				break;
-			case "cd":
-				//efectuar o apagar
-				$this->getDadosForm();
-				$sql= $this->preparaSQLdelete();
-				//echo $sql;
-				$this->ExecuteSQL($sql);
-				$this->redirecciona();
-				break;
-		}*/
+ 
 	}
 
   
@@ -1497,24 +1432,7 @@ class TableBD{
 		*/
 	function preparaTabela($tabela){
 		//prepara o html para gerir a tabela
-/*
-		//prepara form de edição
-		//prrara form de visualização
-		$this->tabela=$tabela;
-		$this->preparaSQLGeral();
-		
-		$sql="DESCRIBE  $tabela ";
-		//echo $sql;
-		$this->camposLista=$this->consultaSQL($sql);
-		//$v=$this->camposLista;
-		//print_r($this->camposLista);
-		$this->determinaChave();
-		$this->setLabels();
-		$this->ativaCampos(1,'ver');
-		$this->ativaCampos(1,'novo');  
-		$this->ativaCampos(1,'editar');
-		
-  */  
+
     $this->prepareTable($tabela);
 	}
  
@@ -1782,41 +1700,7 @@ class TableBD{
     
     $this->setFieldList($campo,$modo,$listaSql);
     
-		/*$i=0;
-		//echo "<br> campo=$campo accao=$modo e valor=$listaSql";
-		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$campo){
-					//echo "entrie";
-					$this->camposLista[$i]['Type']="lst";
-					if ($modo=="1"){
-						// preenceh com sql
-						$listanova=new TableBD();
-						$lista=$listanova->consultaSQL($listaSql);
-					} else {
-            //echo "<br>listasql=$listaSql";
-						$lista1=explode(",", $listaSql);
-						$j=0;
-						//echo "<br><br><br><br><br><br><br><br><br>";
-						//print_r($lista1);
-						foreach ($lista1 as $ls){
-							$par=explode("=>", $ls);
-							$aux['id']=$par[0];
-							$aux['tx']=$par[1];
-							$lista[$j]= $aux;
-							$j++;
-						}
-						//$lista= array($listaSql);
-            //echo "<br><br>";
-						//print_r($lista);
-					}
-					//print_r($lista);
-					//echo "<br>";
-          //arsort($lista);
-					$this->camposLista[$i]['lista']=$lista;
-				}
-				
-				$i++;
-		}*/
+	
 	}
   
   	//###################################################################################################################################	
@@ -1858,18 +1742,7 @@ class TableBD{
 	* para determinar a forma com será introduzido para na haver enganos (repetir a introdução ou mostrar) e um campo com a cifra
 	*/
 	public function setCampoPass($campo,$modo,$cifra){
-		/*$i=0;
-		//echo "<br> campo=$campo accao=$accao e valor=$valor";
-		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$campo){
-					//echo "entrie";
-					$this->camposLista[$i]['Type']="pass";
-					$this->camposLista[$i]['modo']=$modo;
-					$this->camposLista[$i]['cifra']=$cifra;
-				}
-				
-				$i++;
-		}*/
+
     $this->setFieldPass($campo,$modo,$cifra);
 	}	
 
