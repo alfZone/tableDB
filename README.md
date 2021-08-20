@@ -46,7 +46,7 @@
 4 - Known bugs or limitations
 =============================
 
-  
+  Problens on the order os colunms on the list table whe the key is not the first field on database table 
 
 5 - License
 ===========
