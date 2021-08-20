@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.4.2
+ * @version 8.5
  * @updated 27-06-2021 21:50:00
  */
 
@@ -543,13 +543,13 @@ class TableBD{
         case "a":
                 foreach($html->find('.bedit') as $e){
                   $e->data=$chave;
-                  $e->onClick="preUp(" . $chave . ")";
+                  $e->onClick="preUp('" . $chave . "')";
                   $text .="<td class='buttons'>" . $ver .  $e->outertext;
                 }
                   
                 foreach($html->find('.bdel') as $e){
                   $e->data=$chave;
-                  $e->onClick="preDel(" . $chave . ",'" .$chave. " - ". $dois . "')";
+                  $e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
                   $text .= $e->outertext ."</td></tr>";
                 }
                   
@@ -557,7 +557,7 @@ class TableBD{
         case "u":
         case "e":
                 foreach($html->find('.bedit') as $e)
-                  $e->onClick="preUp(" . $chave . ")";
+                  $e->onClick="preUp('" . $chave . "')";
                   $text .="<td class='buttons'>" . $ver. $e->outertext ."</td></tr>";
                 break;
         default:
@@ -689,13 +689,18 @@ class TableBD{
        }
 			$t.=$this->inputHTML($campo);
 		}
-		if (($campo['Field']==$this->chave) && ($campo[$accao]!=1) ){
-			$t.= '<input type="hidden" id="editKey" name="txt' . $campo['Field'] . '" value="">';   //tirei o id
-		}
+		if ($campo['Field']==$this->chave){
+      if ($campo[$accao]!=1) {
+        $t.= '<input type="hidden" id="editKey" name="txt' . $campo['Field'] . '" value="">';   //tirei o id
+      }else{
+        $sub='id="txt' . $this->chave . '"'; 
+        $t=str_replace($sub, 'id="editKey"', $t);
+      }
+    } 
 	}
    
     foreach($html->find('#frmIOH3') as $e)
-        $e->innertext= PHP_EOL. PHP_EOL.$t .PHP_EOL. PHP_EOL;
+        $e->innertext= PHP_EOL. PHP_EOL.$t. PHP_EOL. PHP_EOL;
     
    $modalAU="";
    foreach($html->find('#frmIU') as $e)
