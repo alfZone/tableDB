@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------
-// @version 8.4 - readme.txt
+// @version 8.5 - readme.txt
 // --------------------------------------------------------------------------------
 // License GNU/LGPL - March 2021
 // @author António Lira Fernandes - alf@esmonserrate.org
@@ -35,7 +35,7 @@
 2 - What's new
 ==============
 
-      - No new feature
+      Version 8.5 - solved a problem with key no numerics
 
 
 3 - Corrected bugs
