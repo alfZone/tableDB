@@ -679,10 +679,10 @@ class TableBD{
     $t=""; 
    //preparing fields  
    foreach($this->camposLista as $campo){
-		print_r($campo);
+		//print_r($campo);
      
 		//echo "<br>_____________________________<br>";
-     echo "<br>accao:" . $accao ;
+     //echo "<br>accao:" . $accao ;
 		if ($campo[$accao]==1){
 			$aux="";
       if (isset($campo['default'])){
