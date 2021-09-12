@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.5
+ * @version 8.5.1
  * @updated 27-06-2021 21:50:00
  */
 
@@ -153,6 +153,7 @@ class TableBD{
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
     $action=str_replace("edt","editar",$action);
+    $action=str_replace("editarar","editar",$action);
     /*if ((($action=="novo")||($action=="editar")) && $value==1){
       //echo "acao=$action";
       $this->autenticacao="a";
@@ -678,10 +679,10 @@ class TableBD{
     $t=""; 
    //preparing fields  
    foreach($this->camposLista as $campo){
-		//print_r($campo);
+		print_r($campo);
      
 		//echo "<br>_____________________________<br>";
-     //echo "<br>accao:" . $accao ;
+     echo "<br>accao:" . $accao ;
 		if ($campo[$accao]==1){
 			$aux="";
       if (isset($campo['default'])){
@@ -933,7 +934,7 @@ class TableBD{
               $i++;
 		        }
              $sql= $this->preparaSQLinsert();
-				    //echo $sql;
+				    echo $sql;
 				    $this->consultaSQL($sql);
             //print_r($this->camposLista);    
           }
@@ -1525,6 +1526,8 @@ class TableBD{
     $action=str_replace("new","novo",$action);
     $action=str_replace("edit","editar",$action);
     $action=str_replace("edt","editar",$action);
+    $action=str_replace("editarar","editar",$action);
+
     
 		$this->fieldsActive(0, $action);
 		$fields=str_replace("`","",$fields);
