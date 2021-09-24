@@ -1,11 +1,11 @@
 <?php
-
 /**
  * The idea for this object is to provide a simple way to manage a databes table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 8.5.1
+ * @version 8.6
  * @updated 27-06-2021 21:50:00
+ https://github.com/alfZone/tabledb
  */
 
 // problems detected
@@ -13,7 +13,8 @@
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
-// - tratar dos includes - passam a comentários
+// - includes of php pages read like a comment - should be execute
+// - problemens related with the destroy os summernote
 
 
 //news of version: 
@@ -1003,7 +1004,8 @@ class TableBD{
    <script>
   
   $("#bnew").click(function() {
-    var markupStr = "";
+    var markupStr = "...";
+    $('.summernote').summernote('reset');
     <?php
     //print_r($this->camposLista);
       foreach($this->camposLista as $campoaux){
@@ -1018,12 +1020,14 @@ class TableBD{
             $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
             <?php
           }else{
-            if ($campoaux['Type']=="text"){
+          /*  if ($campoaux['Type']=="text"){
               ?>
               $('textarea#txt<?php echo $campoaux['Field']?>').summernote('destroy');
-              $('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', markupStr);
+          
+              $('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', "...");
              <?php
-            }
+            }*/
+            
           }
         }
       }
