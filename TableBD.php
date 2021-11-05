@@ -1013,7 +1013,7 @@ public function showHTML(){
     <?php
     //print_r($this->camposLista);
       foreach($this->camposLista as $campoaux){
-        if (($campoaux['Type']!="lst") && ($campoaux['Type']!="text")){
+        if (($campoaux['Type']!="lst") && ($campoaux['Type']!="text") && ($campoaux['Type']!="calc") ){
           ?>
           $("#txt<?php echo $campoaux['Field']?>").attr("value","<?php echo $campoaux['Default']?>")
         <?php
