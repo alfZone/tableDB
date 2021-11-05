@@ -54,7 +54,7 @@ class TableBD{
 //              set of records (25 by default) and allows browsing pages
 // formConfirmacaoApagar($ record) - Displays a confirmation to delete the record
 // formulario($ record = "") - Displays an HTML form to edit or insert a record
-// getCampoValor($ campo) - returns an appropriate string to construct an SQL field with quotes and without quotes in which field and an array with the information of a field, //                          includes: label, Field, Type, value and etc
+// - getCampoValor($ campo) - returns an appropriate string to construct an SQL field with quotes and without quotes in which field and an array with the information of a field, //                          includes: label, Field, Type, value and etc
 // getCampos() - Returns the list of fields in the table
 // getChave() - reads the key parameter of the record sent by the HTML form and which corresponds to the value identified as key in the analysis of the table
 // getDados($ key) - given a key value it returns the results
@@ -316,7 +316,7 @@ class TableBD{
 	* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
 	*/
   // TEM DE SER TODO REFORMULADO
-	public function showHTML(){
+public function showHTML(){
 		
     //lê o parametro 'do' do form HTML
 		$action=$this->getDo();
