@@ -4,8 +4,10 @@
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
  * @version 8.7
- * @updated 27-06-2021 21:50:00
+ * @updated 27-10-2021 21:50:00
  https://github.com/alfZone/tabledb
+ https://github.com/alfZone/tabledb/wiki
+ 
  */
 
 // problems detected
@@ -15,12 +17,11 @@
 // - id editKey é necessário no ficheiro tabeladb??
 // - includes of php pages read like a comment - should be execute
 // - problemens related with the destroy os summernote
-// - set default values - for user id
 
 
 //news of version: 
 //                  some comments in English
-//		new problens add
+//		      some problens with defaultValue 
 
 
 
@@ -75,13 +76,13 @@ class TableBD{
 // redirecciona($ url = "? do = l") - redirects to the page showing the list
 // setAutenticacao($ value) - defines if by default the user has permissions to see, create new, delete and change where: a - all time the possibility to see, create new,
 //                            delete and change, u - update Can only change data, r - read can only see,  e - edit It only allows edition,  n - new It only allows creating new records     
+// + setCalculatedField($nameField,$sqlCalcFormula) | setCampoCalculado($ field, $ calculation)- Add a new calculated field, where $nameField is the name for the new field we want to add and that will result from a sql operation, 
+//                                                                  and $sqlCalcFormula is a sql operation that can involve other fields in the table
 // setFieldAtive($field, $action, $value) | setAtivaCampo($ campo, $ accao, $ valor) - Activates / deactivates (shows / hides) a field for an action where the field is the field we want to activate / deactivate
 //                                            action is the type of action (list, edit and add) in which we want to activate / deactivate the field and value is 1 for
 //                                            show and 0 to hide
 // setFieldsAtive($fields, $action) | setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
 //                                      in the sql table and action is the type of action (list, edt and add) in which we want enable / disable the field
-// setCampoCalculado($ field, $ calculation) - Adds a new calculated field in which field is the name for the field we want to add and calculate is the sql formula that we are
-//                                             going to apply
 // setFieldList($field,$mode,$listOrSql, $hideCode=0) | setCampoLista($ field, $ mode, $ listSql) - Changes the field to the list type to have a description instead of the code and a combobox in the edition and introduction in 
 //                                             which field is the field that we want to change to the list type, mode is the way in which the fields are passed: 1 - SQL; 2 - 
 //                                             values and listSql is the sql string or list of values to be passed (the list has the format eg "1 => first, 2 => second, 3 => useful, a => like this")
@@ -93,7 +94,7 @@ class TableBD{
 // setCampoImagem($ field, $ path, $ percentage) - Change the field to the image type to be seen in the list in a special way where field is the field we want to change to the 
 //                                                 image type path is the path to be added to the image to reach the file and percentage is the% of the height of the image
 // setCriterio($ criterio) - defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
-// setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
+// + setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
 //                                      value is the initial value to be considered
 // setHTMLid($ id, $ value) - Writes in an HTML element of the page by default, which has the id. id is the id of an HTML tag and value is a string with the value to be loaded
 //                            into the element
@@ -417,13 +418,14 @@ public function showHTML(){
     foreach($html->find('#importLst') as $e)
         $e->innertext = $this->fazListaCamposAccao("csv"); //tirei o id
     
-    
+    //print_r($this->camposLista);
      // table head line
     $text="<tr>". PHP_EOL;
     $i=0;
     $pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
 		foreach($this->camposLista as $campo){
 			//print_r($campo);
+      //echo "<hr>";
       if ($this->chave==$campo['Field'] && $campo['ver']==1){
         $pi=1;
       }
@@ -688,8 +690,8 @@ public function showHTML(){
      //echo "<br>accao:" . $accao ;
 		if ($campo[$accao]==1){
 			$aux="";
-      if (isset($campo['default'])){
-          $aux=$campo['default'];
+      if (isset($campo['Default'])){
+          $aux=$campo['Default'];
        }
 			$t.=$this->inputHTML($campo);
 		}
@@ -1611,21 +1613,35 @@ public function showHTML(){
 
   //###################################################################################################################################	
 	/**
+     * @param nameField  is the name for the new field we want to add and that will result from a sql operation
+		 * @param sqlCalcFormula    a sql operation that can involve other fields in the table
+     * 
+	* Add a new calculated field
+	*/
+	public function setCalculatedField($nameField,$sqlCalcFormula){
+    //print_r($this->camposLista);
+		$i=sizeof($this->camposLista);
+		$this->camposLista[$i]['Type']="calc";
+		$this->camposLista[$i]['Field']=$nameField;
+		$this->camposLista[$i]['formula']=$sqlCalcFormula;
+    $this->camposLista[$i]['label']=$nameField;
+    $this->camposLista[$i]['Key']="";
+    $this->camposLista[$i]['ver']=1;
+    //echo "<br><br>";
+     //print_r($this->camposLista);
+	}	
+  
+ //###################################################################################################################################	
+	/**
      * @param campo   é o nome para o campo que pretendemos adicionar
 		 * @param calculo    é a formula sql que vamos aplicar
      * 
 	* Adiciona um novo campo calculado
 	*/
 	public function setCampoCalculado($campo,$calculo){
-    //print_r($this->camposLista);
-		$i=sizeof($this->camposLista);
-		$this->camposLista[$i]['Type']="calc";
-		$this->camposLista[$i]['Field']=$campo;
-		$this->camposLista[$i]['formula']=$calculo;
-    $this->camposLista[$i]['label']=$campo;
-    $this->camposLista[$i]['Key']="";
-    //echo "<br><br>";
-     //print_r($this->camposLista);
+
+		$this->setCalculatedField($campo,$calculo);
+	
 	}	
   
   	//###################################################################################################################################	
@@ -1774,18 +1790,19 @@ public function showHTML(){
   
     //###################################################################################################################################	
 	/**
-     * @param campo    é o campo em que pretendemos definir uma valor inicial
-     * @param valor    é o o valor inicial a ser considerado
+     * @param campo    is the name of the field in which we want to define an initial value 
+     * @param valor    is the initial value to be considered
      * 
-	* define um valor padrão a ser considerados numa nova introdução
+	*  defines a default value to be considered in a new introduction where $field is the name of the field in which we want to define an initial value 
+     and $value is the initial value to be considered
 	*/
-	public function setDefaultValue($campo, $valor){
+	public function setDefaultValue($field, $valor){
 		$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$campo){
+				if ($campoaux['Field']==$field){
 					//echo "entrie";
-					$this->camposLista[$i]['default']=$valor;
+					$this->camposLista[$i]['Default']=$valor;
 				}
 				
 				$i++;
