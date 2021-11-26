@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9
- * @updated 27-10-2021 21:50:00
+ * @version 9.1
+ * @updated 27-11-2021 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  
@@ -17,12 +17,14 @@
 // - id editKey é necessário no ficheiro tabeladb??
 // - includes of php pages read like a comment - should be execute
 // - problemens related with the destroy os summernote
+// - without key field no records are displayed
 
 
 //news of version: 
 //          some comments in English
 //		      some problens with defaultValue 
 //          possible of adding a js action listern
+//	    new problens are found
 
 
 
