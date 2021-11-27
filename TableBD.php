@@ -16,15 +16,14 @@
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
 // - includes of php pages read like a comment - should be execute
-// - problemens related with the destroy os summernote
-// - without key field no records are displayed
+// - problems related with the destroy os summernote
 
 
 //news of version: 
 //          some comments in English
-//		      some problens with defaultValue 
+//	    some problens with defaultValue 
 //          possible of adding a js action listern
-//	    new problens are found
+//          combobox with strings values
 
 
 
@@ -998,7 +997,7 @@ public function showHTML(){
           //console.log($(`select#txt${x}`).length)
           if ($(`select#txt${x}`).length){
              $(`#txt${x} option:selected`).attr('selected',false);
-            aux=`#txt${x} option[value=${evento[x]}]`
+            aux=`#txt${x} option[value='${evento[x]}']`
             //console.log(aux);
             $(aux).attr('selected','selected');
           }
