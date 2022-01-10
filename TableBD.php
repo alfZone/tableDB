@@ -4,7 +4,7 @@
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
  * @version 9.3
- * @updated 27-11-2021 21:50:00
+ * @updated 10-01-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  
