@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.2
+ * @version 9.3
  * @updated 27-11-2021 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -11,20 +11,18 @@
  */
 
 // problems detected
-// - When we don't have any record in the table and we have a memo field (unlimited text) the training window is not loaded. Only after editing a record.
 // - Need more testing
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
 // - includes of php pages read like a comment - should be execute
-// - problems related with the destroy os summernote
+// - problemens related with the destroy os summernote
 
 
 //news of version: 
 //          some comments in English
-//	    some problens with defaultValue 
+//		      some problens with defaultValue 
 //          possible of adding a js action listern
-//          combobox with strings values
 
 
 
@@ -364,7 +362,7 @@ public function showHTML(){
 				//formulário para introduzir os valores
 			case "ci":
 				//efectuar a inserção
-        //echo "ci";
+        echo "ci";
 				$this->getDadosForm();
 				$sql= $this->preparaSQLinsert();
 				//echo $sql;
@@ -1014,6 +1012,7 @@ public function showHTML(){
   $("#bnew").click(function() {
     var markupStr = "...";
     $('.summernote').summernote('reset');
+
     <?php
     //print_r($this->camposLista);
       foreach($this->camposLista as $campoaux){
@@ -1028,13 +1027,12 @@ public function showHTML(){
             $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
             <?php
           }else{
-          /*  if ($campoaux['Type']=="text"){
+            if ($campoaux['Type']=="text"){
               ?>
-              $('textarea#txt<?php echo $campoaux['Field']?>').summernote('destroy');
-          
+              //$('textarea#txt<?php echo $campoaux['Field']?>').summernote('destroy');         
               $('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', "...");
              <?php
-            }*/
+            }
             
           }
         }
