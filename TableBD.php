@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.3
+ * @version 9.3.1
  * @updated 10-01-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -1146,8 +1146,9 @@ public function showHTML(){
                   $t=$e->outertext;
 						break;
         case "int":
-				case "var":	
-				case "dec":
+	case "var":	
+	case "dec":
+	case "dou":
         case "tim":
         case "img":
                 foreach($html->find('input[id]') as $e){
