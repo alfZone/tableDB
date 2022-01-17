@@ -16,7 +16,7 @@
 <body>
   <div class="container">
     <!-- Content here -->
-    <h1 class="tbTitle">Titulo da tabela</h1>
+    <h1 class="tbTitle">Table Title</h1>
     <div class="row">
       <div class="col-sm-8">
         <p></p>
@@ -99,7 +99,7 @@
         
           <!-- Modal Header -->
           <div class="modal-header">
-            <h1 class="modal-title" id="frmIOTitulo">Adicionar/Actualizar</h1>
+            <h1 class="modal-title" id="frmIOTitulo">Add/Update</h1>
             <button type="button" class="close" data-bs-dismiss="modal">×</button>
           </div>
           <!-- Modal body -->
@@ -109,19 +109,19 @@
               <div class="col-sm-12" id="frmIOH3">
                 <div class="text">
                   <div class="form-group">
-                    <label id="textL">Tarefa:</label>
+                    <label id="textL">Text input:</label>
                     <input type="text" class="form-control required" id="txtTarefa" value="">
                   </div>
                 </div>
                 <div class="password">
                   <div class="form-group">
-                    <label id="passL">Pass:</label>
+                    <label id="passL">Pass input:</label>
                     <input type="password" class="form-control required" id="passN" value="">
                   </div>
                 </div>
                 <div class="select">
                   <div class="form-group">
-                    <label id="selectL">Icon:</label>
+                    <label id="selectL">List:</label>
                     <select class="form-select" id="selectLst">
                         <option value="icon-atom"  >ÁtomoXXX [icon-atom]</option>
                       </select>
@@ -129,7 +129,7 @@
                 </div>
                 <div class="date">
                   <div class="form-group">
-                    <label id="dataL">Data:</label>
+                    <label id="dataL">Date:</label>
                     <input type="date" class="form-control required" name="txtData" id="txtData" value="txtData">
                   </div>
                 </div>
@@ -137,7 +137,7 @@
                   <div class="form-group">
                     <link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.css" rel="stylesheet">
                     <script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.js"></script>
-                    <label id="textAreaL">Obs:</label>
+                    <label id="textAreaL">Text area:</label>
                     <textarea id="textAreaN">...</textarea>
 
                   </div>
@@ -146,7 +146,7 @@
                   <div class="form-group">
                     <div class="checkbox">
                       <label>
-                          <input type="checkbox" id="checkN" checked>checkN1<br>
+                          <input type="checkbox" id="checkN" checked>checkbox sample<br>
                         </label>
                     </div>
                   </div>
@@ -159,7 +159,7 @@
             <div class="form-group">
               <p id="teste"></p>
               <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-              <button class="btn btn-primary" aria-hidden="true" type="submit">Gravar</button>
+              <button class="btn btn-primary" aria-hidden="true" type="submit">Save</button>
             </div>
           </div>
         </form>
@@ -176,19 +176,19 @@
         <div class="modal-content">
           <!-- Modal Header -->
           <div class="modal-header">
-            <h4 class="modal-title">Confirmação</h4>
+            <h4 class="modal-title">Confirmation</h4>
             <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
           </div>
           <!-- Modal body -->
           <div class="modal-body" id="perguntaT">
-            <p>Pertende apagar o registo?</p>
+            <p>Do you want delete the record?</p>
             <p id="delId"></p>
             <p id="delText"></p>
           </div>
           <!-- Modal footer -->
           <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Sim</button>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Não</button>
+            <button type="submit" class="btn btn-primary">Yes</button>
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
           </div>
         </div>
       </form>
@@ -203,17 +203,18 @@
           <input type="hidden" name="do" value="csv">
           <!-- Modal Header -->
           <div class="modal-header">
-            <h1 class="modal-title" id="frmITitulo">Importe</h1>
+            <h1 class="modal-title" id="frmITitulo">Import</h1>
             <button type="button" class="close" data-bs-dismiss="modal">×</button>
           </div>
           <!-- Modal body -->
           <div class="modal-body">
             <h3 class="tbTitle"> Tituloa</h3>
-            <p> Os campos tem de ser importados pela seguinte ordem: <code id="importLst">abc,dfeee,gghtd,qqwwee</code></p>
+            <p> The field most be imported on this order: <code id="importLst">First,Secund,Third,Last</code></p>
+            <p> You may add a <code>,</code> on the end of the line</p>
             <div class="row">
               <div class="col-sm-12">
                 <div class="form-group">
-                  <label for="comment">linhas a serem importadas:</label>
+                  <label for="comment">Lines to be added:</label>
                   <textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
                 </div>
               </div>
@@ -222,8 +223,8 @@
           <!-- Modal footer -->
           <div class="modal-footer">
             <div class="form-group">
-              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
-              <button class="btn btn-primary" aria-hidden="true" type="submit">Importar</button>
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              <button class="btn btn-primary" aria-hidden="true" type="submit">Import</button>
             </div>
           </div>
         </form>
