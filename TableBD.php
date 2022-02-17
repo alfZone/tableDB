@@ -1542,7 +1542,7 @@ public function showHTML(){
     $action=str_replace("list","ver",$action);
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
-    $action=str_replace("edit","editar",$action);
+    //$action=str_replace("edit","editar",$action);
     $action=str_replace("edt","editar",$action);
     $action=str_replace("editarar","editar",$action);
 
