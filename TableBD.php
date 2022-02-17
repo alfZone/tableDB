@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.3.2
- * @updated 10-01-2022 21:50:00
+ * @version 9.3.3
+ * @updated 17-02-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  
@@ -93,7 +93,7 @@ class TableBD{
 //                                     with the number in which field is the field that we intend to change to the type and mode is to verify the correct writing of a new
 //                                     password. 0 - off; 1 - repeat the introduction; 2 - show password and cifa is the way the text is encrypted. "" - off; "md5" - md5; 
 //                                     "sha1" - sha1; "base64" - base64
-// setCampoImagem($ field, $ path, $ percentage) - Change the field to the image type to be seen in the list in a special way where field is the field we want to change to the 
+// setImageField($field,$path,$percentage='100%') | setCampoImagem($ field, $ path, $ percentage) - Change the field to the image type to be seen in the list in a special way where field is the field we want to change to the 
 //                                                 image type path is the path to be added to the image to reach the file and percentage is the% of the height of the image
 // setCriterio($ criterio) - defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
 // + setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
