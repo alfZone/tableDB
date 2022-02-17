@@ -1493,7 +1493,7 @@ public function showHTML(){
     $action=str_replace("new","novo",$action);
     $action=str_replace("add","novo",$action);
     $action=str_replace("edt","editar",$action);
-    $action=str_replace("edit","editar",$action);
+    //$action=str_replace("edit","editar",$action);
     
     $i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
