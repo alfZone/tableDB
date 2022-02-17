@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.3.1
+ * @version 9.3.2
  * @updated 10-01-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -83,7 +83,7 @@ class TableBD{
 //                                            action is the type of action (list, edit and add) in which we want to activate / deactivate the field and value is 1 for
 //                                            show and 0 to hide
 // setFieldsAtive($fields, $action) | setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
-//                                      in the sql table and action is the type of action (list, edt and add) in which we want enable / disable the field
+//                                      in the sql table and action is the type of action (list, csv, edt and new) in which we want enable / disable the field
 // setJSAction($field, $action) - set a js action to a field. $Field is the name of field to add a javascript action, and $action is the action you want to call
 // setFieldList($field,$mode,$listOrSql, $hideCode=0) | setCampoLista($ field, $ mode, $ listSql) - Changes the field to the list type to have a description instead of the code and a combobox in the edition and introduction in 
 //                                             which field is the field that we want to change to the list type, mode is the way in which the fields are passed: 1 - SQL; 2 - 
@@ -1491,7 +1491,9 @@ public function showHTML(){
     $action=str_replace("list","ver",$action);
     $action=str_replace("see","ver",$action);
     $action=str_replace("new","novo",$action);
+    $action=str_replace("add","novo",$action);
     $action=str_replace("edt","editar",$action);
+    $action=str_replace("edit","editar",$action);
     
     $i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
