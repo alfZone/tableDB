@@ -1654,27 +1654,39 @@ public function showHTML(){
 	
 	}	
   
-  	//###################################################################################################################################	
+  //###################################################################################################################################	
 	/**
-     * @param campo         é o campo que pretendemos alterar para o tipo imagem
-		 * @param $caminho      é o camiho a ser acrescentado a imagem para chegar ao ficheiro
-		 * @param percentagem   é a % da altura da imagem
+     * @param $field    	is the field that we want to change to the image type
+     * @param $path      	is the path to be added to the url of an image to get to the file
+     * @param $percentage 	is the % of the height of the image
      * 
-	* Altera o campo para o tipo imagem para ser visto na lista de forma especial
+	* Change the field to the image type to be seen in the list in as an image
 	*/
-	public function setCampoImagem($campo,$caminho,$percentagem){
+	public function setImageField($field,$path,$percentage='100%'){
 		$i=0;
-		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$campo){
+				if ($campoaux['Field']==$field){
 					//echo "entrie";
 					$this->camposLista[$i]['Type']="img";
-					$this->camposLista[$i]['Path']=$caminho;
-					$this->camposLista[$i]['widthP']=$percentagem;
+					$this->camposLista[$i]['Path']=$path;
+					$this->camposLista[$i]['widthP']=$percentage;
 				}
 				
 				$i++;
 		}
+	}	
+  
+	
+  //###################################################################################################################################	
+	/**
+     * @param campo         é o campo que pretendemos alterar para o tipo imagem
+     * @param $caminho      é o camiho a ser acrescentado a imagem para chegar ao ficheiro
+     * @param percentagem   é a % da altura da imagem
+     * 
+	* Altera o campo para o tipo imagem para ser visto na lista de forma especial
+	*/
+	public function setCampoImagem($campo,$caminho,$percentagem='100%'){
+		$this->setImageField($campo,$caminho,$percentagem);
 	}	
   
   //###################################################################################################################################	
