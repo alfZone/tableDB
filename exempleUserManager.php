@@ -23,7 +23,7 @@ $table->setTitle("Users List");
 $table->prepareTable("tabUsers");
 
 //list of fields for list, new, edit and import records
-$table->setFieldsAtive("userID, name, email, type, active",'list');
+$table->setFieldsAtive("userID, name, email, type, photo, active",'list');
 $table->setFieldsAtive("name, email, type, passw, active", 'new');
 $table->setFieldsAtive("name, email, type, passw, active", 'edit');
 $table->setFieldsAtive("name, email, type, passw, active", 'csv');
@@ -35,27 +35,22 @@ $table->setCampoPass("passw",0, "md5");
 $table->setCampoLista("type",1," SELECT `id`,`type` FROM `tabUsersTypes` ORDER BY `type`");
 $table->setCampoLista("active",2,"1=>Active,0=>Inactive");
 
-//$tabela->setCampoImagem("relative_path_cache","../fotos/thumbs/",30);
+//the fiekd to be present as an image
+$table->setImageField("photo","../fotos/thumbs/",30);
 
 //Link each record on the listo to external page passing the key value
 $table->setLinkPage("/public/perfil.php");
 
-//$tabela->setLabel('id_votacao',"#ID");
-//$tabela->setLabel('nome',"Nome");
-//$tabela->setLabel('data',"Data de Inicio");
-//$tabela->setLabel('Encerrada',"Data de Encerramento"); 
-//$tabela->setHTMLid("votacaot", $texto);
-//$tabela->setLabel('Presidente',"Presidente Eleitoral");
-//$tabela->setLabel('Encerrado',"Estado");  
-//$tabela->setCriterio("type='video'");
-//$tabela->setOrdem("title");
-//$tabela->preparaSQLparaAccao('novo');
-//$tabela->fazlista();
-//$tabela->includes(); 
-//$tabela->formulario();
-$tabela->fazHTML();
- 
- 
- //echo "aqui";  
+//Labels for fields
+$table->setLabel('userID',"Process");
+$table->setLabel('name',"Full Name");
+$table->setLabel('passw',"Password");
+
+//defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
+$table->setCriterio("type='Admin'");
+
+//Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to make decisions
+$table->showHTML();
+
 
 ?>
