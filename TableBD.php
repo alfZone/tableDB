@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.3.4
- * @updated 17-02-2022 21:50:00
+ * @version 9.3.5
+ * @updated 01-03-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  
@@ -100,7 +100,9 @@ class TableBD{
 // setLabel($ field, $ value) - Assign a label to a field where the field is the field we want to change the label and the value is the text to be considered as a label
 // setLabels() - Assign field names in the database as a field label. This function is only performed when preparing the table
 // setLimites($ NumReg, $ LimInf = 0) - Sets the number of resistors in a select where $ NumReg is the number of records and $ LimInf is the initial record
-// setLinkPage($page) | setPaginaVer($page) - Stores the name of the page that should be opened to show the record where the page is the address for an html page for the record
+// setLinkPage($page, $style=0) | setPaginaVer($page, $style=0) - Stores the name (url) of the page that should be opened to show une record. Where the $page is the address 
+//																  (url) for a html page to show a record and $style is the way that the key value are passed. if style=0 
+//																  then the url to see is url?id=keyValue. if style=1 then the url is url/keyValue
 // setTemplate($ path) * - Assign the template to the table. Where path is the path and the template file
 // setTitle($value) | setTitulo($ value) - sets the title of the page / or form 
 	
@@ -125,6 +127,7 @@ class TableBD{
   private $chave;
   private $PagaClose="?do=l";
   private $PagVer="";
+  private $linkStyle="";
   private $PagImp=0;
   private $criterio="(1=1)";
   private $autenticacao="a";  //defines if by default the user has permissions to:
@@ -388,7 +391,8 @@ public function showHTML(){
 
 //###################################################################################################################################
   /**
-	* Faz o que é necessaro para manter a tabela numa página html. Lista os dados e permite inserir novos, editar e apagar registos. Usa um parametro 'do' para tomar as decisões
+	* Faz o que é necessaro para manter a tabela numa página html. Lista os dados e permite inserir novos, editar e apagar registos. Usa um parametro 'do' 
+	* para tomar as decisões
 	*/
   // TEM DE SER TODO REFORMULADO
 	public function fazHTML(){
@@ -509,7 +513,12 @@ public function showHTML(){
       if ($this->PagVer<>""){
         foreach($html->find('.bsee[href]') as $e){
           //echo $e;
-          $e->href=$this->PagVer . "?$chaveid=$chave";
+		  if ($this->linkStyle==0){
+			$e->href=$this->PagVer . "?$chaveid=$chave";
+		  }else{
+			$e->href=$this->PagVer . "/$chave";
+		  }
+          
         }
         foreach($html->find('.bsee') as $e){
           $ver =  $e->outertext;
@@ -1902,13 +1911,14 @@ public function showHTML(){
  
   //###################################################################################################################################
 	/**
-	* 
-	* @param $page    link to a page to view a record. send the key
+	* Stores the name (url) of the page that should be opened to show une record.
 	*
-	* Saves the name of the page that will show the record
+	* @param $page    is the address (url) for a html page to show a record
+	* @param $style    is the way that the key value are passed. if style=0 then the url to see is url?id=keyValue. if style=1 then the url is url/keyValue
 	*/
-	public function setLinkPage($page){
+	public function setLinkPage($page,$style=0){
 		$this->PagVer=$page;
+		$this->linkStyle=$style;
 	}
 
 
@@ -1920,8 +1930,8 @@ public function showHTML(){
 	*
 	* Guarda o nome da página que mostra o artigo
 	*/
-	public function setPaginaVer($pagina){
-		$this->setLinkPage($pagina);
+	public function setPaginaVer($pagina,$style=0){
+		$this->setLinkPage($pagina,$style);
 	}
 
 
