@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.3.3
+ * @version 9.3.4
  * @updated 17-02-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -15,14 +15,11 @@
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
-// - includes of php pages read like a comment - should be execute
-// - problemens related with the destroy os summernote
+// - On the templete includes of php pages read like a comment - should be execute
 
 
 //news of version: 
-//          some comments in English
-//		      some problens with defaultValue 
-//          possible of adding a js action listern
+//          Minor change on the fazLista()
 
 
 
@@ -454,7 +451,7 @@ public function showHTML(){
     }  
         
     switch ($this->autenticacao){
-      case "a":
+    	case "a":
           // get csv buttom
           if ($this->PagImp==1){
             foreach($html->find('#bcsv') as $e)
@@ -468,6 +465,9 @@ public function showHTML(){
               $text .="<th class='buttons'>" . $e->outertext .$k ."</th>";
               
           break;
+	  	case "r":
+			$text .="";
+		  	break;
       default:
           $text .="<th></th>";
           break;
@@ -567,6 +567,9 @@ public function showHTML(){
                 foreach($html->find('.bedit') as $e)
                   $e->onClick="preUp('" . $chave . "')";
                   $text .="<td class='buttons'>" . $ver. $e->outertext ."</td></tr>";
+                break;
+		case "r":
+				$text .= "";
                 break;
         default:
                 $text .= "<td class='buttons'>$ver</td>
