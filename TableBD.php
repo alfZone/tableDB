@@ -15,7 +15,6 @@
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
-// - On the templete includes of php pages read like a comment - should be execute
 
 
 //news of version: 
