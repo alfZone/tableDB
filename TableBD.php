@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.3.5
+ * @version 9.4
  * @updated 01-03-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -18,7 +18,7 @@
 
 
 //news of version: 
-//          Minor change on the fazLista()
+//          default image in setImageField
 
 
 
@@ -89,8 +89,9 @@ class TableBD{
 //                                     with the number in which field is the field that we intend to change to the type and mode is to verify the correct writing of a new
 //                                     password. 0 - off; 1 - repeat the introduction; 2 - show password and cifa is the way the text is encrypted. "" - off; "md5" - md5; 
 //                                     "sha1" - sha1; "base64" - base64
-// setImageField($field,$path,$percentage='100%') | setCampoImagem($ field, $ path, $ percentage) - Change the field to the image type to be seen in the list in a special way where field is the field we want to change to the 
-//                                                 image type path is the path to be added to the image to reach the file and percentage is the% of the height of the image
+// setImageField($field,$path,$percentage='100%',$defaultImage="") | Change the $field (usually a string) to image type to be seen in the list in a special way (like a image). $path is the path to be added to the
+//																 	image to reach the file and $percentage is the percentage of the height of the image is the field we want to change to. $defaultImage is an 
+//																	image to replace null and "" values
 // setCriterio($ criterio) - defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
 // + setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
 //                                      value is the initial value to be considered
@@ -425,32 +426,38 @@ public function showHTML(){
     $text="<tr>". PHP_EOL;
     $i=0;
     $pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
-		foreach($this->camposLista as $campo){
-			//print_r($campo);
-      //echo "<hr>";
-      if ($this->chave==$campo['Field'] && $campo['ver']==1){
-        $pi=1;
-      }
-      if ($campo['ver']==1){
-				$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
-				if ($campo['Type']=="lst"){
-					$carimbo=$campo['Field'];
-					//echo $carimbo;
-				}else {
-					$carimbo=0;
-				}
-        $elista[$i]=$carimbo;
-        if ($campo['Type']=="img"){
-					$carimbo=$campo['Field'];
-          $imgHTMLpre[$i]='<img src="' . $campo['Path'];
-          $imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
-					//echo $carimbo;
-				}else {
-					$carimbo=0;
-				}
-				$eImagem[$i]=$carimbo;
-				$i++;
+	foreach($this->camposLista as $campo){
+		//print_r($campo);
+      	//echo "<hr>";
+      	if ($this->chave==$campo['Field'] && $campo['ver']==1){
+        	$pi=1;
+      	}
+      	if ($campo['ver']==1){
+			$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
+			if ($campo['Type']=="lst"){
+				$carimbo=$campo['Field'];
+				//echo $carimbo;
+			}else {
+				$carimbo=0;
 			}
+        	$elista[$i]=$carimbo;
+        	if ($campo['Type']=="img"){
+				$carimbo=$campo['Field'];
+          		$imgHTMLpre[$i]='<img src="' . $campo['Path'];
+				$ia=$campo['Field'];
+				//if (($carimbo=="")||$carimbo=null){
+					//$carimbo=$campo['defaultImage'];
+				//}
+          		$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
+				  //$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
+				//echo $carimbo;
+				$imgDefault[$i]=$campo['defaultImage'];
+			}else {
+				$carimbo=0;
+			}
+			$eImagem[$i]=$carimbo;
+			$i++;
+		}
     }  
         
     switch ($this->autenticacao){
@@ -494,106 +501,103 @@ public function showHTML(){
     
     $pagina = (isset($_REQUEST["p"])?($_REQUEST["p"]):1);		
 									
-		//$sql=$this->sqlGeral;
-		$sql=$this->preparaSQLparaAccao("ver");
+	//$sql=$this->sqlGeral;
+	$sql=$this->preparaSQLparaAccao("ver");
     //echo "<br>sql=" . $sql;
-		$stmt=$this->consultaSQL($sql);
-		//print_r($stmt);
+	$stmt=$this->consultaSQL($sql);
+	//print_r($stmt);
   	foreach($stmt as $registo){
-			$text .= "<tr>";
-			//print_r($registo);
-			//if ($this->chave==$registo['Fie'])
-      //echo "<br>chave=" . $this->chave;
-      $chave=$registo[$this->chave];
-			$chaveid=$this->chave;
-			$i=0;
-      //verifica se é para mostrar um link para ver um registo usando uma página externa
-      $ver="";
-      if ($this->PagVer<>""){
-        foreach($html->find('.bsee[href]') as $e){
-          //echo $e;
-		  if ($this->linkStyle==0){
-			$e->href=$this->PagVer . "?$chaveid=$chave";
-		  }else{
-			$e->href=$this->PagVer . "/$chave";
-		  }
-          
-        }
-        foreach($html->find('.bsee') as $e){
-          $ver =  $e->outertext;
-        }
-        //echo $ver;
+		$text .= "<tr>";
+		//print_r($registo);
+		//if ($this->chave==$registo['Fie'])
+      	//echo "<br>chave=" . $this->chave;
+      	$chave=$registo[$this->chave];
+		$chaveid=$this->chave;
+		$i=0;
+      	//verifica se é para mostrar um link para ver um registo usando uma página externa
+      	$ver="";
+      	if ($this->PagVer<>""){
+        	foreach($html->find('.bsee[href]') as $e){
+          		//echo $e;
+		  		if ($this->linkStyle==0){
+					$e->href=$this->PagVer . "?$chaveid=$chave";
+		  		}else{
+					$e->href=$this->PagVer . "/$chave";
+		  		}
+        	}
+        	foreach($html->find('.bsee') as $e){
+          		$ver =  $e->outertext;
+        	}
+        	//echo $ver;      
+        	//$ver="<a href='" . $this->PagVer . "?$chaveid=$chave' title='ver' \'> <i class='fa fa-eye' aria-hidden='true'></i></a>";
+      	}
+		//print_r($elista);
+      	$p=$pi;
+		foreach($registo as $campo){
+			//print_r($campo);
+        	if ($p!=0){
+          		if ($elista[$i] !== 0){
+					$campo=$this->devolveValorDaLista($elista[$i], $campo);
+            		//print_r($campo);
+					 //echo "aqui";
+				}
+          		if ($eImagem[$i] !== 0){
+            		//$campo="isto é uma imagem";
+					if (($campo=="")||($campo==null)){
+						$campo=$imgDefault[$i];
+						//$campo="aaa.img";
+					}
+            		$campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
+          		}
+          		$i++;
+				$text .= "<td>$campo</td>";
+          		//$p=1;    
+        	}else{
+          		$p=1;
+        	}
         
-        
-        //$ver="<a href='" . $this->PagVer . "?$chaveid=$chave' title='ver' \'> <i class='fa fa-eye' aria-hidden='true'></i></a>";
-      }
-			//print_r($elista);
-      $p=$pi;
-			foreach($registo as $campo){
-				//print_r($campo);
-        if ($p!=0){
-          if ($elista[$i] !== 0){
-					  $campo=$this->devolveValorDaLista($elista[$i], $campo);
-            //print_r($campo);
-					  //echo "aqui";
-				  }
-          if ($eImagem[$i] !== 0){
-            //$campo="isto é uma imagem";
-            $campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
-          }
-          $i++;
-				  $text .= "<td>$campo</td>";
-          //$p=1;
-          
-          
-        }else{
-          $p=1;
-        }
-        
-        if ($i==2){
-          $dois=$campo;
-        }
-				
-			}
-      switch ($this->autenticacao){
-        case "a":
+        	if ($i==2){
+          		$dois=$campo;
+        	}		
+		}
+      	switch ($this->autenticacao){
+        	case "a":
                 foreach($html->find('.bedit') as $e){
-                  $e->data=$chave;
-                  $e->onClick="preUp('" . $chave . "')";
-                  $text .="<td class='buttons'>" . $ver .  $e->outertext;
+                	$e->data=$chave;
+                  	$e->onClick="preUp('" . $chave . "')";
+                  	$text .="<td class='buttons'>" . $ver .  $e->outertext;
                 }
                   
                 foreach($html->find('.bdel') as $e){
-                  $e->data=$chave;
-                  $e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
-                  $text .= $e->outertext ."</td></tr>";
+                  	$e->data=$chave;
+                  	$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
+                  	$text .= $e->outertext ."</td></tr>";
                 }
                   
                 break;
-        case "u":
-        case "e":
+        	case "u":
+        	case "e":
                 foreach($html->find('.bedit') as $e)
-                  $e->onClick="preUp('" . $chave . "')";
-                  $text .="<td class='buttons'>" . $ver. $e->outertext ."</td></tr>";
+                	$e->onClick="preUp('" . $chave . "')";
+                  	$text .="<td class='buttons'>" . $ver. $e->outertext ."</td></tr>";
                 break;
-		case "r":
+			case "r":
 				$text .= "";
                 break;
-        default:
+        	default:
                 $text .= "<td class='buttons'>$ver</td>
 												  </tr>";
                 break;
         }
     }
     
-     foreach($html->find('#bodyTable') as $e)
-        $e ->innertext=$text . PHP_EOL;  
-    
-    
+    foreach($html->find('#bodyTable') as $e)
+    	$e ->innertext=$text . PHP_EOL;  
+        
     //--- end of table
-     $formAU=$this->formulario();    
+    $formAU=$this->formulario();    
     
-     foreach($html->find('#frmIU') as $e)
+    foreach($html->find('#frmIU') as $e)
         $e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
     
     // change te title
@@ -1673,7 +1677,7 @@ public function showHTML(){
      * 
 	* Change the field to the image type to be seen in the list in as an image
 	*/
-	public function setImageField($field,$path,$percentage='100%'){
+	public function setImageField($field,$path,$percentage='100%',$defaultImage=""){
 		$i=0;
 		foreach($this->camposLista as $campoaux){
 				if ($campoaux['Field']==$field){
@@ -1681,6 +1685,7 @@ public function showHTML(){
 					$this->camposLista[$i]['Type']="img";
 					$this->camposLista[$i]['Path']=$path;
 					$this->camposLista[$i]['widthP']=$percentage;
+					$this->camposLista[$i]['defaultImage']=$defaultImage;
 				}
 				
 				$i++;
