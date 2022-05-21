@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.4.1
+ * @version 9.4.2
  * @updated 01-05-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -438,6 +438,7 @@ public function showHTML(){
         	$pi=1;
       	}
       	if ($campo['ver']==1){
+			  //echo $campo['label'];
 			$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
 			if ($campo['Type']=="lst"){
 				$carimbo=$campo['Field'];
@@ -508,7 +509,7 @@ public function showHTML(){
 									
 	//$sql=$this->sqlGeral;
 	$sql=$this->preparaSQLparaAccao("ver");
-    //echo "<br>sql=" . $sql;
+    echo "<br>sql=" . $sql;
 	$stmt=$this->consultaSQL($sql);
 	//print_r($stmt);
   	foreach($stmt as $registo){
@@ -1370,22 +1371,23 @@ public function showHTML(){
          * campos marcados como visíveis na acção escolhida
 		 */
 	  public function preparaSQLparaAccao($accao){
-			$resposta= "SELECT " . $this->chave ;
-			$sep=",";
-      //$key=0;
-			//print_r($this->camposLista);
-			foreach($this->camposLista as $campo){
-			    //echo "<br>Campo1 = ";
-			    //print_r($campo);
-				if ($campo[$accao]==1){
-          if ($campo['Type']=="calc"){
-            $resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
-          }else{
-            $resposta=$resposta . $sep . $campo['Field']; 
-          }
-					$sep=",";
-				} 
-				
+		$resposta= "SELECT " . $this->chave ;
+		$sep=",";
+      	//$key=0;
+		//print_r($this->camposLista);
+		foreach($this->camposLista as $campo){
+		    //echo "<br>Campo1 = ";
+		    //print_r($campo);
+			if ($campo[$accao]==1){
+				//echo $campo['Type'];
+				//if ($campo['Type']=="calc"){
+				if (isset($campo['formula'])){
+					$resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
+				}else{
+					$resposta=$resposta . $sep . $campo['Field']; 
+				}
+				$sep=",";
+			} 	
 		}
 			$resposta= $resposta . " FROM " . $this->tabela;
       
@@ -1726,39 +1728,40 @@ public function showHTML(){
 		$i=0;
 		//echo "<br> campo=$campo accao=$modo e valor=$listaSql";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$field){
-					//echo "entrie";
-          $this->camposLista[$i]['hideCode']=$hideCode;
-					$this->camposLista[$i]['Type']="lst";
-					if ($mode=="1"){
-						// preenceh com sql
-						$listanova=new TableBD();
-						$lista=$listanova->consultaSQL($listOrSql);
-					} else {
-            //echo "<br>listasql=$listaSql";
-						$lista1=explode(",", $listOrSql);
-						$j=0;
-						//echo "<br><br><br><br><br><br><br><br><br>";
-						//print_r($lista1);
-						foreach ($lista1 as $ls){
-							$par=explode("=>", $ls);
-							$aux['id']=$par[0];
-							$aux['tx']=$par[1];
-							$lista[$j]= $aux;
-							$j++;
-						}
-						//$lista= array($listaSql);
-            //echo "<br><br>";
-						//print_r($lista);
+			if ($campoaux['Field']==$field){
+				//echo "entrie";
+          		$this->camposLista[$i]['hideCode']=$hideCode;
+				$this->camposLista[$i]['Type']="lst";
+				if ($mode=="1"){
+					// preenceh com sql
+					$listanova=new TableBD();
+					$lista=$listanova->consultaSQL($listOrSql);
+				} else {
+            		//echo "<br>listasql=$listaSql";
+					$lista1=explode(",", $listOrSql);
+					$j=0;
+					//echo "<br><br><br><br><br><br><br><br><br>";
+					//print_r($lista1);
+					foreach ($lista1 as $ls){
+						$par=explode("=>", $ls);
+						$aux['id']=$par[0];
+						$aux['tx']=$par[1];
+						$lista[$j]= $aux;
+						$j++;
 					}
+					//$lista= array($listaSql);
+            		//echo "<br><br>";
 					//print_r($lista);
-					//echo "<br>";
-          //arsort($lista);
-					$this->camposLista[$i]['lista']=$lista;
 				}
+				//print_r($lista);
+				//echo "<br>";
+          		//arsort($lista);
+				$this->camposLista[$i]['lista']=$lista;
+			}
 				
-				$i++;
+			$i++;
 		}
+	//echo "passei";
 	}
   
   
