@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.4
- * @updated 01-03-2022 21:50:00
+ * @version 9.4.1
+ * @updated 01-05-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -16,6 +16,10 @@
 // - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
 // - id editKey é necessário no ficheiro tabeladb??
+
+// roadmap
+// - point to required fields on form
+// - use sql field comments to provide a label for the field
 
 
 //news of version: 
@@ -706,21 +710,24 @@ public function showHTML(){
      
 		//echo "<br>_____________________________<br>";
      //echo "<br>accao:" . $accao ;
+		if (!isset($campo[$accao])){
+			$campo[$accao]=0;
+		}
 		if ($campo[$accao]==1){
 			$aux="";
-      if (isset($campo['Default'])){
-          $aux=$campo['Default'];
-       }
+			if (isset($campo['Default'])){
+				$aux=$campo['Default'];
+			}
 			$t.=$this->inputHTML($campo);
 		}
 		if ($campo['Field']==$this->chave){
-      if ($campo[$accao]!=1) {
-        $t.= '<input type="hidden" id="editKey" name="txt' . $campo['Field'] . '" value="">';   //tirei o id
-      }else{
-        $sub='id="txt' . $this->chave . '"'; 
-        $t=str_replace($sub, 'id="editKey"', $t);
-      }
-    } 
+			if ($campo[$accao]!=1) {
+				$t.= '<input type="hidden" id="editKey" name="txt' . $campo['Field'] . '" value="">';   //tirei o id
+			}else{
+				$sub='id="txt' . $this->chave . '"'; 
+				$t=str_replace($sub, 'id="editKey"', $t);
+			}
+    	} 
 	}
    
     foreach($html->find('#frmIOH3') as $e)
