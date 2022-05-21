@@ -32,8 +32,8 @@ $table->setFieldsAtive("name, email, type, passw, active", 'csv');
 $table->setCampoPass("passw",0, "md5");
 
 //define lists of values to supplay to a field
-$table->setCampoLista("type",1," SELECT `id`,`type` FROM `tabUsersTypes` ORDER BY `type`");
-$table->setCampoLista("active",2,"1=>Active,0=>Inactive");
+$table->setFieldList("type",1," SELECT `id`,`type` FROM `tabUsersTypes` ORDER BY `type`");
+$table->setFieldList("active",2,"1=>Active,0=>Inactive");
 
 //the fiekd to be present as an image
 $table->setImageField("photo","../fotos/thumbs/",30);
