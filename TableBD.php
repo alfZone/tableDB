@@ -509,7 +509,7 @@ public function showHTML(){
 									
 	//$sql=$this->sqlGeral;
 	$sql=$this->preparaSQLparaAccao("ver");
-    echo "<br>sql=" . $sql;
+    //echo "<br>sql=" . $sql;
 	$stmt=$this->consultaSQL($sql);
 	//print_r($stmt);
   	foreach($stmt as $registo){
