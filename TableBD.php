@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.4.3
+ * @version 9.4.4
  * @updated 30-05-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -24,6 +24,7 @@
 
 //news of version: 
 //         Other type of field list combining sql with values
+//			solved error with calculeted fields
 
 
 
@@ -1047,6 +1048,9 @@ public function showHTML(){
         <?php
           
         }else{
+			if (!isset($campoaux['Default'])){
+				$campoaux['Default']=null;
+			}
           if (($campoaux['Type']=="lst") && ($campoaux['Default']!=null)){
             ?>
             $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
@@ -1259,11 +1263,12 @@ public function showHTML(){
 			//$resto= ") VALUES (";
 			$sep="";
 			foreach($this->camposLista as $campo){
-          //print_r($campo);
+          //print_r($campo['Type']);
+				
 				if ($campo["editar"]==1){
-          $campos.=$sep . $campo['Field'];
-          $sep=",";
-        } 
+					$campos.=$sep . $campo['Field'];
+					$sep=",";
+				} 
 			}
 			$resposta= "SELECT " . $campos  . " FROM " . $this->tabela ;
 			return $resposta;
@@ -1660,9 +1665,11 @@ public function showHTML(){
 		$this->camposLista[$i]['Type']="calc";
 		$this->camposLista[$i]['Field']=$nameField;
 		$this->camposLista[$i]['formula']=$sqlCalcFormula;
-    $this->camposLista[$i]['label']=$nameField;
-    $this->camposLista[$i]['Key']="";
-    $this->camposLista[$i]['ver']=1;
+    	$this->camposLista[$i]['label']=$nameField;
+    	$this->camposLista[$i]['Key']="";
+    	$this->camposLista[$i]['ver']=1;
+    	$this->camposLista[$i]['editar']=0;
+
     //echo "<br><br>";
      //print_r($this->camposLista);
 	}	
