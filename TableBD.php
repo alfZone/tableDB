@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.4.4
- * @updated 30-05-2022 21:50:00
+ * @version 9.5.0
+ * @updated 01-06-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -23,8 +23,7 @@
 
 
 //news of version: 
-//         Other type of field list combining sql with values
-//			solved error with calculeted fields
+//         The not null field are marked with a *
 
 
 
@@ -338,43 +337,43 @@ public function showHTML(){
 			case "l":
 				$this->prepareSQLtoAction('ver');
 				$this->fazlista();
-        $this->includes();
+        		$this->includes();
 				break;
-        //prepara a importação
-      case "pcsv":
-      case "pimp":
-        $this->includes();
-        $this->formImporta();
-        break;
-      case "csv":
-      case "imp":
-        $this->importarCSV();
-       
-        $this->redirecciona();
-        break;
+				//prepara a importação
+			case "pcsv":
+			case "pimp":
+				$this->includes();
+				$this->formImporta();
+				break;
+			case "csv":
+			case "imp":
+				$this->importarCSV();
+			
+				$this->redirecciona();
+				break;
 				//formulario para editar
 			case "e":
 			case "edit":
 				//echo "recebi";
-        //$chave=$this->getChave();
-        $chave=$this->getId();
-        //echo $chave;
+				//$chave=$this->getChave();
+				$chave=$this->getId();
+				//echo $chave;
 				$registo=$this->getDadosUpdate($chave);
-        //print_r($registo);
-        //return $registo;
-        echo $myJSON = json_encode($registo);
+				//print_r($registo);
+				//return $registo;
+				echo $myJSON = json_encode($registo);
 				//$this->includes(); 
 				//$this->formulario($registo);
 				break;
 				//formulário para introduzir os valores
 			case "ci":
 				//efectuar a inserção
-        echo "ci";
+        		//echo "ci";
 				$this->getDadosForm();
 				$sql= $this->preparaSQLinsert();
 				//echo $sql;
-			  //$this->consultaSQL($sql);
-        $this->ExecuteSQL($sql);
+			  	//$this->consultaSQL($sql);
+        		$this->ExecuteSQL($sql);
 				$this->redirecciona();
 				break;
 			case "ce":
@@ -425,6 +424,7 @@ public function showHTML(){
     foreach($html->find('#deleteKey') as $e)
         $e->outertext = '<input type="hidden" id="deleteKey" name="txt' .$this->chave . '" value="">'; //tirei o id
     
+	//prepare csv import form
     foreach($html->find('#importLst') as $e)
         $e->innertext = $this->fazListaCamposAccao("csv"); //tirei o id
     
@@ -686,14 +686,13 @@ public function showHTML(){
 //###################################################################################################################################
 	/*
 	* Apresenta um formulário HTML para editar ou inserir um registo
+	* Prepare form to edit or new
 	*/
 	public function formulario($toDo="e"){
 		
     $html = new simple_html_dom();
     $html->load_file($this->template);
-    
-    
-   
+     
     
     // change h3
     foreach($html->find('.tbTitle') as $e)
@@ -1092,22 +1091,27 @@ public function showHTML(){
 	public function inputHTML($campo, $valor=""){
 		$aux=substr($campo['Type'], 0, 3);
 		
-    $html = new simple_html_dom();
-    $html->load_file($this->template);
+    	$html = new simple_html_dom();
+    	$html->load_file($this->template);
     
-    $t="";
+    	$t="";
+		$ast="";
+		if ($campo['Null']=='NO'){
+			$ast="*";
+		}
 		//echo "aux: " . $aux;
 		//print_r($campo['lista']);
 		switch ($aux) {
-      case "lst":
+      		case "lst":
                 //echo "aux: " . $aux;
                 foreach($html->find('select[id]') as $e){
                   $e->id="txt" . $campo['Field'];
                   $e->name="txt" . $campo['Field'];
                 }
                   
+				
                 foreach($html->find('#selectL') as $e)
-                  $e->innertext=$campo['label'] ;                
+                  $e->innertext=$campo['label'] . $ast;                
               
                 $linhaElemento="";
         
@@ -1170,7 +1174,7 @@ public function showHTML(){
                 }
                   
                 foreach($html->find('#dateL') as $e)
-                  $e->outertext=$campo['label'] ;
+                  $e->outertext=$campo['label']  . $ast ;
                 foreach($html->find('.date') as $e)
                   $t=$e->outertext;
 						break;
@@ -1186,7 +1190,7 @@ public function showHTML(){
                 }
                   
                 foreach($html->find('#textL') as $e)
-                  $e->innertext=$campo['label'] ;
+                  $e->innertext=$campo['label']  . $ast ;
                 foreach($html->find('.text') as $e)
                   $t=$e->outertext;        
 						break;
@@ -1198,7 +1202,7 @@ public function showHTML(){
                 }
                   
                 foreach($html->find('#textAreaL') as $e)
-                  $e->innertext=$campo['label'] ;
+                  $e->innertext=$campo['label']  . $ast;
         
                 //foreach($html->find('#textAreaS') as $e)
                   //$e->innertext="$(document).ready(function() { $('#" . "txt" . $campo['Field'] . "').summernote(); });";
@@ -1217,7 +1221,7 @@ public function showHTML(){
                }
                   
                 foreach($html->find('#passwordL') as $e)
-                  $e->innertext=$campo['label'] ;
+                  $e->innertext=$campo['label'] . $ast ;
                 foreach($html->find('.password') as $e)
                   $t=$e->outertext;
 						break;
@@ -1932,7 +1936,12 @@ public function showHTML(){
 	*/
 	private function setLabels(){
 		$i=0;
+		//print_r($this->camposLista);
 		foreach($this->camposLista as $campo){
+				//$aux="";
+				//if ($campo['Null']=='NO'){
+				//	$aux="*";
+				//}
 				$this->camposLista[$i]['label']=$campo['Field'];
 				$i++;
 		}
