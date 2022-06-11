@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.5.0
- * @updated 01-06-2022 21:50:00
+ * @version 9.6.0
+ * @updated 11-06-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -23,7 +23,7 @@
 
 
 //news of version: 
-//         The not null field are marked with a *
+//         In CSV import we can choose to update if exist the record
 
 
 
@@ -69,7 +69,7 @@ class TableBD{
 //                               field, includes: label, Field, Type and etc and value is the default value to be included in the field
 // preparaSQLGeral() - Prepare a string with the table's SQL statement (of type SELECT * FROM Table). Included all fields
 // preparaSQLdelete() - Prepare an SQL string to delete the record
-// preparaSQLinsert() - Prepare an SQL string to insert the fields with value
+// prepareSQLinsert() - Prepare an SQL string to insert the fields with value
 // prepareSQLtoAction($action) | preparaSQLparaAccao($ accao) - Prepare a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included fields marked as visible 
 //                                in the chosen action where in action We may want to see the fields in three types of action: New (novo), Edit (editar), List (ver) Import (csv) 
 // preparaSQLupdate() - Prepare an SQL string to update fields with value
@@ -347,7 +347,7 @@ public function showHTML(){
 				break;
 			case "csv":
 			case "imp":
-				$this->importarCSV();
+				$this->importCSV();
 			
 				$this->redirecciona();
 				break;
@@ -370,7 +370,7 @@ public function showHTML(){
 				//efectuar a inserção
         		//echo "ci";
 				$this->getDadosForm();
-				$sql= $this->preparaSQLinsert();
+				$sql= $this->prepareSQLinsert();
 				//echo $sql;
 			  	//$this->consultaSQL($sql);
         		$this->ExecuteSQL($sql);
@@ -941,38 +941,57 @@ public function showHTML(){
   
  //###################################################################################################################################
 	/**
-	* importar uma caixa de texto
+	* Import a string with field separeted by ;
 	*/ 
-  public function importarCSV(){
+  public function importCSV(){
     
-    if (isset($_REQUEST["txtCSV"])){
-       
-				if ($_REQUEST["txtCSV"]!=""){
-           //echo "recebi!";
-					$txt=$_REQUEST["txtCSV"];
-          $linhas=explode("\n", $txt);
-          foreach($linhas as $linha){
-            $registo=explode(";", $linha);
-            $i=0;
-            $j=0;
+    if (isset($_REQUEST["txtCSV"])){       
+		if ($_REQUEST["txtCSV"]!=""){
+        	//echo "recebi!";
+			$upd=0;
+			if (isset($_REQUEST['doUpdate'])){
+				if ($_REQUEST['doUpdate']==true){
+					$upd=1;
+				}
+			}
+			//echo "update?=$upd; doUpadate:".$_REQUEST['doUpdate'];
+			$txt=$_REQUEST["txtCSV"];
+          	$linhas=explode("\n", $txt);
+          	foreach($linhas as $linha){
+            	$registo=explode(";", $linha);
+            	$i=0;
+            	$j=0;
+				$keyValue="";
 		        foreach($this->camposLista as $campoaux){
-              if ($campoaux['csv']==1){
-                    if ($campoaux['Type']=="pas"){
-                      $registo[$j]=$this->encriptar($registo[$j], $campoaux['cifra']);;
-                    }
-                    $this->camposLista[$i]["valor"]=$registo[$j];
-                    $j++;			
-              }
-              $i++;
+					//print_r($campoaux);
+					
+              		if ($campoaux['csv']==1){
+                    	if ($campoaux['Type']=="pas"){
+                      		$registo[$j]=$this->encriptar($registo[$j], $campoaux['cifra']);;
+                    	}
+						if ($campoaux['Key']=="PRI"){
+							$keyValue=$registo[$j];
+					  	}
+                    	$this->camposLista[$i]["valor"]=$registo[$j];
+                    	$j++;			
+              		}
+              		$i++;
 		        }
-             $sql= $this->preparaSQLinsert();
-				    echo $sql;
-				    $this->consultaSQL($sql);
-            //print_r($this->camposLista);    
-          }
+				if ($keyValue!="" and $upd==1){
+					$sql= $this->prepareSQLInsertIfNotExisteUpdateIfExiste($keyValue);
+					
+				}else{
+					$sql= $this->prepareSQLinsert();
+					
+				}
+             	
+				//echo $sql;
+				$this->consultaSQL($sql);
+            	//print_r($this->camposLista);    
+          	}
         
-				} 
-		}
+		} 
+	}
     //echo "ole";
   }
   
@@ -1254,7 +1273,31 @@ public function showHTML(){
 			return 	$this->sqlGeral;
 		}
  
-  
+  //###################################################################################################################################	
+		/**
+     	*  
+		 * Prepare a string SQL to insert if not exist and update if exist
+		 */
+	public function prepareSQLInsertIfNotExisteUpdateIfExiste($key){
+		//$resposta=$this->prepareSQLSelect($key) . " If ResultCount==0 ";
+		$resposta=$this->prepareSQLinsert() . " ON DUPLICATE KEY ";
+		$resposta.=$this->preparaSQLupdate(1) ;
+		//$resposta='INSERT INTO table (id, name, age) VALUES(1, "A", 19) ON DUPLICATE KEY UPDATE    
+		//name="A", age=19';
+
+		return $resposta;
+	}
+
+	//###################################################################################################################################	
+		/**
+     	*  
+		 * Prepare a string SQL to select a especific record
+		 */
+		public function prepareSQLSelect($key){
+			$resposta= "SELECT " . $this->chave  . " FROM " . $this->tabela . " WHERE " . $this->chave . "='$key'" ;
+			return $resposta;
+		}
+
   //###################################################################################################################################	
 		/**
      *  
@@ -1307,7 +1350,7 @@ public function showHTML(){
      *  
 		 * Prepara uma string SQL para inserir os campos com valor
 		 */
-	  public function preparaSQLinsert(){
+	  public function prepareSQLinsert(){
 			$resposta= "INSERT INTO " . $this->tabela . " ( ";
 			$resto= ") VALUES (";
 			$sep="";
@@ -1321,7 +1364,7 @@ public function showHTML(){
 				}
 				
 			}
-			$resposta= $resposta . $resto . "); ";
+			$resposta= $resposta . $resto . ") ";
 			return $resposta;
 		}
 	
@@ -1423,8 +1466,13 @@ public function showHTML(){
      *  
 		 * Prepara uma string SQL para atualizar campos com valor
 		 */
-	  public function preparaSQLupdate(){
-			$resposta= "UPDATE " . $this->tabela . " SET ";
+	  public function preparaSQLupdate($noTable=0){
+			if($noTable==1){
+				$resposta= "UPDATE ";
+			}else{
+				$resposta= "UPDATE " . $this->tabela . " SET ";
+			}
+			
 			//echo "<br>chave=$this->chave";
 			//$resto= ") VALUES (";
       //$criterio="";
@@ -1444,9 +1492,14 @@ public function showHTML(){
 					} 
 				}
 			}
-			$resposta= $resposta .  " WHERE " . $this->chave . " = " . $criterio . ";";
+			if($noTable==1){
+				$resposta.= ";";
+			}else{
+				$resposta= $resposta .  " WHERE " . $this->chave . " = " .$criterio . ";";
+			}
+			//$resposta= $resposta .  " WHERE " . $this->chave . " = " .$criterio . ";";
       //echo "chave: " . $this->chave . " fim da chave";
-      //echo $resposta;
+      //echo $resposta; 
 			return $resposta;
 		}    
        
