@@ -218,6 +218,13 @@
                   <textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
                 </div>
               </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <input type="checkbox" id="doUpdate" name="doUpdate" >
+                  <label for="comment">Se existe o registo actualiza-o:</label>
+                  
+                </div>
+              </div>
             </div>
           </div>
           <!-- Modal footer -->
@@ -293,6 +300,8 @@ ____
               .tbTitle -  the table title (optional)
 #frmCSV - Form for importe csv file. Must include:
               <input type="hidden" name="do" value="csv">
+              <input type="checkbox" id="doUpdate" name="doUpdate" >
+              <textarea id="txtCSV" name="txtCSV"></textarea>
               #importLst - for update de list of fields
               .tbTitle -  the table title (optional)
 -->
