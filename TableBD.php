@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.6.0
- * @updated 11-06-2022 21:50:00
+ * @version 9.6.1
+ * @updated 14-06-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -24,6 +24,7 @@
 
 //news of version: 
 //         In CSV import we can choose to update if exist the record
+//			in CSV the filed not null are indicated with *
 
 
 
@@ -632,7 +633,11 @@ public function showHTML(){
       //print_r($campo);
       if (isset($campo[$accao])){
          if ($campo[$accao]==1){
-            $texto=$texto . $sep . $campo['Field'];
+			$aux="";
+			if ($campo['Null']=="NO"){
+				$aux="*";
+			}
+            $texto=$texto . $sep . $campo['Field'] . $aux;
             $sep=";";
          }
       }  
@@ -985,7 +990,7 @@ public function showHTML(){
 					
 				}
              	
-				//echo $sql;
+				echo $sql;
 				$this->consultaSQL($sql);
             	//print_r($this->camposLista);    
           	}
