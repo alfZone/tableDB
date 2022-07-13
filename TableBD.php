@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.6.1
- * @updated 14-06-2022 21:50:00
+ * @version 9.6.2
+ * @updated 14-07-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -23,8 +23,7 @@
 
 
 //news of version: 
-//         In CSV import we can choose to update if exist the record
-//			in CSV the filed not null are indicated with *
+//         order by string now is avaiable
 
 
 
@@ -100,6 +99,7 @@ class TableBD{
 //																 	image to reach the file and $percentage is the percentage of the height of the image is the field we want to change to. $defaultImage is an 
 //																	image to replace null and "" values
 // setCriterio($ criterio) - defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
+// setOrder($order) - is a sql string to order the data in a table
 // + setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
 //                                      value is the initial value to be considered
 // setHTMLid($ id, $ value) - Writes in an HTML element of the page by default, which has the id. id is the id of an HTML tag and value is a string with the value to be loaded
@@ -128,7 +128,7 @@ class TableBD{
 	
 
   private $camposLista;
-  private $template="../templates/base/tables.php";
+  private $template="../templates/gestor2/tables.php";
   private $tabela;
   private $sqlGeral;
   private $chave;
@@ -137,6 +137,7 @@ class TableBD{
   private $linkStyle="";
   private $PagImp=0;
   private $criterio="(1=1)";
+  private $order="1=1";
   private $autenticacao="a";  //defines if by default the user has permissions to:
                                   // a - all have the possibility to view, create new, delete and change
                                   // u - update Can only change data
@@ -1401,7 +1402,7 @@ public function showHTML(){
 		}
 			$resposta= $resposta . " FROM " . $this->tabela;
       
-      $resposta = $resposta . " WHERE " . $this->criterio;
+      $resposta = $resposta . " WHERE " . $this->criterio . " order by" . $this->order;
       //echo "<br> $resposta <br>";
       
       if ($this->limites[0]>0){
@@ -1449,7 +1450,7 @@ public function showHTML(){
 		}
 			$resposta= $resposta . " FROM " . $this->tabela;
       
-      $resposta = $resposta . " WHERE " . $this->criterio;
+      $resposta = $resposta . " WHERE " . $this->criterio . " order by " . $this->order;
       //echo "<br> $resposta <br>";
       
       if ($this->limites[0]>0){
@@ -1926,7 +1927,18 @@ public function showHTML(){
 	  $this->criterio=$criterio;
 	}	
 
+  	//###################################################################################################################################	
+	/**
+	* @param order    is a sql string to order tha table
+  * 
+	* define um critério para a accão de ver
+	*/
+	public function setOrder($order){
+		$this->order=$order;
+	  }	
   
+	
+
     //###################################################################################################################################	
 	/**
      * @param campo    is the name of the field in which we want to define an initial value 
