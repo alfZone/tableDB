@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.6.2
+ * @version 9.7.0
  * @updated 14-07-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -18,12 +18,10 @@
 // - id editKey é necessário no ficheiro tabeladb??
 
 // roadmap
-// - point to required fields on form
-// - use sql field comments to provide a label for the field
 
 
 //news of version: 
-//         order by string now is avaiable
+//         use sql field comments to provide a label for the field
 
 
 
@@ -206,7 +204,7 @@ class TableBD{
 	 *
 	 * given a sql returns a list of data.
 	 */
-	public function consultaSQL($sql){
+	public function querySQL($sql){
 		$database = new Database(_BDUSER, _BDPASS, _BD);
         $database->query($sql);
 		//$database->execute();
@@ -215,8 +213,8 @@ class TableBD{
 	
 	}
   
-  public function querySQL($sql){
-    return $this->consultaSQL($sql);
+  public function consultaSQL($sql){
+    return $this->querySQL($sql);
 	}
 	  
   	//###################################################################################################################################	
@@ -1525,7 +1523,8 @@ public function showHTML(){
 		$this->tabela=$table;
 		$this->preparaSQLGeral();
 		
-		$sql="DESCRIBE  $table ";
+		//$sql="DESCRIBE  $table ";
+		$sql="show full columns from  $table ";
 		//echo $sql;
 		$this->camposLista=$this->consultaSQL($sql);
 		//$v=$this->camposLista;
@@ -2012,7 +2011,14 @@ public function showHTML(){
 				//if ($campo['Null']=='NO'){
 				//	$aux="*";
 				//}
-				$this->camposLista[$i]['label']=$campo['Field'];
+				if ($this->camposLista[$i]['Comment']!=""){
+					$this->camposLista[$i]['label']=$this->camposLista[$i]['Comment'];
+				}else{
+					$this->camposLista[$i]['label']=$campo['Field'];
+				}
+				
+				
+				
 				$i++;
 		}
 	}
