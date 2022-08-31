@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.7.0
+ * @version 9.7.1
  * @updated 14-07-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -12,16 +12,14 @@
  */
 
 // problems detected
-// - Need more testing
-// - When using a null value, the field content is not deleted. Probably not considered
 // - Return errors
-// - id editKey é necessário no ficheiro tabeladb??
 
 // roadmap
 
 
 //news of version: 
 //         use sql field comments to provide a label for the field
+// 			When send empty value, the field content is deleted.
 
 
 
@@ -29,6 +27,7 @@
 namespace classes\db;
 use classes\db\Database;
 use classes\simplehtmldom\simple_html_dom;
+use classes\errors\Log;
 use DOMDocument;
 use DomXPath;
 
@@ -55,7 +54,7 @@ class TableBD{
 //              set of records (25 by default) and allows browsing pages
 // formConfirmacaoApagar($ record) - Displays a confirmation to delete the record
 // formulario($ record = "") - Displays an HTML form to edit or insert a record
-// - getCampoValor($ campo) - returns an appropriate string to construct an SQL field with quotes and without quotes in which field and an array with the information of a field, //                          includes: label, Field, Type, value and etc
+// getCampoValor($ campo) - returns an appropriate string to construct an SQL field with quotes and without quotes in which field and an array with the information of a field, //                          includes: label, Field, Type, value and etc
 // getCampos() - Returns the list of fields in the table
 // getChave() - reads the key parameter of the record sent by the HTML form and which corresponds to the value identified as key in the analysis of the table
 // getDados($ key) - given a key value it returns the results
@@ -884,14 +883,17 @@ public function showHTML(){
 		$i=0;
 		//print_r($_REQUEST);
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
+		//$t= json_encode($_REQUEST);
+		//$l=new Log($_REQUEST);
 		foreach($this->camposLista as $campoaux){
 			$nomeCampo="txt" . $campoaux['Field'];
 			if (isset($_REQUEST[$nomeCampo])){
-				if ($_REQUEST[$nomeCampo]!=""){
+				//if ($_REQUEST[$nomeCampo]!=""){
 					$this->camposLista[$i]["valor"]=$_REQUEST[$nomeCampo];
-				} else {
-					$this->camposLista[$i]["valor"]="";
-				}
+				//} else {
+				//	$this->camposLista[$i]["valor"]="";
+					$this->camposLista[$i]["change"]=1;
+				//}
 					
 				
 			}
@@ -1483,12 +1485,13 @@ public function showHTML(){
 			$sep="";
 			foreach($this->camposLista as $campo){
 				if (isset($campo["valor"])){
-					if ($campo["valor"]!=""){
+					if ($campo["change"]==1){
 						if ($campo['Field'] != $this->chave){
 							//print_r($campo);
 							$resposta=$resposta . $sep . $campo['Field']; 
 							$resposta=$resposta . " = " . $this->getCampoValor($campo);
 							$sep=",";
+							$campo["change"]==0;
 						} else {
 							$criterio=$this->getCampoValor($campo);
 						}
