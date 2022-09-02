@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.7.1
- * @updated 14-07-2022 21:50:00
+ * @version 9.7.2
+ * @updated 02-09-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -160,19 +160,15 @@ class TableBD{
 	*/
 	private function fieldsActive($value, $action){
     
-    $action=str_replace("list","ver",$action);
-    $action=str_replace("see","ver",$action);
-    $action=str_replace("new","novo",$action);
-    $action=str_replace("edt","editar",$action);
-    $action=str_replace("editarar","editar",$action);
-    /*if ((($action=="novo")||($action=="editar")) && $value==1){
-      //echo "acao=$action";
-      $this->autenticacao="a";
-    }*/
+		$action=str_replace("list","ver",$action);
+		$action=str_replace("see","ver",$action);
+		$action=str_replace("new","novo",$action);
+		$action=str_replace("edt","editar",$action);
+		$action=str_replace("editarar","editar",$action);
 		$i=0;
 		foreach($this->camposLista as $campo){
-				$this->camposLista[$i][$action]=$value;
-				$i++;
+			$this->camposLista[$i][$action]=$value;
+			$i++;
 		}
 	}
   
@@ -186,13 +182,7 @@ class TableBD{
   * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
 	*/
 	private function ativaCampos($valor, $accao){
-	/*	$i=0;
-		foreach($this->camposLista as $campo){
-				$this->camposLista[$i][$accao]=$valor;
-				$i++;
-		}
-    */
-    $this->fieldsActive($valor, $accao);
+	    $this->fieldsActive($valor, $accao);
 	}
  
 
@@ -206,14 +196,12 @@ class TableBD{
 	public function querySQL($sql){
 		$database = new Database(_BDUSER, _BDPASS, _BD);
         $database->query($sql);
-		//$database->execute();
 			
-		return $database->resultset();
-	
+		return $database->resultset();	
 	}
   
-  public function consultaSQL($sql){
-    return $this->querySQL($sql);
+  	public function consultaSQL($sql){
+    	return $this->querySQL($sql);
 	}
 	  
   	//###################################################################################################################################	
@@ -249,7 +237,7 @@ class TableBD{
 		$devolve=$chave;
 		foreach($this->camposLista as $campo1){
 			if ($campo1['Field']==$campo){
-        //print_r($campo1);
+			//print_r($campo1);
 				foreach($campo1['lista'] as $linha){
 					$i=0;
 					$proximo=0;
@@ -259,17 +247,16 @@ class TableBD{
 							$proximo=1;
 						}
 						if (($proximo==1) && ($i==1)){
-              if ($campo1['hideCode']==1){
-                $devolve=$x_value;
-              }else{
-                $devolve=$x_value . " [" . $chave ."]";
-              }
-							
+							if ($campo1['hideCode']==1){
+								$devolve=$x_value;
+							}else{
+								$devolve=$x_value . " [" . $chave ."]";
+							}
 						}
 						$i++;
 					}
 				}
-	
+		
 			}
 		}
 		return $devolve;
@@ -284,22 +271,19 @@ class TableBD{
 	 * encripta um texto segundo um método passado.
 	 */
 	function encriptar($texto, $cifra="md5"){
-				$resposta=$texto;
-				switch ($cifra){
-					case "md5":
-						$resposta=md5(trim($texto));
-						break;
-					case "sha1":
-						$resposta=sha1(trim($texto));
-						break;
-					case "base4":
-						$resposta=base64_encode(trim($texto));
-						break;
-				}
-					
-			
+		$resposta=$texto;
+		switch ($cifra){
+			case "md5":
+				$resposta=md5(trim($texto));
+				break;
+			case "sha1":
+				$resposta=sha1(trim($texto));
+				break;
+			case "base4":
+				$resposta=base64_encode(trim($texto));
+				break;
+			}	
 		return $resposta;
-	
 	}
   
   
@@ -314,22 +298,18 @@ class TableBD{
 		$database = new Database(_BDUSER, _BDPASS, _BD);
         $database->query($sql);
 		  $database->execute();
-			
 		//return $database->resultset();
-	
 	}
 	
 	//###################################################################################################################################
-  /**
-	* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
-	*/
-  // TEM DE SER TODO REFORMULADO
-public function showHTML(){
-		
-    //lê o parametro 'do' do form HTML
+	/**
+		* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
+		*/
+	// TEM DE SER TODO REFORMULADO
+	public function showHTML(){	
+    	//lê o parametro 'do' do form HTML
 		$action=$this->getDo();
-    //echo "<br>Faz: $faz<br><br>";
-    
+    	//echo "<br>Faz: $faz<br><br>";
 		switch($action){
 				//options
 			case "":
@@ -395,111 +375,102 @@ public function showHTML(){
 	}
 
 //###################################################################################################################################
-  /**
+  	/**
 	* Faz o que é necessaro para manter a tabela numa página html. Lista os dados e permite inserir novos, editar e apagar registos. Usa um parametro 'do' 
 	* para tomar as decisões
 	*/
-  // TEM DE SER TODO REFORMULADO
+  	// TEM DE SER TODO REFORMULADO
 	public function fazHTML(){
-		
-    $this->showHTML();
-    
- 
+		$this->showHTML();
 	}
 
   
    //###################################################################################################################################
-  /**
+  	/**
 	* Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
-  * a set of records (25 by default) and allows browsing pages
+  	* a set of records (25 by default) and allows browsing pages
 	* conjunto de registos (25 por defeito) e permite navegar em páginas
 	*/
 	public function fazLista(){
     
-    $html = new simple_html_dom();
-    $html->load_file($this->template);
+    	$html = new simple_html_dom();
+    	$html->load_file($this->template);
      
-    //preparar o form delete
-    foreach($html->find('#deleteKey') as $e)
-        $e->outertext = '<input type="hidden" id="deleteKey" name="txt' .$this->chave . '" value="">'; //tirei o id
-    
-	//prepare csv import form
-    foreach($html->find('#importLst') as $e)
-        $e->innertext = $this->fazListaCamposAccao("csv"); //tirei o id
-    
-    //print_r($this->camposLista);
-     // table head line
-    $text="<tr>". PHP_EOL;
-    $i=0;
-    $pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
-	foreach($this->camposLista as $campo){
-		//print_r($campo);
-      	//echo "<hr>";
-      	if ($this->chave==$campo['Field'] && $campo['ver']==1){
-        	$pi=1;
-      	}
-      	if ($campo['ver']==1){
-			  //echo $campo['label'];
-			$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
-			if ($campo['Type']=="lst"){
-				$carimbo=$campo['Field'];
-				//echo $carimbo;
-			}else {
-				$carimbo=0;
+		//prepare a form delete
+		foreach($html->find('#deleteKey') as $e)
+			$e->outertext = '<input type="hidden" id="deleteKey" name="txt' .$this->chave . '" value="">'; //tirei o id
+		
+		//prepare a csv import form
+		foreach($html->find('#importLst') as $e)
+			$e->innertext = $this->fazListaCamposAccao("csv"); //tirei o id
+		
+		//print_r($this->camposLista);
+		// table head line
+		$text="<tr>". PHP_EOL;
+		$i=0;
+		$pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
+		foreach($this->camposLista as $campo){
+			//print_r($campo);
+			//echo "<hr>";
+			if ($this->chave==$campo['Field'] && $campo['ver']==1){
+				$pi=1;
 			}
-        	$elista[$i]=$carimbo;
-        	if ($campo['Type']=="img"){
-				$carimbo=$campo['Field'];
-          		$imgHTMLpre[$i]='<img src="' . $campo['Path'];
-				$ia=$campo['Field'];
-				//if (($carimbo=="")||$carimbo=null){
-					//$carimbo=$campo['defaultImage'];
-				//}
-          		$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
-				  //$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
-				//echo $carimbo;
-				$imgDefault[$i]=$campo['defaultImage'];
-			}else {
-				$carimbo=0;
+			if ($campo['ver']==1){
+				//echo $campo['label'];
+				$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
+				if ($campo['Type']=="lst"){
+					$carimbo=$campo['Field'];
+					//echo $carimbo;
+				}else {
+					$carimbo=0;
+				}
+				$elista[$i]=$carimbo;
+				if ($campo['Type']=="img"){
+					$carimbo=$campo['Field'];
+					$imgHTMLpre[$i]='<img src="' . $campo['Path'];
+					$ia=$campo['Field'];
+					//if (($carimbo=="")||$carimbo=null){
+						//$carimbo=$campo['defaultImage'];
+					//}
+					$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
+					//echo $carimbo;
+					$imgDefault[$i]=$campo['defaultImage'];
+				}else {
+					$carimbo=0;
+				}
+				$eImagem[$i]=$carimbo;
+				$i++;
 			}
-			$eImagem[$i]=$carimbo;
-			$i++;
-		}
-    }  
+    	}  
         
-    switch ($this->autenticacao){
-    	case "a":
-          // get csv buttom
-          if ($this->PagImp==1){
-            foreach($html->find('#bcsv') as $e)
-              $k=$e->outertext;           
-          }else{
-            $k="";
-          }
-          // get add buttom
-          //echo $k;
-          foreach($html->find('#bnew') as $e)
-              $text .="<th class='buttons'>" . $e->outertext .$k ."</th>";
-              
-          break;
-	  	case "r":
-			$text .="";
-		  	break;
-      default:
-          $text .="<th></th>";
-          break;
-   }
-    
+		switch ($this->autenticacao){
+			case "a":
+			// get csv buttom
+			if ($this->PagImp==1){
+				foreach($html->find('#bcsv') as $e)
+				$k=$e->outertext;           
+			}else{
+				$k="";
+			}
+			// get add buttom
+			//echo $k;
+			foreach($html->find('#bnew') as $e)
+				$text .="<th class='buttons'>" . $e->outertext .$k ."</th>";			
+			break;
+			case "r":
+				$text .="";
+				break;
+		default:
+			$text .="<th></th>";
+			break;
+	}
     
     foreach($html->find('.titleTable') as $e)
         $e ->innertext=$text . "</tr>". PHP_EOL;
-    
-     
     //___ End of table head
     
     
-    //--- begin of table
-    
+    //--- begin of table  
     $text="";
     $bEdit="";
     $bSee="";
@@ -507,8 +478,7 @@ public function showHTML(){
     // ver que página estamos a ver
     
     $pagina = (isset($_REQUEST["p"])?($_REQUEST["p"]):1);		
-									
-	//$sql=$this->sqlGeral;
+
 	$sql=$this->preparaSQLparaAccao("ver");
     //echo "<br>sql=" . $sql;
 	$stmt=$this->consultaSQL($sql);
@@ -573,14 +543,12 @@ public function showHTML(){
                 	$e->data=$chave;
                   	$e->onClick="preUp('" . $chave . "')";
                   	$text .="<td class='buttons'>" . $ver .  $e->outertext;
-                }
-                  
+                }        
                 foreach($html->find('.bdel') as $e){
                   	$e->data=$chave;
                   	$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
                   	$text .= $e->outertext ."</td></tr>";
-                }
-                  
+                } 
                 break;
         	case "u":
         	case "e":
@@ -600,17 +568,15 @@ public function showHTML(){
     
     foreach($html->find('#bodyTable') as $e)
     	$e ->innertext=$text . PHP_EOL;  
-        
     //--- end of table
+
     $formAU=$this->formulario();    
-    
     foreach($html->find('#frmIU') as $e)
         $e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
     
     // change te title
     foreach($html->find('.tbTitle') as $e)
         $e->innertext = $this->textos['titulo'];
-    
     //echo "aaaaaa";
     echo $html;
     
@@ -652,8 +618,7 @@ public function showHTML(){
   
   //ISTO É PARA SER ADICIONA AO MODELO COM MODAL
   
-	public function formImporta(){
-		
+	public function formImporta(){		
 				?>
 	
  			<div class="container">
@@ -691,30 +656,26 @@ public function showHTML(){
 	* Apresenta um formulário HTML para editar ou inserir um registo
 	* Prepare form to edit or new
 	*/
-	public function formulario($toDo="e"){
-		
-    $html = new simple_html_dom();
-    $html->load_file($this->template);
-     
+	public function formulario($toDo="e"){		
+		$html = new simple_html_dom();
+		$html->load_file($this->template);
     
     // change h3
     foreach($html->find('.tbTitle') as $e)
         $e->innertext = $this->textos['titulo'];
     
-    
-    $accao="editar";
+	$accao="editar";
     if ($toDo=="a"){
        $accao="novo";
     }
-      
     
     $t=""; 
-   //preparing fields  
-   foreach($this->camposLista as $campo){
+   	//preparing fields  
+   	foreach($this->camposLista as $campo){
 		//print_r($campo);
      
 		//echo "<br>_____________________________<br>";
-     //echo "<br>accao:" . $accao ;
+     	//echo "<br>accao:" . $accao ;
 		if (!isset($campo[$accao])){
 			$campo[$accao]=0;
 		}
@@ -738,16 +699,13 @@ public function showHTML(){
     foreach($html->find('#frmIOH3') as $e)
         $e->innertext= PHP_EOL. PHP_EOL.$t. PHP_EOL. PHP_EOL;
     
-   $modalAU="";
-   foreach($html->find('#frmIU') as $e)
+   	$modalAU="";
+   	foreach($html->find('#frmIU') as $e)
         $modalAU=$e->outertext;
         
     return $modalAU;
-	
 	} 
 
- 
-  
 	//###################################################################################################################################	
 	/**
 	* 
@@ -775,12 +733,12 @@ public function showHTML(){
 			case "num":
 			case "mon":
 			case "rea":
-					$resp=$campo['valor'];
-          //$resp="'" . $resp. "'";
-          $resp=str_replace(",",".",$resp);
-          //$resp=str_replace(".",",",$resp);
-          //$resp=str_replace("x",".",$resp);
-					break;
+				$resp=$campo['valor'];
+          		//$resp="'" . $resp. "'";
+				$resp=str_replace(",",".",$resp);
+				//$resp=str_replace(".",",",$resp);
+				//$resp=str_replace("x",".",$resp);
+				break;
 			case "var":	
 			case "dat":
 			case "tex":
@@ -792,22 +750,21 @@ public function showHTML(){
 			case "dec":
 			case "nte":
 			case "lst":
-      case "med":
-      case "tim":
-      case "img":
-          $resp=$campo['valor'];
-          $resp=str_replace('"',"'",$resp);
-					$resp='"' . $resp. '"';
-					break;
+			case "med":
+			case "tim":
+			case "img":
+				$resp=$campo['valor'];
+				$resp=str_replace('"',"'",$resp);
+				$resp='"' . $resp. '"';
+				break;
 			case "pas":
-					//incluir encriptação
-					$resp=$this->encriptar($campo['valor'], $campo['cifra']);
-					$resp="'" . $resp. "'";
-					
-					break;
+				//incluir encriptação
+				$resp=$this->encriptar($campo['valor'], $campo['cifra']);
+				$resp="'" . $resp. "'";
+				break;
 			case "tin":
-					break;
-			} 
+				break;
+		} 
 		return $resp;
 	}
 	
@@ -825,37 +782,33 @@ public function showHTML(){
 	 *
 	 * lê o parametro chave do registo enviado pelo form HTML e que corresponde ao valor identificado como chave na análise da tabela
 	 */
-  public function getChave(){
+  	public function getChave(){
     
-    $chave=utf8_encode($_REQUEST[$this->chave]);
-	
+    	$chave=utf8_encode($_REQUEST[$this->chave]);
 		//echo "<br><br><br><br><br><br><br><br><br><br>$chave<br>";
-		return $chave;
-		
-		
-  }
+		return $chave;		
+  	}
   
  //###################################################################################################################################	
 	/**
 	 *
 	 * lê o parametro 'do' do form HTML
 	 */
-  public function getId(){
+	public function getId(){
 		$id="";
-    //echo $_REQUEST['id'];
-    if (isset($_REQUEST['id'])){
+		//echo $_REQUEST['id'];
+		if (isset($_REQUEST['id'])){
 			$id=utf8_encode($_REQUEST['id']);
 		}
 		//echo "<br>do=$do";
-    return $id;
-  } 
+		return $id;
+	} 
   
  //###################################################################################################################################
 	/*
 	* dado um valor chave devolve os resultados
 	*/
 	public function getDados($chave){
-		
 		$this->determinaChave();
 		$this->preparaSQLGeral();
 		$sql=$this->sqlGeral . " WHERE " . $this->chave . " = '" . $chave . "'";
@@ -870,8 +823,8 @@ public function showHTML(){
 		$this->determinaChave();
 		$sql=$this->preparaSQLSelectToUpdate();
 		//$sql .= " WHERE " . $this->chave . " = '" . $chave . "' AND " . $this->criterio . ";";
-    $sql .= " WHERE " . $this->chave . " = '" . $chave . "'; ";
-    //echo $sql;
+    	$sql .= " WHERE " . $this->chave . " = '" . $chave . "'; ";
+    	//echo $sql;
 		return $this->consultaSQL($sql);
 	} 
 
@@ -888,36 +841,27 @@ public function showHTML(){
 		foreach($this->camposLista as $campoaux){
 			$nomeCampo="txt" . $campoaux['Field'];
 			if (isset($_REQUEST[$nomeCampo])){
-				//if ($_REQUEST[$nomeCampo]!=""){
-					$this->camposLista[$i]["valor"]=$_REQUEST[$nomeCampo];
-				//} else {
-				//	$this->camposLista[$i]["valor"]="";
-					$this->camposLista[$i]["change"]=1;
-				//}
-					
-				
+				$this->camposLista[$i]["valor"]=$_REQUEST[$nomeCampo];
+				$this->camposLista[$i]["change"]=1;
 			}
 			$i++;
 		}
 		//print_r($this->camposLista);
 	} 
-	
-  
-
-  
+	 
 	//###################################################################################################################################	
 	/**
 	 *
 	 * lê o parametro 'do' do form HTML
 	 */
-  public function getDo(){
+	public function getDo(){
 		$do="";
-    if (isset($_REQUEST['do'])){
+		if (isset($_REQUEST['do'])){
 			$do=$_REQUEST['do'];
 		}
 		//echo "<br>do=$do";
-    return $do;
-  }
+		return $do;
+	}
   
   //###################################################################################################################################	
 	/**
@@ -925,12 +869,10 @@ public function showHTML(){
 	 *
 	 * devolve o nome do ficheiro de template
 	 */
-  public function getTemplate(){
-    
-    return $this->template;
-  }
+	public function getTemplate(){
+		return $this->template;
+	}
 
-  
   
    //###################################################################################################################################	
 	/**
@@ -939,10 +881,9 @@ public function showHTML(){
 	 *
 	 * devolve um texto previmente adicionado
 	 */
-  public function getTextos($chave){
-    
-    return $this->textos[$chave];
-  }
+	public function getTextos($chave){
+		return $this->textos[$chave];
+	}
 
   
  //###################################################################################################################################
@@ -950,7 +891,6 @@ public function showHTML(){
 	* Import a string with field separeted by ;
 	*/ 
   public function importCSV(){
-    
     if (isset($_REQUEST["txtCSV"])){       
 		if ($_REQUEST["txtCSV"]!=""){
         	//echo "recebi!";
@@ -970,7 +910,6 @@ public function showHTML(){
 				$keyValue="";
 		        foreach($this->camposLista as $campoaux){
 					//print_r($campoaux);
-					
               		if ($campoaux['csv']==1){
                     	if ($campoaux['Type']=="pas"){
                       		$registo[$j]=$this->encriptar($registo[$j], $campoaux['cifra']);;
@@ -995,7 +934,6 @@ public function showHTML(){
 				$this->consultaSQL($sql);
             	//print_r($this->camposLista);    
           	}
-        
 		} 
 	}
     //echo "ole";
@@ -1008,24 +946,18 @@ public function showHTML(){
     //TROCAR PELO AJAX
 	public function includes($path=""){
 		?>
-
   <script>
 
   function preDel(id,texto){
     //alert(id);
     document.getElementById("delText").innerHTML=texto;
     document.getElementById("deleteKey").value=id;
-    //$("input#deleteKey").attr("value", $(this).attr("data"));
   }
     
   async function preUp(id){
     //alert(id);
     document.getElementById("do").value="ce";
     document.getElementById("editKey").value=id;
-    
-    //alert(window.location.hostname +  window.location.pathname);
-    
-    //let url= document.location.href + "?do=e&id=" + id
     let url= window.location.protocol +"//"+ window.location.hostname +  window.location.pathname + "?do=e&id=" + id
     //alert("url: " + url);
     const response = await fetch(url)
@@ -1039,7 +971,6 @@ public function showHTML(){
              var markupStr = evento[x];
             $('textarea#txt'+ x).summernote('code', markupStr);
           }
-         
           $("#txt" + x).attr("value", evento[x] )
           var aux=`select#txt${x}`;
           //console.log(aux);
@@ -1053,7 +984,6 @@ public function showHTML(){
           
         }
       }
-    
   }
   </script>
     
@@ -1062,47 +992,35 @@ public function showHTML(){
   $("#bnew").click(function() {
     var markupStr = "...";
     $('.summernote').summernote('reset');
-
     <?php
     //print_r($this->camposLista);
-      foreach($this->camposLista as $campoaux){
+    foreach($this->camposLista as $campoaux){
         if (($campoaux['Type']!="lst") && ($campoaux['Type']!="text") && ($campoaux['Type']!="calc") ){
-          ?>
-          $("#txt<?php echo $campoaux['Field']?>").attr("value","<?php echo $campoaux['Default']?>")
-        <?php
-          
+    ?>
+    	$("#txt<?php echo $campoaux['Field']?>").attr("value","<?php echo $campoaux['Default']?>")
+        <?php  
         }else{
 			if (!isset($campoaux['Default'])){
 				$campoaux['Default']=null;
 			}
-          if (($campoaux['Type']=="lst") && ($campoaux['Default']!=null)){
-            ?>
-            $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
-            <?php
-          }else{
-            if ($campoaux['Type']=="text"){
-              ?>
-              //$('textarea#txt<?php echo $campoaux['Field']?>').summernote('destroy');         
-              $('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', "...");
-             <?php
-            }
-            
-          }
+          	if (($campoaux['Type']=="lst") && ($campoaux['Default']!=null)){
+        ?>
+        $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
+        <?php
+          	}else{
+            	if ($campoaux['Type']=="text"){
+        ?>
+					$('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', "...");
+             	<?php
+            	}
+          	}
         }
-      }
+    }
     ?>
   });
      
-  
-</script>
-
-
-		<?php
-		
-  
-
-      
-      
+	</script>
+	<?php      
 	}  
   
      //###################################################################################################################################	
@@ -1132,130 +1050,111 @@ public function showHTML(){
                 foreach($html->find('select[id]') as $e){
                   $e->id="txt" . $campo['Field'];
                   $e->name="txt" . $campo['Field'];
-                }
-                  
-				
+                }			
                 foreach($html->find('#selectL') as $e)
-                  $e->innertext=$campo['label'] . $ast;                
+                	$e->innertext=$campo['label'] . $ast;                
               
                 $linhaElemento="";
-        
-								foreach($campo['lista'] as $linha){
-									$i=0;
-									$proximo=0;
-									$aux="";
-									//print_r($linha);
-									foreach($linha as $x => $x_value) {
-									  //echo "<br><br><br><br><br><br>linha";
-                    //echo $x_value;
-										//echo " - " . $valor . "<br>";
-										if (($x_value==$valor) && ($i==0)){
-											$proximo=1;
-										}
-										if (($proximo==1) && ($i==1)){
-                      foreach($html->find('#selectLst.option') as $e)
-                         $e->selected= "selected";
-											//$aux=" selected ";
-										}
-										if ($i==0){
-											$valorZ=$x_value;
-										}
-										if ($i==1){
-											$texto=$x_value;
-										}
-										$i++;
-                  }
-                  
-                  //echo PHP_EOL . 'select#txt'.$campo['Field'] .' option' .PHP_EOL;
-                  foreach($html->find('.select#txt'.$campo['Field'] .' option') as $e){
-                    $e->value="$valorZ";                    //tirei o txt
-                    $e->innertext=$texto . "[$valorZ]";
-                    //echo "aaaa";
-                  }
+				foreach($campo['lista'] as $linha){
+					$i=0;
+					$proximo=0;
+					$aux="";
+					//print_r($linha);
+					foreach($linha as $x => $x_value) {
+				  		//echo "<br><br><br><br><br><br>linha";
+                    	//echo $x_value;
+						//echo " - " . $valor . "<br>";
+						if (($x_value==$valor) && ($i==0)){
+							$proximo=1;
+						}
+						if (($proximo==1) && ($i==1)){
+                      		foreach($html->find('#selectLst.option') as $e)
+                         		$e->selected= "selected";
+							//$aux=" selected ";
+						}
+						if ($i==0){
+							$valorZ=$x_value;
+						}
+						if ($i==1){
+							$texto=$x_value;
+						}
+						$i++;
+                  	}  
+                	//echo PHP_EOL . 'select#txt'.$campo['Field'] .' option' .PHP_EOL;
+                	foreach($html->find('.select#txt'.$campo['Field'] .' option') as $e){
+                    	$e->value="$valorZ";                    //tirei o txt
+                    	$e->innertext=$texto . "[$valorZ]";
+                    	//echo "aaaa";
+                	}
                                     
-                  //$f='#txt'.$campo['Field']
-                  foreach($html->find('#txt'.$campo['Field']) as $e)
-                      $linhaElemento.=$e->innertext .PHP_EOL;
-                   
-                  
-                  
-								}
-								//echo $html;
-        
-                //foreach($html->find('#txt'.$campo['Field']) as $e)
-                //     echo $e->outertext .PHP_EOL;
-        
-        
+                	//$f='#txt'.$campo['Field']
+                	foreach($html->find('#txt'.$campo['Field']) as $e)
+                    	$linhaElemento.=$e->innertext .PHP_EOL; 
+				}
+				//echo $html;
                 //echo $linhaElemento;
                 foreach($html->find('#txt'.$campo['Field']) as $e)
-                  $e->innertext = $linhaElemento;
+                  	$e->innertext = $linhaElemento;
                 foreach($html->find('.select') as $e)
-                  $t=$e->outertext;
-					break;     
-				case "dat":
+                  	$t=$e->outertext;
+				break;     
+			case "dat":
                 foreach($html->find('input[id]') as $e){
-                  $e->id="txt" . $campo['Field'];
-                  $e->name="txt" . $campo['Field'];
-                }
-                  
+                  	$e->id="txt" . $campo['Field'];
+                  	$e->name="txt" . $campo['Field'];
+                } 
                 foreach($html->find('#dateL') as $e)
-                  $e->outertext=$campo['label']  . $ast ;
+                  	$e->outertext=$campo['label']  . $ast ;
                 foreach($html->find('.date') as $e)
-                  $t=$e->outertext;
-						break;
-        case "int":
-	case "var":	
-	case "dec":
-	case "dou":
-        case "tim":
-        case "img":
+                  	$t=$e->outertext;
+				break;
+        	case "int":
+			case "var":	
+			case "dec":
+			case "dou":
+			case "tim":
+			case "img":
                 foreach($html->find('input[id]') as $e){
-                  $e->id="txt" . $campo['Field'];
-                  $e->name="txt" . $campo['Field'];
+                  	$e->id="txt" . $campo['Field'];
+                  	$e->name="txt" . $campo['Field'];
                 }
-                  
                 foreach($html->find('#textL') as $e)
-                  $e->innertext=$campo['label']  . $ast ;
+                  	$e->innertext=$campo['label']  . $ast ;
                 foreach($html->find('.text') as $e)
-                  $t=$e->outertext;        
-						break;
-        case "tex":
-        case "med":
+                  	$t=$e->outertext;        
+				break;
+        	case "tex":
+        	case "med":
                 foreach($html->find('textarea[id]') as $e){
-                  $e->id="txt" . $campo['Field'];
-                  $e->name="txt" . $campo['Field'];
+                  	$e->id="txt" . $campo['Field'];
+                  	$e->name="txt" . $campo['Field'];
                 }
                   
                 foreach($html->find('#textAreaL') as $e)
-                  $e->innertext=$campo['label']  . $ast;
-        
-                //foreach($html->find('#textAreaS') as $e)
-                  //$e->innertext="$(document).ready(function() { $('#" . "txt" . $campo['Field'] . "').summernote(); });";
+                  	$e->innertext=$campo['label']  . $ast;
         
                 foreach($html->find('.textArea') as $e)
                   $t=$e->outertext;
                   //echo "<br><br>aqui<br>" . $t .  "<br><br>aqui<br>";
-						break;
-        case "pas":
-						// falta tratar o modo para verificar a password
-            // se o campo lido for cifrado não pode ser considerada a password lida da base dados e por isso não se considera nenhuma password e desta forma só é actualizada se o utilizador voltar a 
-            // escrever uma password
-               foreach($html->find('input[id]') as $e){
-                 $e->id="txt" . $campo['Field'];
-                 $e->name="txt" . $campo['Field'];
-               }
-                  
+				break;
+        	case "pas":
+				// falta tratar o modo para verificar a password
+            	// se o campo lido for cifrado não pode ser considerada a password lida da base dados e por isso não se considera nenhuma password e desta forma só é actualizada se o utilizador voltar a 
+            	// escrever uma password
+				foreach($html->find('input[id]') as $e){
+					$e->id="txt" . $campo['Field'];
+					$e->name="txt" . $campo['Field'];
+				}
                 foreach($html->find('#passwordL') as $e)
                   $e->innertext=$campo['label'] . $ast ;
                 foreach($html->find('.password') as $e)
                   $t=$e->outertext;
-						break;
-			} 
-    if (isset($campo['action'])){
-      $t=str_replace( '"txt' . $campo['Field'] . '">', '"txt' . $campo['Field'] . '"' . $campo['action'] . ">", $t);
-      //$t.= "<!-- ssssss-->";
-    }
-    
+				break;
+		} 
+		if (isset($campo['action'])){
+			$t=str_replace( '"txt' . $campo['Field'] . '">', '"txt' . $campo['Field'] . '"' . $campo['action'] . ">", $t);
+			//$t.= "<!-- ssssss-->";
+		}
 		return $t;
 	}
   
@@ -1263,173 +1162,155 @@ public function showHTML(){
   
     
   	//###################################################################################################################################	
-		/**
-		* Prepara uma string com a instrução SQL da tabela (do tipo SELECT * FROM Tabela). Incluiu todos os campos
-		*/
-	  public function preparaSQLGeral(){
-			$this->sqlGeral= "SELECT * FROM " . $this->tabela;
-      if ($this->limites[0]>0){
-        $this->sqlGeral.= " Limit ". $this->limites[0];
-      }
-      if ($this->limites[1]>0){
-        $this->sqlGeral.= " Step ". $this->limites[1];
-      }
-      //print_r($this->limites);
-      //echo "sql: " . $this->sqlGeral;
-			return 	$this->sqlGeral;
+	/**
+	* Prepara uma string com a instrução SQL da tabela (do tipo SELECT * FROM Tabela). Incluiu todos os campos
+	*/
+	public function preparaSQLGeral(){
+		$this->sqlGeral= "SELECT * FROM " . $this->tabela;
+		if ($this->limites[0]>0){
+			$this->sqlGeral.= " Limit ". $this->limites[0];
 		}
+		if ($this->limites[1]>0){
+			$this->sqlGeral.= " Step ". $this->limites[1];
+		}
+    	//print_r($this->limites);
+      	//echo "sql: " . $this->sqlGeral;
+		return 	$this->sqlGeral;
+	}
  
-  //###################################################################################################################################	
-		/**
-     	*  
-		 * Prepare a string SQL to insert if not exist and update if exist
-		 */
+  	//###################################################################################################################################	
+	/**
+    *  
+	* Prepare a string SQL to insert if not exist and update if exist
+	*/
 	public function prepareSQLInsertIfNotExisteUpdateIfExiste($key){
 		//$resposta=$this->prepareSQLSelect($key) . " If ResultCount==0 ";
 		$resposta=$this->prepareSQLinsert() . " ON DUPLICATE KEY ";
 		$resposta.=$this->preparaSQLupdate(1) ;
-		//$resposta='INSERT INTO table (id, name, age) VALUES(1, "A", 19) ON DUPLICATE KEY UPDATE    
-		//name="A", age=19';
-
 		return $resposta;
 	}
 
 	//###################################################################################################################################	
-		/**
-     	*  
-		 * Prepare a string SQL to select a especific record
-		 */
-		public function prepareSQLSelect($key){
-			$resposta= "SELECT " . $this->chave  . " FROM " . $this->tabela . " WHERE " . $this->chave . "='$key'" ;
-			return $resposta;
-		}
+	/**
+    *  
+	* Prepare a string SQL to select a especific record
+	*/
+	public function prepareSQLSelect($key){
+		$resposta= "SELECT " . $this->chave  . " FROM " . $this->tabela . " WHERE " . $this->chave . "='$key'" ;
+		return $resposta;
+	}
 
-  //###################################################################################################################################	
-		/**
-     *  
-		 * Prepara uma string SQL com os campos escolhidos para edição
-		 */
-	  public function preparaSQLSelectToUpdate(){
-      $campos="";
-      $sep="";
-			//echo "<br>chave=$this->chave";
-			//$resto= ") VALUES (";
-			$sep="";
-			foreach($this->camposLista as $campo){
-          //print_r($campo['Type']);
-				
-				if ($campo["editar"]==1){
-					$campos.=$sep . $campo['Field'];
-					$sep=",";
-				} 
-			}
-			$resposta= "SELECT " . $campos  . " FROM " . $this->tabela ;
-			return $resposta;
-		}    
+  	//###################################################################################################################################	
+	/**
+    *  
+	* Prepara uma string SQL com os campos escolhidos para edição
+	*/
+	public function preparaSQLSelectToUpdate(){
+    	$campos="";
+      	$sep="";
+		//echo "<br>chave=$this->chave";
+		//$resto= ") VALUES (";
+		$sep="";
+		foreach($this->camposLista as $campo){
+        	//print_r($campo['Type']);
+			if ($campo["editar"]==1){
+				$campos.=$sep . $campo['Field'];
+				$sep=",";
+			} 
+		}
+		$resposta= "SELECT " . $campos  . " FROM " . $this->tabela ;
+		return $resposta;
+	}     
   
-  
-  
-	  //###################################################################################################################################	
-		/**
-     *  
-		 * Prepara uma string SQL para apagar registo
-		 */
-	  public function preparaSQLdelete(){
-			$resposta= "DELETE FROM " . $this->tabela;
-			foreach($this->camposLista as $campo){
-				if (isset($campo["valor"])){
-					if ($campo["valor"]!=""){
-						if ($campo['Field'] == $this->chave){
-							$criterio=$this->getCampoValor($campo);
-						} 
-					} 
-				}
-			}
-			$resposta= $resposta .  " WHERE " . $this->chave . " = " . $criterio . ";";
-			return $resposta;
-		}    
-	
-	
-	
 	//###################################################################################################################################	
-		/**
-     *  
-		 * Prepara uma string SQL para inserir os campos com valor
-		 */
-	  public function prepareSQLinsert(){
-			$resposta= "INSERT INTO " . $this->tabela . " ( ";
-			$resto= ") VALUES (";
-			$sep="";
-			foreach($this->camposLista as $campo){
-				if (isset($campo["valor"])){
-					if ($campo["valor"]!=""){
-						$resposta=$resposta . $sep . $campo['Field']; 
-						$resto=$resto . $sep . $this->getCampoValor($campo);
-						$sep=",";
+	/**
+    *  
+	* Prepara uma string SQL para apagar registo
+	*/
+	public function preparaSQLdelete(){
+		$resposta= "DELETE FROM " . $this->tabela;
+		foreach($this->camposLista as $campo){
+			if (isset($campo["valor"])){
+				if ($campo["valor"]!=""){
+					if ($campo['Field'] == $this->chave){
+						$criterio=$this->getCampoValor($campo);
 					} 
-				}
-				
+				} 
 			}
-			$resposta= $resposta . $resto . ") ";
-			return $resposta;
 		}
-	
-  //###################################################################################################################################	
-		/**
-         * 
-         * @param $action    We might want to see the fields in three action types: New(new), Edit(edit) or List(view)
-         * 
-		 * Prepares a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included the
-         * fields marked as visible in the chosen action
-		 */
-	  public function prepareSQLtoAction($action){
-			$resposta= "SELECT " . $this->chave ;
-			$sep=",";
-      //$key=0;
-			//print_r($this->camposLista);
-			foreach($this->camposLista as $campo){
-			    //echo "<br>Campo1 = ";
-			    //print_r($campo);
-				if ($campo[$action]==1){
-          if ($campo['Type']=="calc"){
-            $resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
-          }else{
-            $resposta=$resposta . $sep . $campo['Field']; 
-          }
+		$resposta= $resposta .  " WHERE " . $this->chave . " = " . $criterio . ";";
+		return $resposta;
+	}    
+		
+	//###################################################################################################################################	
+	/**
+    *  
+	* Prepara uma string SQL para inserir os campos com valor
+	*/
+	public function prepareSQLinsert(){
+		$resposta= "INSERT INTO " . $this->tabela . " ( ";
+		$resto= ") VALUES (";
+		$sep="";
+		foreach($this->camposLista as $campo){
+			if (isset($campo["valor"])){
+				if ($campo["valor"]!=""){
+					$resposta=$resposta . $sep . $campo['Field']; 
+					$resto=$resto . $sep . $this->getCampoValor($campo);
 					$sep=",";
 				} 
-				
+			}	
 		}
-			$resposta= $resposta . " FROM " . $this->tabela;
-      
-      $resposta = $resposta . " WHERE " . $this->criterio . " order by" . $this->order;
-      //echo "<br> $resposta <br>";
-      
-      if ($this->limites[0]>0){
-        $resposta.= " Limit ". $this->limites[0];
-      }
-      if ($this->limites[1]>0){
-        $resposta.= " Step ". $this->limites[1];
-      }
-      
-      
-			return $resposta;
-			
-			
-			
+		$resposta= $resposta . $resto . ") ";
+		return $resposta;
+	}
+	
+  	//###################################################################################################################################	
+	/**
+    * 
+    * @param $action    We might want to see the fields in three action types: New(new), Edit(edit) or List(view)
+    * 
+	* Prepares a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included the
+    * fields marked as visible in the chosen action
+	*/
+	public function prepareSQLtoAction($action){
+		$resposta= "SELECT " . $this->chave ;
+		$sep=",";
+      	//$key=0;
+		//print_r($this->camposLista);
+		foreach($this->camposLista as $campo){
+		    //echo "<br>Campo1 = ";
+		    //print_r($campo);
+			if ($campo[$action]==1){
+          		if ($campo['Type']=="calc"){
+            		$resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
+          		}else{
+            		$resposta=$resposta . $sep . $campo['Field']; 
+          		}
+				$sep=",";
+			} 		
 		}
-  
+		$resposta= $resposta . " FROM " . $this->tabela;
+        $resposta = $resposta . " WHERE " . $this->criterio . " order by" . $this->order;
+      	//echo "<br> $resposta <br>";
+		if ($this->limites[0]>0){
+			$resposta.= " Limit ". $this->limites[0];
+		}
+		if ($this->limites[1]>0){
+			$resposta.= " Step ". $this->limites[1];
+		}
+      	return $resposta;			
+	}
   
   
  	//###################################################################################################################################	
-		/**
-         * 
-         * @param accao    Podemos querer ver os campos em três tipos de ação: Novo(novo), Editar(editar) ou Listar(ver)
-         * 
-		 * Prepara uma string com a instrução SQL da tabela (do tipo <SELECT LISTA DE CAMPOS> FROM Tabela). Só Incluiu os 
-         * campos marcados como visíveis na acção escolhida
-		 */
-	  public function preparaSQLparaAccao($accao){
+	/**
+    * 
+    * @param accao    Podemos querer ver os campos em três tipos de ação: Novo(novo), Editar(editar) ou Listar(ver)
+    * 
+	* Prepara uma string com a instrução SQL da tabela (do tipo <SELECT LISTA DE CAMPOS> FROM Tabela). Só Incluiu os 
+    * campos marcados como visíveis na acção escolhida
+	*/
+	public function preparaSQLparaAccao($accao){
 		$resposta= "SELECT " . $this->chave ;
 		$sep=",";
       	//$key=0;
@@ -1448,84 +1329,72 @@ public function showHTML(){
 				$sep=",";
 			} 	
 		}
-			$resposta= $resposta . " FROM " . $this->tabela;
-      
-      $resposta = $resposta . " WHERE " . $this->criterio . " order by " . $this->order;
-      //echo "<br> $resposta <br>";
-      
-      if ($this->limites[0]>0){
-        $resposta.= " Limit ". $this->limites[0];
-      }
-      if ($this->limites[1]>0){
-        $resposta.= " Step ". $this->limites[1];
-      }
-      
-      
-			return $resposta;
-			
-			
-			
+		$resposta= $resposta . " FROM " . $this->tabela;
+      	$resposta = $resposta . " WHERE " . $this->criterio . " order by " . $this->order;
+      	//echo "<br> $resposta <br>";
+		if ($this->limites[0]>0){
+			$resposta.= " Limit ". $this->limites[0];
 		}
+		if ($this->limites[1]>0){
+			$resposta.= " Step ". $this->limites[1];
+		}
+    	return $resposta;
+	}
         
     //###################################################################################################################################	
-		/**
-     *  
-		 * Prepara uma string SQL para atualizar campos com valor
-		 */
-	  public function preparaSQLupdate($noTable=0){
-			if($noTable==1){
-				$resposta= "UPDATE ";
-			}else{
-				$resposta= "UPDATE " . $this->tabela . " SET ";
+	/**
+    *  
+	* Prepara uma string SQL para atualizar campos com valor
+	*/
+	public function preparaSQLupdate($noTable=0){
+		if($noTable==1){
+			$resposta= "UPDATE ";
+		}else{
+			$resposta= "UPDATE " . $this->tabela . " SET ";
+		}		
+		//echo "<br>chave=$this->chave";
+		//$resto= ") VALUES (";
+      	//$criterio="";
+		$sep="";
+		foreach($this->camposLista as $campo){
+			if (isset($campo["valor"])){
+				if ($campo["change"]==1){
+					if ($campo['Field'] != $this->chave){
+						//print_r($campo);
+						$resposta=$resposta . $sep . $campo['Field']; 
+						$resposta=$resposta . " = " . $this->getCampoValor($campo);
+						$sep=",";
+						$campo["change"]==0;
+					} else {
+						$criterio=$this->getCampoValor($campo);
+					}		
+				} 
 			}
-			
-			//echo "<br>chave=$this->chave";
-			//$resto= ") VALUES (";
-      //$criterio="";
-			$sep="";
-			foreach($this->camposLista as $campo){
-				if (isset($campo["valor"])){
-					if ($campo["change"]==1){
-						if ($campo['Field'] != $this->chave){
-							//print_r($campo);
-							$resposta=$resposta . $sep . $campo['Field']; 
-							$resposta=$resposta . " = " . $this->getCampoValor($campo);
-							$sep=",";
-							$campo["change"]==0;
-						} else {
-							$criterio=$this->getCampoValor($campo);
-						}
-					
-					} 
-				}
-			}
-			if($noTable==1){
-				$resposta.= ";";
-			}else{
-				$resposta= $resposta .  " WHERE " . $this->chave . " = " .$criterio . ";";
-			}
-			//$resposta= $resposta .  " WHERE " . $this->chave . " = " .$criterio . ";";
-      //echo "chave: " . $this->chave . " fim da chave";
-      //echo $resposta; 
-			return $resposta;
-		}    
-       
+		}
+		if($noTable==1){
+			$resposta.= ";";
+		}else{
+			$resposta= $resposta .  " WHERE " . $this->chave . " = " .$criterio . ";";
+		}
+		//$resposta= $resposta .  " WHERE " . $this->chave . " = " .$criterio . ";";
+      	//echo "chave: " . $this->chave . " fim da chave";
+      	//echo $resposta; 
+		return $resposta;
+	}       
   
-       //###################################################################################################################################	
-		/**
-		* 
-	 	* @param $table    the name of the database table you want to use
-	 	*
-		* Prepare a table, create the table's field list, determine its key, prepare a general SQL for all fields
-		*/
+    //###################################################################################################################################	
+	/**
+	* 
+	* @param $table    the name of the database table you want to use
+	*
+	* Prepare a table, create the table's field list, determine its key, prepare a general SQL for all fields
+	*/
 	function prepareTable($table){
 		//prepara o html para gerir a tabela
-
 		//prepara form de edição
 		//prrara form de visualização
 		$this->tabela=$table;
-		$this->preparaSQLGeral();
-		
+		$this->preparaSQLGeral();		
 		//$sql="DESCRIBE  $table ";
 		$sql="show full columns from  $table ";
 		//echo $sql;
@@ -1537,44 +1406,36 @@ public function showHTML(){
 		$this->ativaCampos(1,'ver');
 		$this->ativaCampos(1,'novo');  
 		$this->ativaCampos(1,'editar');
-		
 	}
-  
-        //###################################################################################################################################	
-		/**
-		* 
-	 	* @param tabela    nome da tabela na base de dados
-	 	*
-		* Prepara uma tabela, criando a lista de campos da tabela, determinando a sua chave, prepara um SQL geral para todos os campos
-		* define as etiquetas
-		*/
+    //###################################################################################################################################	
+	/**
+	* 
+	* @param tabela    nome da tabela na base de dados
+	*
+	* Prepara uma tabela, criando a lista de campos da tabela, determinando a sua chave, prepara um SQL geral para todos os campos
+	* define as etiquetas
+	*/
 	function preparaTabela($tabela){
 		//prepara o html para gerir a tabela
-
-    $this->prepareTable($tabela);
-	}
- 
-  	 
+    	$this->prepareTable($tabela);
+	}	 
  
  
-	 	 //###################################################################################################################################	
-		/**
-		* 
-		* redirecciona para a pagina mostrando a lista
-		*
-		*/
+	//###################################################################################################################################	
+	/**
+	* 
+	* redirecciona para a pagina mostrando a lista
+	*
+	*/
 	function redirecciona($url=""){
 		?>
-
-		<meta http-equiv="refresh" content="0;url=<?php echo $url?>">
-		
-
+		<meta http-equiv="refresh" content="0;url=<?php echo $url?>">	
 		<?php	
 		//header("Location: " .  $url);
 	}
   
 	
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * 
      * @param field    is the field we want to enable/disable
@@ -1582,83 +1443,67 @@ public function showHTML(){
      * @param value    is 1 to show and 0 to hide
 	  * Activate/deactivate (show/hide) a field for an action
 	*/
-	private function setFieldAtive($field, $action, $value){
-		
-    $action=str_replace("list","ver",$action);
-    $action=str_replace("see","ver",$action);
-    $action=str_replace("new","novo",$action);
-    $action=str_replace("add","novo",$action);
-    $action=str_replace("edt","editar",$action);
-    //$action=str_replace("edit","editar",$action);
-    
-    $i=0;
+	private function setFieldAtive($field, $action, $value){	
+		$action=str_replace("list","ver",$action);
+		$action=str_replace("see","ver",$action);
+		$action=str_replace("new","novo",$action);
+		$action=str_replace("add","novo",$action);
+		$action=str_replace("edt","editar",$action);
+		//$action=str_replace("edit","editar",$action);
+		$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$field){
-					$this->camposLista[$i][$action]=$value;
-				}
-				
-				$i++;
+			if ($campoaux['Field']==$field){
+				$this->camposLista[$i][$action]=$value;
+			}
+			$i++;
 		}
 	}
 
 	
-	
- //###################################################################################################################################	
+ 	//###################################################################################################################################	
 	/**
      * 
      * @param campo    é o campo que pretendemos activar/desativar
      * @param accao    é o tipo de acção (listar, editar e adicionar) em que pretendemos activar/desativar o campo
      * @param valor    é 1 para mostrar e 0 para esconder
 	* Activa/desativa (mostra/esconde) um campo para uma acção
-  * Este nome é para manter acompatibilidade com o Pt
+  	* Este nome é para manter acompatibilidade com o Pt
 	*/
 	private function setAtivaCampo($campo, $accao, $valor){
-		/*$i=0;
-		//echo "<br> campo=$campo accao=$accao e valor=$valor";
-		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$campo){
-					$this->camposLista[$i][$accao]=$valor;
-				}
-				
-				$i++;
-		}*/
-   $this->setFieldAtive($campo, $accao, $valor);
+   		$this->setFieldAtive($campo, $accao, $valor);
 	}
 
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * 
      * @param fields    is a list of sql table fields separated by ; and may or may not have to delimit them
      * @param action    is the type of action (list, edit and add) in which we want to enable/disable the field
 	* Activates (displays) a comma-separated list of fields for an action. Fields not on the list are disabled.
 	*/
-	public function setFieldsAtive($fields, $action){
-		
-    $action=str_replace("list","ver",$action);
-    $action=str_replace("see","ver",$action);
-    $action=str_replace("new","novo",$action);
-    //$action=str_replace("edit","editar",$action);
-    $action=str_replace("edt","editar",$action);
-    $action=str_replace("editarar","editar",$action);
-
-    
+	public function setFieldsAtive($fields, $action){		
+		$action=str_replace("list","ver",$action);
+		$action=str_replace("see","ver",$action);
+		$action=str_replace("new","novo",$action);
+		//$action=str_replace("edit","editar",$action);
+		$action=str_replace("edt","editar",$action);
+		$action=str_replace("editarar","editar",$action);
 		$this->fieldsActive(0, $action);
 		$fields=str_replace("`","",$fields);
-    $fields=str_replace(" ","",$fields);
+		$fields=str_replace(" ","",$fields);
 		$campo=explode(",", $fields);
 		//echo "<br>campos = ";
 		//print_r($campo);
 		for($i = 0; $i < sizeof($campo);$i++) {
 			$this->setFieldAtive($campo[$i], $action, 1);
 		}
-    if ($action=="csv"){
-      $this->PagImp=1;
-    }
+		if ($action=="csv"){
+			$this->PagImp=1;
+		}
 	}
   
   
-//###################################################################################################################################	
+	//###################################################################################################################################	
 	/**
      * 
      * @param campos    é uma lista de campos da tabela sql separados por ; e podem ou não ter ` a delimita-los
@@ -1666,66 +1511,51 @@ public function showHTML(){
 	* Activa (mostra) uma lista de campos separados por virgula para uma acção. Os campos que não estão na lsita são desativados
 	*/
 	public function setAtivaCampos($campos, $accao){
-		
-		/*$this->ativaCampos(0, $accao);
-		$campos=str_replace(" ","",$campos);
-    $campos=str_replace("`","",$campos);
-		$campo=explode(",", $campos);
-		//echo "<br>campos = ";
-		//print_r($campo);
-		for($i = 0; $i < sizeof($campo);$i++) {
-			$this->setAtivaCampo($campo[$i], $accao, 1);
-		}
-    if ($accao=="csv"){
-      $this->PagImp=1;
-    }*/
-    
-    $this->setFieldsAtive($campos, $accao);
+	    $this->setFieldsAtive($campos, $accao);
 	}
   
-    
-  //###################################################################################################################################
+  	//###################################################################################################################################
 	/**
 	* 
 	* @param value    letter with permission to be considered
 	*                       a - all has the ability to view, create new, delete and change
-  *                       u - update You can only change the data
-  *                       e - edit It only allows edition
-  *                       n - new It only allows creating new records                         
-  *                       r - read Can only see
+  	*                       u - update You can only change the data
+  	*                       e - edit It only allows edition
+  	*                       n - new It only allows creating new records                         
+  	*                       r - read Can only see
 	* defines if by default the user has permissions to view, create new, delete and change
-  *                  
+  	*	                  
 	*/
 	public function setAutentication($value){
 		$this->autenticacao=$value;
 	}
   
   
-  //###################################################################################################################################
+  	//###################################################################################################################################
 	/**
 	* 
 	* @param valor    letra com tipo a permissão a ser considerado
 	*                       a - all tempo a possibilidade de ver, criar novo, apagar e alterar
-  *                       u - update Só pode alterar os dados
-                          e - edit 
-  *                       r - read só pode ver
+  	*                       u - update Só pode alterar os dados
+    *                      e - edit 
+  	*                       r - read só pode ver
 	* define se por defeito o user tem permissões para ver, criar novo, apagar e alterar
-  *                  
+  	*                  
 	*/
 	public function setAutenticacao($valor){
 		$this->setAutentication($valor);
 	}
    
 
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * @param nameField  is the name for the new field we want to add and that will result from a sql operation
-		 * @param sqlCalcFormula    a sql operation that can involve other fields in the table
+	 * @param sqlCalcFormula    a sql operation that can involve other fields in the table
      * 
 	* Add a new calculated field
 	*/
 	public function setCalculatedField($nameField,$sqlCalcFormula){
-    //print_r($this->camposLista);
+    	//print_r($this->camposLista);
 		$i=sizeof($this->camposLista);
 		$this->camposLista[$i]['Type']="calc";
 		$this->camposLista[$i]['Field']=$nameField;
@@ -1734,25 +1564,22 @@ public function showHTML(){
     	$this->camposLista[$i]['Key']="";
     	$this->camposLista[$i]['ver']=1;
     	$this->camposLista[$i]['editar']=0;
-
-    //echo "<br><br>";
-     //print_r($this->camposLista);
+    	//echo "<br><br>";
+     	//print_r($this->camposLista);
 	}	
   
- //###################################################################################################################################	
+ 	//###################################################################################################################################	
 	/**
      * @param campo   é o nome para o campo que pretendemos adicionar
-		 * @param calculo    é a formula sql que vamos aplicar
+	 * @param calculo    é a formula sql que vamos aplicar
      * 
 	* Adiciona um novo campo calculado
 	*/
 	public function setCampoCalculado($campo,$calculo){
-
 		$this->setCalculatedField($campo,$calculo);
-	
 	}	
   
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * @param $field    	is the field that we want to change to the image type
      * @param $path      	is the path to be added to the url of an image to get to the file
@@ -1763,20 +1590,18 @@ public function showHTML(){
 	public function setImageField($field,$path,$percentage='100%',$defaultImage=""){
 		$i=0;
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$field){
-					//echo "entrie";
-					$this->camposLista[$i]['Type']="img";
-					$this->camposLista[$i]['Path']=$path;
-					$this->camposLista[$i]['widthP']=$percentage;
-					$this->camposLista[$i]['defaultImage']=$defaultImage;
-				}
-				
-				$i++;
+			if ($campoaux['Field']==$field){
+				//echo "entrie";
+				$this->camposLista[$i]['Type']="img";
+				$this->camposLista[$i]['Path']=$path;
+				$this->camposLista[$i]['widthP']=$percentage;
+				$this->camposLista[$i]['defaultImage']=$defaultImage;
+			}		
+			$i++;
 		}
 	}	
   
-	
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * @param campo         é o campo que pretendemos alterar para o tipo imagem
      * @param $caminho      é o camiho a ser acrescentado a imagem para chegar ao ficheiro
@@ -1788,12 +1613,12 @@ public function showHTML(){
 		$this->setImageField($campo,$caminho,$percentagem);
 	}	
   
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * @param $field      is the field we want to change to list type.
-		 * @param $mode       how the field list should be constructed. 1 - SQL; 2 - values; 3 - SQL + values.
-		 * @param $listOrSql  listOrSql is the sql string or list of values to be passed (the list has the format, for example: "1=>first,2=>second,3=>last,a=>like this") or
-		 * 						both with the structure example. "Select a,b from C|0=>none,1=>not defined"
+	 * @param $mode       how the field list should be constructed. 1 - SQL; 2 - values; 3 - SQL + values.
+	 * @param $listOrSql  listOrSql is the sql string or list of values to be passed (the list has the format, for example: "1=>first,2=>second,3=>last,a=>like this") or
+	 * 						both with the structure example. "Select a,b from C|0=>none,1=>not defined"
      * @param $hideCode   by default (0) then in the text that replaced the code, the code between [] is added. example: Show [1]
      * 
 	* Change the field to list type to have a descriptive instead of the code and a combobox for editing and input and a text for view
@@ -1850,119 +1675,105 @@ public function showHTML(){
 				//echo "<br>";
           		//arsort($lista);
 				$this->camposLista[$i]['lista']=$lista;
-			}
-				
+			}			
 			$i++;
 		}
 	//echo "passei";
-	}
-  
-  
+	} 
   
   
 	//###################################################################################################################################	
 	/**
      * @param campo    é o campo que pretendemos alterar para o tipo lista
-		 * @param modo    modo em que são passados os campos. 1 - SQL; 2 - valores.
-		 * @param listaSql    listaSql é a string sql ou lista de valores a serem passados ( a lista tem o formato por ex: "1=>primeiro,2=>segunto,3=>utilimo,a=>assim")
+	 * @param modo    modo em que são passados os campos. 1 - SQL; 2 - valores.
+	 * @param listaSql    listaSql é a string sql ou lista de valores a serem passados ( a lista tem o formato por ex: "1=>primeiro,2=>segunto,3=>utilimo,a=>assim")
      * 
 	* Altera o campo para o tipo lista para ter um descritivo em vez do código e uma combobox na edição e introdução
 	*/
 	public function setCampoLista($campo,$modo,$listaSql){
-    
-    $this->setFieldList($campo,$modo,$listaSql);
-    
-	
+        $this->setFieldList($campo,$modo,$listaSql);	
 	}
   
   	//###################################################################################################################################	
 	/**
-     * @param campo   is the field we want to change to type password
-		 * @param mode    mode of verification of correct writing of new password. 0 - off; 1 - repeat the introduction; 2 - show password
-		 * @param cipher  Change the field to type password to have hidden text in the intro, and be encrypted before recording. It will include 
+    * @param campo   is the field we want to change to type password
+	* @param mode    mode of verification of correct writing of new password. 0 - off; 1 - repeat the introduction; 2 - show password
+	* @param cipher  Change the field to type password to have hidden text in the intro, and be encrypted before recording. It will include 
      *                a mode field to determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field 
      *                with the cipher
      * 
 	* Change the field to type password to have hidden text in the intro, and be encrypted before recording. It will include a mode field to 
-  * determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field with the cipher
+  	* determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field with the cipher
 	*/
 	public function setFieldPass($field,$mode,$cipher){
 		$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$field){
-					//echo "entrie";
-					$this->camposLista[$i]['Type']="pass";
-					$this->camposLista[$i]['modo']=$mode;
-					$this->camposLista[$i]['cifra']=$cipher;
-				}
-				
-				$i++;
+			if ($campoaux['Field']==$field){
+				//echo "entrie";
+				$this->camposLista[$i]['Type']="pass";
+				$this->camposLista[$i]['modo']=$mode;
+				$this->camposLista[$i]['cifra']=$cipher;
+			}
+			$i++;
 		}
-	}	
-  
-  
-  
-  
-		//###################################################################################################################################	
+	}	  
+	
+	//###################################################################################################################################	
 	/**
      * @param campo    é o campo que pretendemos alterar para o tipo password
-		 * @param modo    modo de verificação da escrita correcta de nova password. 0 - desligado; 1 - repetir a intodução; 2 - mostrar a password
-		 * @param cifa    modo como o texto é cifrado. "" - desligado; "md5" - md5; "sha1" - sha1; "base64" - base64
+	 * @param modo    modo de verificação da escrita correcta de nova password. 0 - desligado; 1 - repetir a intodução; 2 - mostrar a password
+	 * @param cifa    modo como o texto é cifrado. "" - desligado; "md5" - md5; "sha1" - sha1; "base64" - base64
      * 
 	* Altera o campo para o tipo password para ter texto escondido na introdução, e ser encripado antes de gravar. Vai incluir um campo modo
 	* para determinar a forma com será introduzido para na haver enganos (repetir a introdução ou mostrar) e um campo com a cifra
 	*/
 	public function setCampoPass($campo,$modo,$cifra){
-
-    $this->setFieldPass($campo,$modo,$cifra);
+    	$this->setFieldPass($campo,$modo,$cifra);
 	}	
 
-  
-  		//###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
 	* @param criterio    é um criterio sql que igual campos a valores
-  * 
+  	* 
 	* define um critério para a accão de ver
 	*/
 	public function setCriterio($criterio){
-	  $this->criterio=$criterio;
+		$this->criterio=$criterio;
 	}	
 
   	//###################################################################################################################################	
 	/**
 	* @param order    is a sql string to order tha table
-  * 
+  	* 
 	* define um critério para a accão de ver
 	*/
 	public function setOrder($order){
 		$this->order=$order;
-	  }	
+	}	
   
 	
-
     //###################################################################################################################################	
 	/**
      * @param campo    is the name of the field in which we want to define an initial value 
      * @param valor    is the initial value to be considered
      * 
 	*  defines a default value to be considered in a new introduction where $field is the name of the field in which we want to define an initial value 
-     and $value is the initial value to be considered
+    * and $value is the initial value to be considered
 	*/
 	public function setDefaultValue($field, $valor){
 		$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$field){
-					//echo "entrie";
-					$this->camposLista[$i]['Default']=$valor;
-				}
-				
-				$i++;
+			if ($campoaux['Field']==$field){
+				//echo "entrie";
+				$this->camposLista[$i]['Default']=$valor;
+			}	
+			$i++;
 		}
 	}	
   
-//###################################################################################################################################	
+	//###################################################################################################################################	
 	/**
      * @param field    is the field to add a javascript action
      * @param action   is the action you want to call
@@ -1976,8 +1787,7 @@ public function showHTML(){
 				if ($campoaux['Field']==$field){
 					//echo "entrie";
 					$this->camposLista[$i]['action']=$action;
-				}
-				
+				}			
 				$i++;
 		}
 	}	  
@@ -1993,16 +1803,15 @@ public function showHTML(){
 		$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				if ($campoaux['Field']==$campo){
-					//echo "entrie";
-					$this->camposLista[$i]['label']=$valor;
-				}
-				
-				$i++;
+			if ($campoaux['Field']==$campo){
+				//echo "entrie";
+				$this->camposLista[$i]['label']=$valor;
+			}
+			$i++;
 		}
 	}	
 
-//###################################################################################################################################	
+	//###################################################################################################################################	
 	/**
 	* Atribui como label do campo o nomes dos campos na base de dados. Esta função só é executada na preparação da tabela
 	*/
@@ -2010,24 +1819,18 @@ public function showHTML(){
 		$i=0;
 		//print_r($this->camposLista);
 		foreach($this->camposLista as $campo){
-				//$aux="";
-				//if ($campo['Null']=='NO'){
-				//	$aux="*";
-				//}
-				if ($this->camposLista[$i]['Comment']!=""){
-					$this->camposLista[$i]['label']=$this->camposLista[$i]['Comment'];
-				}else{
-					$this->camposLista[$i]['label']=$campo['Field'];
-				}
-				
-				
-				
-				$i++;
+			//$aux="";
+			if ($this->camposLista[$i]['Comment']!=""){
+				$this->camposLista[$i]['label']=$this->camposLista[$i]['Comment'];
+			}else{
+				$this->camposLista[$i]['label']=$campo['Field'];
+			}
+			$i++;
 		}
 	}
 
   
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
      * @param $NumReg    número de registos
      * @param $LimInf    registo inicial
@@ -2035,12 +1838,11 @@ public function showHTML(){
 	* Define o número de resistos num select
 	*/
 	public function setLimites($NumReg, $LimInf=0){
-    $this->limites[0]=$NumReg;
-    $this->limites[1]=$LimInf;
-		
+    	$this->limites[0]=$NumReg;
+    	$this->limites[1]=$LimInf;
 	}	
  
-  //###################################################################################################################################
+  	//###################################################################################################################################
 	/**
 	* Stores the name (url) of the page that should be opened to show une record.
 	*
@@ -2051,10 +1853,8 @@ public function showHTML(){
 		$this->PagVer=$page;
 		$this->linkStyle=$style;
 	}
-
-
   
- //###################################################################################################################################
+ 	//###################################################################################################################################
 	/**
 	* 
 	* @param pagina    pagina para ver uma ficha
@@ -2065,8 +1865,7 @@ public function showHTML(){
 		$this->setLinkPage($pagina,$style);
 	}
 
-
-  //###################################################################################################################################
+  	//###################################################################################################################################
 	/**
 	* 
 	* @param id       é o id de um tag HTML
@@ -2078,19 +1877,18 @@ public function showHTML(){
 		$this->id[$id]=$valor;
 	}
  
-  //###################################################################################################################################	
+  	//###################################################################################################################################	
 	/**
 	 * 
    * @param page    name and path of the page with the template for a table
 	 *
 	 * set a page for tamplate
 	 */
-  public function setTemplate($page){
-    
-    $this->template=$page;
-  }
+  	public function setTemplate($page){
+	    $this->template=$page;
+  	}
   
- //###################################################################################################################################
+ 	//###################################################################################################################################
 	/**
 	* 
 	* @param texto    é o nome do campo que pretendemos guardar o valor
@@ -2102,35 +1900,28 @@ public function showHTML(){
 		$this->textos[$texto]=$valor;
 	} 
   
- //###################################################################################################################################
+ 	//###################################################################################################################################
 	/**
 	 * 
 	 * @param value   is the string with the text we want to have in the table list
 	 *
 	 * define the title of the page/or form
 	 */
-  public function setTitle($value){
-    
-    $this->setTextos("titulo",$value);      
-  } 
+  	public function setTitle($value){
+    	$this->setTextos("titulo",$value);      
+  	} 
   
-  
-//###################################################################################################################################
+	//###################################################################################################################################
 	/**
 	 * 
 	 * @param valor    é a string com o texto que queremos ter na lista da tabela
 	 *
 	 * define o título da página/ou form
 	 */
-  public function setTitulo($valor){
-    
-    $this->setTitle($valor);      
-  }
-	  
+  	public function setTitulo($valor){
+    	$this->setTitle($valor);      
+  	}  
 }
 
 //###################################################################################################################################
-//###################################################################################################################################
-//###################################################################################################################################
-
 ?>
