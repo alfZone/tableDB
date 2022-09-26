@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.7.2
- * @updated 02-09-2022 21:50:00
+ * @version 9.8.0
+ * @updated 26-09-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -20,6 +20,7 @@
 //news of version: 
 //         use sql field comments to provide a label for the field
 // 			When send empty value, the field content is deleted.
+//			if you want all the fiels can use * 
 
 
 
@@ -75,6 +76,7 @@ class TableBD{
 // redirecciona($ url = "? do = l") - redirects to the page showing the list
 // setAutenticacao($ value) - defines if by default the user has permissions to see, create new, delete and change where: a - all time the possibility to see, create new,
 //                            delete and change, u - update Can only change data, r - read can only see,  e - edit It only allows edition,  n - new It only allows creating new records     
+// setAllFieldAtive($action,$value) - set all table fields to see/hide on an action. Action is the type of action (list, edit and add) and $value is 1 for show and 0 to hide
 // + setCalculatedField($nameField,$sqlCalcFormula) | setCampoCalculado($ field, $ calculation)- Add a new calculated field, where $nameField is the name for the new field we want to add and that will result from a sql operation, 
 //                                                                  and $sqlCalcFormula is a sql operation that can involve other fields in the table
 // setFieldAtive($field, $action, $value) | setAtivaCampo($ campo, $ accao, $ valor) - Activates / deactivates (shows / hides) a field for an action where the field is the field we want to activate / deactivate
@@ -1434,7 +1436,30 @@ class TableBD{
 		//header("Location: " .  $url);
 	}
   
-	
+		//###################################################################################################################################	
+	/**
+     * 
+     * @param action   is the type of action (list, edit and add) in which we want to enable/disable the field
+     * @param value    is 1 to show and 0 to hide
+	  * Activate/deactivate (show/hide) a field for an action
+	*/
+	private function setAllFieldAtive($action, $value){	
+		$action=str_replace("list","ver",$action);
+		$action=str_replace("see","ver",$action);
+		$action=str_replace("new","novo",$action);
+		$action=str_replace("add","novo",$action);
+		$action=str_replace("edt","editar",$action);
+		//$action=str_replace("edit","editar",$action);
+		$i=0;
+		//echo "<br> campo=$campo accao=$accao e valor=$valor";
+		foreach($this->camposLista as $campoaux){
+				$this->camposLista[$i][$action]=$value;
+			$i++;
+		}
+	}
+
+
+
   	//###################################################################################################################################	
 	/**
      * 
@@ -1491,12 +1516,17 @@ class TableBD{
 		$this->fieldsActive(0, $action);
 		$fields=str_replace("`","",$fields);
 		$fields=str_replace(" ","",$fields);
-		$campo=explode(",", $fields);
-		//echo "<br>campos = ";
-		//print_r($campo);
-		for($i = 0; $i < sizeof($campo);$i++) {
-			$this->setFieldAtive($campo[$i], $action, 1);
+		if ($fields!="*"){
+			$campo=explode(",", $fields);
+			//echo "<br>campos = ";
+			//print_r($campo);
+			for($i = 0; $i < sizeof($campo);$i++) {
+				$this->setFieldAtive($campo[$i], $action, 1);
+			}
+		}else{
+			$this->setAllFieldAtive($action,1);
 		}
+		
 		if ($action=="csv"){
 			$this->PagImp=1;
 		}
