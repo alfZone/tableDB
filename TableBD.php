@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.0
+ * @version 9.8.1
  * @updated 26-09-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -15,6 +15,7 @@
 // - Return errors
 
 // roadmap
+//	ver a funcção  prepareSQLtoAction($action) | preparaSQLparaAccao($ accao)
 
 
 //news of version: 
@@ -45,7 +46,7 @@ class TableBD{
 // __construct() - Class Constructor
 // fieldsActive($value, $action) | ativaCampos($ value, $ action) - Makes visible the fields to be displayed by passing the value = 1 (or not passing a value) and hides it by passing the value = 0. When value //                                  passed is 1 the field is active (visible) and when the field is 0 the field is disabled. Action defines the behavior of seeing, new, 
 //                                  editing.
-// consultaSQL($ sql) - given a sql it returns a list of data.
+// querySQL($sql) | consultaSQL($sql) - given a sql it returns a list of data.
 // determinaChave() - Analyzes the structure of the database table and determines which is the key
 // devolveValorDaLista($ field, $ key) - Find the value of a field for a given key where the field is the name of the field to be consulted the list of values and key is the id //                                       of the value to be searched.
 // encriptar($ text, $ cipher = "md5") - encrypts a text according to a past method where text is the text to be encoded and encryption is the type of cipher used
@@ -316,7 +317,7 @@ class TableBD{
 				//options
 			case "":
 			case "l":
-				$this->prepareSQLtoAction('ver');
+				//echo $this->prepareSQLtoAction('ver');
 				$this->fazlista();
         		$this->includes();
 				break;
@@ -329,7 +330,6 @@ class TableBD{
 			case "csv":
 			case "imp":
 				$this->importCSV();
-			
 				$this->redirecciona();
 				break;
 				//formulario para editar
@@ -481,9 +481,9 @@ class TableBD{
     
     $pagina = (isset($_REQUEST["p"])?($_REQUEST["p"]):1);		
 
-	$sql=$this->preparaSQLparaAccao("ver");
+	$sql=$this->prepareSQLtoAction("ver");
     //echo "<br>sql=" . $sql;
-	$stmt=$this->consultaSQL($sql);
+	$stmt=$this->querySQL($sql);
 	//print_r($stmt);
   	foreach($stmt as $registo){
 		$text .= "<tr>";
@@ -814,7 +814,7 @@ class TableBD{
 		$this->determinaChave();
 		$this->preparaSQLGeral();
 		$sql=$this->sqlGeral . " WHERE " . $this->chave . " = '" . $chave . "'";
-		return $this->consultaSQL($sql);
+		return $this->querySQL($sql);
 	} 
   
    //###################################################################################################################################
@@ -827,7 +827,7 @@ class TableBD{
 		//$sql .= " WHERE " . $this->chave . " = '" . $chave . "' AND " . $this->criterio . ";";
     	$sql .= " WHERE " . $this->chave . " = '" . $chave . "'; ";
     	//echo $sql;
-		return $this->consultaSQL($sql);
+		return $this->querySQL($sql);
 	} 
 
 	 //###################################################################################################################################
@@ -931,9 +931,9 @@ class TableBD{
 					$sql= $this->prepareSQLinsert();
 					
 				}
-             	
+             	$sql.=";";
 				echo $sql;
-				$this->consultaSQL($sql);
+				$this->querySQL($sql);
             	//print_r($this->camposLista);    
           	}
 		} 
@@ -1275,8 +1275,17 @@ class TableBD{
     * fields marked as visible in the chosen action
 	*/
 	public function prepareSQLtoAction($action){
+
+		//echo "<br>". $this->chave;
+		if ($this->chave!=""){
+			$sep=",";
+		}else{
+			$sep="";
+		}
 		$resposta= "SELECT " . $this->chave ;
-		$sep=",";
+		
+
+		//echo "<br>". $sep;
       	//$key=0;
 		//print_r($this->camposLista);
 		foreach($this->camposLista as $campo){
@@ -1292,7 +1301,7 @@ class TableBD{
 			} 		
 		}
 		$resposta= $resposta . " FROM " . $this->tabela;
-        $resposta = $resposta . " WHERE " . $this->criterio . " order by" . $this->order;
+        $resposta = $resposta . " WHERE " . $this->criterio . " order by " . $this->order;
       	//echo "<br> $resposta <br>";
 		if ($this->limites[0]>0){
 			$resposta.= " Limit ". $this->limites[0];
@@ -1300,6 +1309,7 @@ class TableBD{
 		if ($this->limites[1]>0){
 			$resposta.= " Step ". $this->limites[1];
 		}
+
       	return $resposta;			
 	}
   
@@ -1400,7 +1410,7 @@ class TableBD{
 		//$sql="DESCRIBE  $table ";
 		$sql="show full columns from  $table ";
 		//echo $sql;
-		$this->camposLista=$this->consultaSQL($sql);
+		$this->camposLista=$this->querySQL($sql);
 		//$v=$this->camposLista;
 		//print_r($this->camposLista);
 		$this->determinaChave();
@@ -1665,7 +1675,7 @@ class TableBD{
 					case "1":
 						// preenceh com sql
 						$listanova=new TableBD();
-						$lista=$listanova->consultaSQL($listOrSql);
+						$lista=$listanova->querySQL($listOrSql);
 						break;
 					case "2":
             			//echo "<br>listasql=$listaSql";
@@ -1688,7 +1698,7 @@ class TableBD{
 					case "3":
 						$par=explode("|", $listOrSql);
 						$listanova=new TableBD();
-						$lista=$listanova->consultaSQL($par[0]);
+						$lista=$listanova->querySQL($par[0]);
 
 						$lista1=explode(",", $par[1]);
 						$j=count($lista);
