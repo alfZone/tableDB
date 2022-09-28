@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.1
+ * @version 9.8.3
  * @updated 26-09-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -16,12 +16,14 @@
 
 // roadmap
 //	ver a funcção  prepareSQLtoAction($action) | preparaSQLparaAccao($ accao)
+// erro na 1378 que tem haver com o campo change que não é inicializado em todos os campos 
 
 
 //news of version: 
 //         use sql field comments to provide a label for the field
 // 			When send empty value, the field content is deleted.
 //			if you want all the fiels can use * 
+//		some errors in import witj update 
 
 
 
@@ -895,7 +897,7 @@ class TableBD{
   public function importCSV(){
     if (isset($_REQUEST["txtCSV"])){       
 		if ($_REQUEST["txtCSV"]!=""){
-        	//echo "recebi!";
+        	//a txt is passed
 			$upd=0;
 			if (isset($_REQUEST['doUpdate'])){
 				if ($_REQUEST['doUpdate']==true){
@@ -913,13 +915,31 @@ class TableBD{
 		        foreach($this->camposLista as $campoaux){
 					//print_r($campoaux);
               		if ($campoaux['csv']==1){
+						
                     	if ($campoaux['Type']=="pas"){
                       		$registo[$j]=$this->encriptar($registo[$j], $campoaux['cifra']);;
                     	}
+						
 						if ($campoaux['Key']=="PRI"){
 							$keyValue=$registo[$j];
 					  	}
                     	$this->camposLista[$i]["valor"]=$registo[$j];
+						if ($registo[$j]!=""){
+							$this->camposLista[$i]["change"]=1;
+							//echo $campoaux['Type'] . " - " . $registo[$j];
+							if ($campoaux['Type']=="date"){
+								$date=$registo[$j]; 
+								$date=str_replace("/","-",$date);
+								$date=str_replace(".","-",$date);
+								$parts=explode("-",$date);
+								if (sizeof($part[0])<4){
+									$date=implode('-', array_reverse(explode('-', $date))); 
+								}
+								//echo "date = $date <br>";
+								$this->camposLista[$i]["valor"]=$date;
+							}
+						}
+						
                     	$j++;			
               		}
               		$i++;
@@ -932,9 +952,10 @@ class TableBD{
 					
 				}
              	$sql.=";";
-				echo $sql;
+				//echo $sql;
 				$this->querySQL($sql);
-            	//print_r($this->camposLista);    
+            	//print_r($this->camposLista);  
+				return  $sql; 
           	}
 		} 
 	}
@@ -1357,6 +1378,7 @@ class TableBD{
 	/**
     *  
 	* Prepara uma string SQL para atualizar campos com valor
+	* $notable - control if the update need or do not reed the table name. If we are to try to construct a sql introction with a test for duplicate key then we don't neet the table name
 	*/
 	public function preparaSQLupdate($noTable=0){
 		if($noTable==1){
