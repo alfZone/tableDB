@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.3
+ * @version 9.8.4
  * @updated 26-09-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -907,7 +907,10 @@ class TableBD{
 			//echo "update?=$upd; doUpadate:".$_REQUEST['doUpdate'];
 			$txt=$_REQUEST["txtCSV"];
           	$linhas=explode("\n", $txt);
+			print_r($linhas);
+			//$k=0;
           	foreach($linhas as $linha){
+				//echo "<br>K=". $k. "<br>";
             	$registo=explode(";", $linha);
             	$i=0;
             	$j=0;
@@ -948,14 +951,14 @@ class TableBD{
 					$sql= $this->prepareSQLInsertIfNotExisteUpdateIfExiste($keyValue);
 					
 				}else{
-					$sql= $this->prepareSQLinsert();
-					
+					$sql= $this->prepareSQLinsert();		
 				}
              	$sql.=";";
+				//echo "<br>linha j=". $j."<bR>";
 				//echo $sql;
 				$this->querySQL($sql);
             	//print_r($this->camposLista);  
-				return  $sql; 
+				//return  $sql; 
           	}
 		} 
 	}
