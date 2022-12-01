@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.4
- * @updated 26-09-2022 21:50:00
+ * @version 9.8.5
+ * @updated 01-12-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -12,7 +12,7 @@
  */
 
 // problems detected
-// - Return errors
+// The 2ª fild should be a text because is used on the delete confirmation window - Um nkowned problem is fi the 2ª filde is an image
 
 // roadmap
 //	ver a funcção  prepareSQLtoAction($action) | preparaSQLparaAccao($ accao)
@@ -20,10 +20,7 @@
 
 
 //news of version: 
-//         use sql field comments to provide a label for the field
-// 			When send empty value, the field content is deleted.
-//			if you want all the fiels can use * 
-//		some errors in import witj update 
+//         in some cases showing de key field
 
 
 
@@ -674,7 +671,8 @@ class TableBD{
     }
     
     $t=""; 
-   	//preparing fields  
+   	//preparing fields 
+    //print_r($this->camposLista);
    	foreach($this->camposLista as $campo){
 		//print_r($campo);
      
@@ -1548,6 +1546,7 @@ class TableBD{
 		//$action=str_replace("edit","editar",$action);
 		$action=str_replace("edt","editar",$action);
 		$action=str_replace("editarar","editar",$action);
+    	$action=str_replace("edit","editar",$action);
 		$this->fieldsActive(0, $action);
 		$fields=str_replace("`","",$fields);
 		$fields=str_replace(" ","",$fields);
