@@ -20,7 +20,7 @@ $table->setTemplate(_CAMINHO_MANUTENCAO . "TableBD.html");
 $table->setTitle("Users List");
 
 //select the table in the datebase
-$table->prepareTable("tabUsers");
+$table->prepareTable("Users");
 
 //list of fields for list, new, edit and import records
 $table->setFieldsAtive("userID, name, email, type, photo, active",'list');
