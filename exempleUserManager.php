@@ -14,7 +14,7 @@ use classes\db\TableBD;
 $table= new TableBD();
 
 //Set the path for the html template
-$table->setTemplate(_CAMINHO_MANUTENCAO . "tables.html");
+$table->setTemplate(_CAMINHO_MANUTENCAO . "TableBD.html");
 
 //Set title of the list
 $table->setTitle("Users List");
