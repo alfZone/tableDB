@@ -1,22 +1,23 @@
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(60) NOT NULL DEFAULT '',
+CREATE TABLE `eaUsers` (
+  `userID` int(11) NOT NULL,
+  `name` varchar(60) NOT NULL DEFAULT '',
   `login` varchar(40) NOT NULL DEFAULT '',
   `pass` varchar(64) NOT NULL DEFAULT '',
   `email` varchar(200) DEFAULT NULL,
-  `postar` enum('S','N') NOT NULL DEFAULT 'S',
-  `ultimo_acesso` datetime DEFAULT NULL,
-  `num_acessos` int(11) NOT NULL DEFAULT '0',
-  `tipo` int(11) NOT NULL,
-  `ativo` int(11) NOT NULL
+  `canPost` enum('S','N') NOT NULL DEFAULT 'S',
+  `last_access` datetime DEFAULT NULL,
+  `num_access` int(11) NOT NULL DEFAULT '0',
+  `photo` varchar(250) NULL DEFAULT '',
+  `type` int(11) NOT NULL,
+  `active` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-INSERT INTO `users` (`id`, `nome`, `login`, `pass`, `email`, `postar`, `ultimo_acesso`, `num_acessos`, `tipo`, `ativo`) VALUES
+INSERT INTO `eaUsers` (`userID`, `name`, `login`, `pass`, `email`, `canPost`, `last_access`, `num_access`, `type`, `active`) VALUES
 (2, 'Admin', 'admin', 'c99b5e8c22376084429e03dd3c588bc0', NULL, 'S', NULL, 0, 3, 1);
 
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `eaUsers`
+  ADD PRIMARY KEY (`userID`);
 
 
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+ALTER TABLE `eaUsers`
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
