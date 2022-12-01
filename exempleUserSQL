@@ -1,4 +1,4 @@
-CREATE TABLE `eaUsers` (
+CREATE TABLE `Users` (
   `userID` int(11) NOT NULL,
   `name` varchar(60) NOT NULL DEFAULT '',
   `login` varchar(40) NOT NULL DEFAULT '',
@@ -12,12 +12,12 @@ CREATE TABLE `eaUsers` (
   `active` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-INSERT INTO `eaUsers` (`userID`, `name`, `login`, `pass`, `email`, `canPost`, `last_access`, `num_access`, `type`, `active`) VALUES
+INSERT INTO `Users` (`userID`, `name`, `login`, `pass`, `email`, `canPost`, `last_access`, `num_access`, `type`, `active`) VALUES
 (2, 'Admin', 'admin', 'c99b5e8c22376084429e03dd3c588bc0', NULL, 'S', NULL, 0, 3, 1);
 
 ALTER TABLE `eaUsers`
   ADD PRIMARY KEY (`userID`);
 
 
-ALTER TABLE `eaUsers`
+ALTER TABLE `Users`
   MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
