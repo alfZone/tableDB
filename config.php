@@ -11,4 +11,6 @@ define("_AUTORES", 'alf');
 define("_BDUSER", 'user');
 define("_BDPASS", 'password');
 define("_BD", 'databasename');
+
+define("_CAMINHO_MANUTENCAO", '../classes/db/');
 ?>
