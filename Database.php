@@ -1,15 +1,35 @@
 <?php
-//namespace classes\db;
-//use PDO;
+namespace classes\db;
+use PDO;
+
 /**
  * the idea of this class is provide a interface for a mysql database.
  * @author António Lira Fernandes
- * @version 1.2
- * @updated 2021-01-19
+ * @version 1.3
+ * @updated 2022-05-19
+ * https://github.com/alfZone/DataBase/blob/main/Database.php
  */
 
-//changes:
-//      warnings are now active
+// problems detected
+// 
+
+// roadmap
+// 
+
+//news of version: 
+//   - List database tables
+
+
+// REQUIRES
+	
+// MISSION: provide a connection to a database, passing user, pass, and database name
+  
+// METHODS
+// __construct($user, $pass, $dbname, $host="localhost") - Class Constructor. $user is the database username, $pass is the database password, $dbname is the database name, 
+//                                                         and $host is an optional parameter for the location of the database server (usually this is localhost)
+// listTables()  - prepare a list of existing tables in the database.
+// resultset() -  return an array with the last result for an action
+
 
 class Database{
     private $_dbh;
@@ -28,9 +48,7 @@ class Database{
         //$dsn = 'sqlite::memory:';
         $options = array(
                     PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-                    PDO::ATTR_PERSISTENT => true,
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING
-          
+                    PDO::ATTR_PERSISTENT => true
                     );
         try {
             $this->_dbh = new PDO($dsn, $user, $pass, $options);
@@ -66,6 +84,7 @@ class Database{
             }
         }
         $this->_stmt->bindValue($pos, $value, $type);
+      //echo $this->debugDumpParams();
     }
   
     //#########################################################################################################################################
@@ -95,13 +114,14 @@ class Database{
     //#########################################################################################################################################
     public function execute(){
         $this->_queryCounter++;
-      //echo "aqui";
-        return $this->_stmt->execute();
+       
+      //print_r($this->getError());
+       return $this->_stmt->execute();
+       
     }
   
     //#########################################################################################################################################
     public function getError(){
-      //return $this->debugDumpParams();
       return $this->_errors;
     }
   
@@ -116,7 +136,7 @@ class Database{
     public function query($query){
         $this->_stmt = $this->_dbh->prepare($query);
         //echo "<br><br>$sql<br><bR>";
-        //$this->_errors=$this->_dbh->errorInfo();
+        $this->_errors=$this->_dbh->errorInfo();
         //print_r($this->_dbh->errorInfo());
     }
 
@@ -127,9 +147,10 @@ class Database{
     }
 
     //#########################################################################################################################################
+    // return an array with the last result for an action
     public function resultset(){
         $this->execute();
-        //$this->_errors=$this->_dbh->errorCode();
+        $this->_errors=$this->_dbh->errorInfo();
         return $this->_stmt->fetchAll(PDO::FETCH_ASSOC);
     }
       
@@ -145,5 +166,12 @@ class Database{
         return $this->_stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    //#########################################################################################################################################
+    // prepare a list of existing tables in the database.
+    public function listTables(){
+        $sql="Show Tables";
+        $this->query($sql);
+        $this->_errors=$this->_dbh->errorInfo();
+    }
   
 }
