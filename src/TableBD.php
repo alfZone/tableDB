@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.5
+ * @version 9.8.6
  * @updated 01-12-2022 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -12,7 +12,7 @@
  */
 
 // problems detected
-// The 2ª fild should be a text because is used on the delete confirmation window - Um nkowned problem is fi the 2ª filde is an image
+// The second field should be text because it is used in the delete confirmation window. An unknown problem occurs if the second field is an image.
 
 // roadmap
 //	ver a funcção  prepareSQLtoAction($action) | preparaSQLparaAccao($ accao)
@@ -20,7 +20,7 @@
 
 
 //news of version: 
-//         in some cases showing de key field
+//         Problem with the insert after an update
 
 
 
@@ -43,74 +43,64 @@ class TableBD{
   
 // METHODS
 // __construct() - Class Constructor
-// fieldsActive($value, $action) | ativaCampos($ value, $ action) - Makes visible the fields to be displayed by passing the value = 1 (or not passing a value) and hides it by passing the value = 0. When value //                                  passed is 1 the field is active (visible) and when the field is 0 the field is disabled. Action defines the behavior of seeing, new, 
-//                                  editing.
-// querySQL($sql) | consultaSQL($sql) - given a sql it returns a list of data.
-// determinaChave() - Analyzes the structure of the database table and determines which is the key
-// devolveValorDaLista($ field, $ key) - Find the value of a field for a given key where the field is the name of the field to be consulted the list of values and key is the id //                                       of the value to be searched.
-// encriptar($ text, $ cipher = "md5") - encrypts a text according to a past method where text is the text to be encoded and encryption is the type of cipher used
-// showHTML() | fazHTML() - Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to 
-//             make decisions
-// fazLista() - Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows a
-//              set of records (25 by default) and allows browsing pages
-// formConfirmacaoApagar($ record) - Displays a confirmation to delete the record
-// formulario($ record = "") - Displays an HTML form to edit or insert a record
-// getCampoValor($ campo) - returns an appropriate string to construct an SQL field with quotes and without quotes in which field and an array with the information of a field, //                          includes: label, Field, Type, value and etc
-// getCampos() - Returns the list of fields in the table
-// getChave() - reads the key parameter of the record sent by the HTML form and which corresponds to the value identified as key in the analysis of the table
-// getDados($ key) - given a key value it returns the results
-// getDadosForm() - Search $ _REQUEST for the fields to be read. Those with value will be read.
-// getDo() - read the 'do' parameter of the HTML form
-// getTextos($ key) - returns a pre-entered text where key is the name of the field we want to get the value
-// includes() - Set of includes necessary for the format of the list of records in the table
-// inputHTML($ field, $ value) - returns the appropriate html to construct a field of the type passed in the Type attribute. field is an array with the information of a
-//                               field, includes: label, Field, Type and etc and value is the default value to be included in the field
-// preparaSQLGeral() - Prepare a string with the table's SQL statement (of type SELECT * FROM Table). Included all fields
-// preparaSQLdelete() - Prepare an SQL string to delete the record
-// prepareSQLinsert() - Prepare an SQL string to insert the fields with value
-// prepareSQLtoAction($action) | preparaSQLparaAccao($ accao) - Prepare a string with the SQL statement of the table (of type <SELECT LIST OF FIELDS> FROM Table). Only included fields marked as visible 
-//                                in the chosen action where in action We may want to see the fields in three types of action: New (novo), Edit (editar), List (ver) Import (csv) 
-// preparaSQLupdate() - Prepare an SQL string to update fields with value
-// prepareTable($table) | preparaTabela($ table) - Prepare a table, creating the list of fields in the table, determining its key, preparing a general SQL for all fields define the tags - table is
-//                          the name of the table in the database
-// redirecciona($ url = "? do = l") - redirects to the page showing the list
-// setAutenticacao($ value) - defines if by default the user has permissions to see, create new, delete and change where: a - all time the possibility to see, create new,
-//                            delete and change, u - update Can only change data, r - read can only see,  e - edit It only allows edition,  n - new It only allows creating new records     
-// setAllFieldAtive($action,$value) - set all table fields to see/hide on an action. Action is the type of action (list, edit and add) and $value is 1 for show and 0 to hide
-// + setCalculatedField($nameField,$sqlCalcFormula) | setCampoCalculado($ field, $ calculation)- Add a new calculated field, where $nameField is the name for the new field we want to add and that will result from a sql operation, 
-//                                                                  and $sqlCalcFormula is a sql operation that can involve other fields in the table
-// setFieldAtive($field, $action, $value) | setAtivaCampo($ campo, $ accao, $ valor) - Activates / deactivates (shows / hides) a field for an action where the field is the field we want to activate / deactivate
-//                                            action is the type of action (list, edit and add) in which we want to activate / deactivate the field and value is 1 for
-//                                            show and 0 to hide
-// setFieldsAtive($fields, $action) | setAtivaCampos($ fields, $ action) - Activates (shows) a comma-separated list of fields for an action. Fields that are not listed are disabled fields is a list of fields 
-//                                      in the sql table and action is the type of action (list, csv, edt and new) in which we want enable / disable the field
-// setJSAction($field, $action) - set a js action to a field. $Field is the name of field to add a javascript action, and $action is the action you want to call
-// setFieldList($field,$mode,$listOrSql, $hideCode=0) | setCampoLista($ field, $ mode, $ listSql) - Change the field to list type to have a description instead of the code and a combo box when editing and 
-//															inputting data. $field is the SQL field we want to change to the list type, $mode is the way the values ​​are loaded: 1 - SQL; 2 - values; 3 - SQL + values 
-//															​​and $listOrSql is the sql string or list of values ​​to be passed (the list has the format eg "1 => first, 2 => second, 3 => useful, a => like this") or
-//															SQL instroction|list of values. example "select code,description form table order by descripton|1 => first, 2 => second"
-// setFieldPass($field,$mode,$cipher) | setCampoPass($ field; $ mode = 0) - Change the field to the password type to have hidden text in the introduction, and to be encrypted before saving. It will include a mode
-//                                     field to determine the way in which it will be introduced so that there are no mistakes (repeat the introduction or show) and a field 
-//                                     with the number in which field is the field that we intend to change to the type and mode is to verify the correct writing of a new
-//                                     password. 0 - off; 1 - repeat the introduction; 2 - show password and cifa is the way the text is encrypted. "" - off; "md5" - md5; 
-//                                     "sha1" - sha1; "base64" - base64
-// setImageField($field,$path,$percentage='100%',$defaultImage="") | Change the $field (usually a string) to image type to be seen in the list in a special way (like a image). $path is the path to be added to the
-//																 	image to reach the file and $percentage is the percentage of the height of the image is the field we want to change to. $defaultImage is an 
-//																	image to replace null and "" values
-// setCriterio($ criterio) - defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
-// setOrder($order) - is a sql string to order the data in a table
-// + setDefaultValue ($ field, $ value) - defines a default value to be considered in a new introduction where field is the field in which we want to define an initial value and 
-//                                      value is the initial value to be considered
-// setHTMLid($ id, $ value) - Writes in an HTML element of the page by default, which has the id. id is the id of an HTML tag and value is a string with the value to be loaded
-//                            into the element
-// setLabel($ field, $ value) - Assign a label to a field where the field is the field we want to change the label and the value is the text to be considered as a label
-// setLabels() - Assign field names in the database as a field label. This function is only performed when preparing the table
-// setLimites($ NumReg, $ LimInf = 0) - Sets the number of resistors in a select where $ NumReg is the number of records and $ LimInf is the initial record
-// setLinkPage($page, $style=0) | setPaginaVer($page, $style=0) - Stores the name (url) of the page that should be opened to show une record. Where the $page is the address 
-//																  (url) for a html page to show a record and $style is the way that the key value are passed. if style=0 
-//																  then the url to see is url?id=keyValue. if style=1 then the url is url/keyValue
-// setTemplate($ path) * - Assign the template to the table. Where path is the path and the template file
-// setTitle($value) | setTitulo($ value) - sets the title of the page / or form 
+// fieldsActive($value, $action) - Makes the fields visible by passing the value = 1 (or without passing a value) and hides it by passing the value = 0. The 
+//																 fields are active (visible) when the value passed is 1 and disabled when the value is 0. "Action" defines the behavior of 
+//																 viewing, creating, editing.
+// querySQL($sql) - Returns a list of data from a given SQL.
+// determinaChave() - Analyzes the database table structure and determines the key.
+// devolveValorDaLista($field, $key) - Finds the value of a field for a given key. $field is the name of the field to be consulted and $key is the id of the 
+//                                     value to be searched.
+// encriptar($text, $cipher = "md5") - Encrypts text using a specified cipher method. $text is the text to be encrypted and $cipher is the type of cipher used.
+// showHTML() - Creates an HTML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
+// fazLista() - Creates an HTML table with all the records, allowing sorting by column, text search, and pagination (25 records per page by default).
+// formulario($record = "") - Displays an HTML form for editing or inserting a record.
+// getCampoValor($campo) - Returns an appropriate string for constructing an SQL field, including quotes and without quotes. $campo is an array with field 
+//                         information, including label, field, type, value, etc.
+// getCampos() - Returns the list of fields in the table.
+// getChave() - Reads the key parameter from the HTML form, which corresponds to the key value determined from the table analysis.
+// getDados($key) - Returns results for a given key value.
+// getDadosForm() - Searches using $_REQUEST for fields to be read, only reading fields with values.
+// getDo() - Reads the 'do' parameter from the HTML form.
+// getTextos($key) - Returns a pre-entered text. $key is the name of the field to get the value for.
+// includes() - Sets of includes necessary for the record list table format.
+// inputHTML($field, $value) - Returns appropriate HTML for constructing a field of the specified type. $field is an array with field information, including 
+//                             label, field, type, etc., and $value is the default value to be included in the field.
+// preparaSQLGeral() - Prepares a string with the table's SELECT * FROM Table SQL statement, including all fields.
+// preparaSQLdelete() - Prepares an SQL string for deleting a record.
+// prepareSQLinsert() - Prepares an SQL string for inserting fields with values.
+// prepareSQLtoAction($action) | preparaSQLparaAccao($accao) - Prepares a string with the SELECT LIST OF FIELDS FROM Table SQL statement, only including fields 
+//                                                             marked as visible in the specified action (new, edit, list, import).
+// preparaSQLupdate() - Prepares an SQL string for updating fields with values.
+// prepareTable($table) - Prepare a table by creating a list of fields, determining its key, and preparing a general SQL for all fields. 
+// redirecciona($ url = "? do = l") - Redirect to the page displaying the list:
+// setAutentication($ value) - Defines user's default permissions: a - all permissions, u - update only, r - read only, e - edit only, n - new only.
+// setAllFieldAtive($action,$value) - Set visibility of all table fields for a given action (list, edit, add). 1 for visible, 0 for hidden.
+// + setCalculatedField($nameField,$sqlCalcFormula) - Add a new calculated field with the name of $nameField, the result of the SQL operation $sqlCalcFormula.
+// setFieldAtive($field, $action, $value) - Show/hide a field for a specific action (list, edit, add). 1 for show, 0 for hide.
+// setFieldsAtive($fields, $action) - Show a list of fields for a specific action (list, csv, edt, new). Fields not listed are hidden.
+// setJSAction($field, $action) - Set JavaScript action for a field ($field). $Field is the name of field to add a javascript action, and $action is the action you want to call
+// setFieldList($field,$mode,$listOrSql, $hideCode=0) - Change field to list type for better description and combo box during editing. Mode: 1-SQL, 2-values, 
+//																											3-SQL+values. $field is the SQL field we want to change to the list type, $mode is the way the values  
+//																											are loaded: 1 - SQL; 2 - values; 3 - SQL + values and $listOrSql is the sql string or list of values  
+//																									    to be passed (the list has the format eg "1 => first, 2 => second, 3 => useful, a => like this") or
+//																											SQL instroction|list of values. example "select code,description form table order by descripton|1 => 
+//																											first, 2 => second"
+// setFieldPass($field,$mode,$cipher) - Change field to password type for hidden text and encryption before saving. Mode: 0-off, 1-repeated input, 2-show. 
+//																		  Cipher: "", "md5", "sha1", "base64".
+// setImageField($field,$path,$percentage='100%',$defaultImage="") - Change $field to image type for special display in the list. $path is the image location, 
+//                                                                   $percentage is image height, $defaultImage is default image.
+// setCriterio($ criterio) - Define view criteria using an SQL "where" clause.
+// setOrder($order) -Set SQL string to order data in the table.
+// + setDefaultValue ($ field, $ value) - Set default value for a new entry. Field is the field to set, value is the initial value.
+// setHTMLid($ id, $ value) - Write to an HTML element on the page with the specified id. The id is the id of the HTML tag and the value is the string to be loaded into the element.
+// setLabel($ field, $ value) - Assign a label to a field, where the field is the field you want to change the label for and the value is the text to be used as the label.
+// setLabels() - Assign the field names in the database as field labels, this function is only executed when preparing the table.
+// setLimites($ NumReg, $ LimInf = 0) - Set the number of records in a select statement, where NumReg is the number of records and LimInf is the starting record.
+// setLinkPage($page, $style=0) | setPaginaVer($page, $style=0) - Store the name (URL) of the page to be opened to view a record. The page parameter is the URL 
+//                                                                of the HTML page to show a record, and the style parameter is how the key value is passed. 
+//                                                                If style=0, then the URL is URL?id=keyValue, if style=1, then the URL is URL/keyValue.
+// setTemplate($path) * - Assign a template to the table, where the path is the path to the template file.
+// setTitle($value) | setTitulo($ value) - Set the title of the page or form, where the value is the text for the title.
 	
 	
 
@@ -119,7 +109,8 @@ class TableBD{
 	/**
 	 * This array will receive all the output texts of the class.
 	 */
-  private $textos=array("titulo"=>"Lista de registios da tabela");
+  private $textos=array("titulo"=>"Lista de registios da tabela", "import"=>"Os campos tem de ser importados pela seguinte ordem", 
+  											"importline"=>"linhas a serem importadas");
   /**
 	 * array of id and value pairs for HTML tag
 	 */
@@ -183,9 +174,9 @@ class TableBD{
 	*
   * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
 	*/
-	private function ativaCampos($valor, $accao){
-	    $this->fieldsActive($valor, $accao);
-	}
+	//private function ativaCampos($valor, $accao){
+	//    $this->fieldsActive($valor, $accao);
+	//}
  
 
   //###################################################################################################################################
@@ -202,9 +193,9 @@ class TableBD{
 		return $database->resultset();	
 	}
   
-  	public function consultaSQL($sql){
-    	return $this->querySQL($sql);
-	}
+ // 	public function consultaSQL($sql){
+ //   	return $this->querySQL($sql);
+//}
 	  
   	//###################################################################################################################################	
 	
@@ -224,6 +215,7 @@ class TableBD{
 		}
 	}
 	
+	
 	 	//###################################################################################################################################	
 	
 	/**
@@ -233,7 +225,7 @@ class TableBD{
 	 *
 	 * procura o valor de um campo para uma determinada chave.
 	 */
-	private function devolveValorDaLista($campo, $chave){
+	private function devolveValorDaListaOld($campo, $chave){
 		//$chave="";
 		//print_r($this->camposLista);
 		$devolve=$chave;
@@ -264,6 +256,29 @@ class TableBD{
 		return $devolve;
 	}
 	
+	 	//###################################################################################################################################	
+	
+	/**
+   * 
+   * @param string $campo   name of the field to search in the list of values
+   * @param string $chave   id of the value to be searched for
+   *
+   * search for the value of a field for a given key.
+   */
+  private function devolveValorDaLista($campo, $chave){
+    $devolve = $chave;
+    foreach($this->camposLista as $campo1){
+      if ($campo1['Field'] == $campo){
+        foreach($campo1['lista'] as $linha){
+          if ($linha[0] == $chave){
+            $devolve = ($campo1['hideCode'] == 1) ? $linha[1] : $linha[1] . " [" . $chave ."]";
+            break 2;
+          }
+        }
+      }
+    }
+    return $devolve;
+  }
 	//###################################################################################################################################
 	/**
 	 * 
@@ -381,9 +396,9 @@ class TableBD{
 	* para tomar as decisões
 	*/
   	// TEM DE SER TODO REFORMULADO
-	public function fazHTML(){
-		$this->showHTML();
-	}
+//	public function fazHTML(){
+//		$this->showHTML();
+//	}
 
   
    //###################################################################################################################################
@@ -626,14 +641,13 @@ class TableBD{
 				<section>
           <h3>Importar         
           </h3>
-          <p>
-            Os campos tem de ser importados pela seguinte ordem: <code><?php echo $this->fazListaCamposAccao("csv")?></code>
+          <p><?php echo $this->getTextos('import');?> <code><?php echo $this->fazListaCamposAccao("csv")?></code>
           </p>
 				<form action="?do=csv" method="post" role="form" class="form"  id="Form1"> 
 				<div class="row">
 					<div class="col-sm-12" >
 						<div class="form-group">
-                <label for="comment">linhas a serem importadas:</label>
+                <label for="comment"><?php echo $this->getTextos('importLine');?>:</label>
                <textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
             </div>
 	        	
@@ -1015,6 +1029,7 @@ class TableBD{
   
   $("#bnew").click(function() {
     var markupStr = "...";
+    $("#editKey").attr("value","")
     $('.summernote').summernote('reset');
     <?php
     //print_r($this->camposLista);
@@ -1438,9 +1453,9 @@ class TableBD{
 		//print_r($this->camposLista);
 		$this->determinaChave();
 		$this->setLabels();
-		$this->ativaCampos(1,'ver');
-		$this->ativaCampos(1,'novo');  
-		$this->ativaCampos(1,'editar');
+		$this->fieldsActive(1,'ver');
+		$this->fieldsActive(1,'novo');  
+		$this->fieldsActive(1,'editar');
 	}
     //###################################################################################################################################	
 	/**
@@ -1450,10 +1465,10 @@ class TableBD{
 	* Prepara uma tabela, criando a lista de campos da tabela, determinando a sua chave, prepara um SQL geral para todos os campos
 	* define as etiquetas
 	*/
-	function preparaTabela($tabela){
+	//function preparaTabela($tabela){
 		//prepara o html para gerir a tabela
-    	$this->prepareTable($tabela);
-	}	 
+  //  	$this->prepareTable($tabela);
+	//}	 
  
  
 	//###################################################################################################################################	
@@ -1528,9 +1543,9 @@ class TableBD{
 	* Activa/desativa (mostra/esconde) um campo para uma acção
   	* Este nome é para manter acompatibilidade com o Pt
 	*/
-	private function setAtivaCampo($campo, $accao, $valor){
-   		$this->setFieldAtive($campo, $accao, $valor);
-	}
+	//private function setAtivaCampo($campo, $accao, $valor){
+  // 		$this->setFieldAtive($campo, $accao, $valor);
+	//}
 
   	//###################################################################################################################################	
 	/**
@@ -1574,9 +1589,9 @@ class TableBD{
      * @param accao    é o tipo de acção (listar, editar e adicionar) em que pretendemos activar/desativar o campo
 	* Activa (mostra) uma lista de campos separados por virgula para uma acção. Os campos que não estão na lsita são desativados
 	*/
-	public function setAtivaCampos($campos, $accao){
-	    $this->setFieldsAtive($campos, $accao);
-	}
+	//public function setAtivaCampos($campos, $accao){
+	//    $this->setFieldsAtive($campos, $accao);
+	//}
   
   	//###################################################################################################################################
 	/**
@@ -1606,9 +1621,9 @@ class TableBD{
 	* define se por defeito o user tem permissões para ver, criar novo, apagar e alterar
   	*                  
 	*/
-	public function setAutenticacao($valor){
-		$this->setAutentication($valor);
-	}
+	//public function setAutenticacao($valor){
+	//	$this->setAutentication($valor);
+	//}
    
 
   	//###################################################################################################################################	
@@ -1639,9 +1654,9 @@ class TableBD{
      * 
 	* Adiciona um novo campo calculado
 	*/
-	public function setCampoCalculado($campo,$calculo){
-		$this->setCalculatedField($campo,$calculo);
-	}	
+	//public function setCampoCalculado($campo,$calculo){
+	//	$this->setCalculatedField($campo,$calculo);
+	//}	
   
   	//###################################################################################################################################	
 	/**
@@ -1673,9 +1688,9 @@ class TableBD{
      * 
 	* Altera o campo para o tipo imagem para ser visto na lista de forma especial
 	*/
-	public function setCampoImagem($campo,$caminho,$percentagem='100%'){
-		$this->setImageField($campo,$caminho,$percentagem);
-	}	
+	//public function setCampoImagem($campo,$caminho,$percentagem='100%'){
+	//	$this->setImageField($campo,$caminho,$percentagem);
+	//}	
   
   	//###################################################################################################################################	
 	/**
@@ -1754,9 +1769,9 @@ class TableBD{
      * 
 	* Altera o campo para o tipo lista para ter um descritivo em vez do código e uma combobox na edição e introdução
 	*/
-	public function setCampoLista($campo,$modo,$listaSql){
-        $this->setFieldList($campo,$modo,$listaSql);	
-	}
+	//public function setCampoLista($campo,$modo,$listaSql){
+  //      $this->setFieldList($campo,$modo,$listaSql);	
+	//}
   
   	//###################################################################################################################################	
 	/**
@@ -1792,13 +1807,13 @@ class TableBD{
 	* Altera o campo para o tipo password para ter texto escondido na introdução, e ser encripado antes de gravar. Vai incluir um campo modo
 	* para determinar a forma com será introduzido para na haver enganos (repetir a introdução ou mostrar) e um campo com a cifra
 	*/
-	public function setCampoPass($campo,$modo,$cifra){
-    	$this->setFieldPass($campo,$modo,$cifra);
-	}	
+	//public function setCampoPass($campo,$modo,$cifra){
+  //  	$this->setFieldPass($campo,$modo,$cifra);
+	//}	
 
   	//###################################################################################################################################	
 	/**
-	* @param criterio    é um criterio sql que igual campos a valores
+	* @param criterio    It's an SQL criterion that equals fields to values.
   	* 
 	* define um critério para a accão de ver
 	*/
@@ -1899,7 +1914,7 @@ class TableBD{
      * @param $NumReg    número de registos
      * @param $LimInf    registo inicial
      * 
-	* Define o número de resistos num select
+	* Define o número de registos num select
 	*/
 	public function setLimites($NumReg, $LimInf=0){
     	$this->limites[0]=$NumReg;
