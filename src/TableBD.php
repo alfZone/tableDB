@@ -225,7 +225,7 @@ class TableBD{
 	 *
 	 * procura o valor de um campo para uma determinada chave.
 	 */
-	private function devolveValorDaListaOld($campo, $chave){
+	private function devolveValorDaLista($campo, $chave){
 		//$chave="";
 		//print_r($this->camposLista);
 		$devolve=$chave;
@@ -265,7 +265,7 @@ class TableBD{
    *
    * search for the value of a field for a given key.
    */
-  private function devolveValorDaLista($campo, $chave){
+  private function devolveValorDaListaNew($campo, $chave){
     $devolve = $chave;
     foreach($this->camposLista as $campo1){
       if ($campo1['Field'] == $campo){
