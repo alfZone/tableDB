@@ -29,7 +29,7 @@ $table->setFieldsAtive("name, email, type, passw, active", 'edit');
 $table->setFieldsAtive("name, email, type, passw, active", 'csv');
 
 //define field name passw as a password, hidding the file 
-$table->setCampoPass("passw",0, "md5");
+$table->setFieldPass("passw",0, "md5");
 
 //define lists of values to supplay to a field
 $table->setFieldList("type",1," SELECT `id`,`type` FROM `tabUsersTypes` ORDER BY `type`");
