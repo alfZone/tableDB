@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.7
+ * @version 9.8.8
  * @updated 01-08-2023 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -14,8 +14,7 @@
 // problems detected
 // The second field should be text because it is used in the delete confirmation window. An unknown problem occurs if the second field is an image.
 
-// roadmap
-// erro na 1378 que tem haver com o campo change que não é inicializado em todos os campos 
+// roadmap 
 
 
 //news of version: 
@@ -392,8 +391,9 @@ class TableBD{
 			$e->innertext = $this->fazListaCamposAccao("csv"); //tirei o id
 		
 		//print_r($this->camposLista);
+		//list of values
 		// table head line
-		$text="<tr>". PHP_EOL;
+		$text=PHP_EOL."<tr>". PHP_EOL;
 		$i=0;
 		$pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
 		foreach($this->camposLista as $campo){
@@ -414,12 +414,12 @@ class TableBD{
 				$elista[$i]=$carimbo;
 				if ($campo['Type']=="img"){
 					$carimbo=$campo['Field'];
-					$imgHTMLpre[$i]='<img src="' . $campo['Path'];
+					$imgHTMLpre[$i]= '<img src="' . $campo['Path'];
 					$ia=$campo['Field'];
 					//if (($carimbo=="")||$carimbo=null){
 						//$carimbo=$campo['defaultImage'];
 					//}
-					$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">';
+					$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">'.PHP_EOL;
 					//echo $carimbo;
 					$imgDefault[$i]=$campo['defaultImage'];
 				}else {
@@ -432,25 +432,25 @@ class TableBD{
         
 		switch ($this->autenticacao){
 			case "a":
-			// get csv buttom
-			if ($this->PagImp==1){
-				foreach($html->find('#bcsv') as $e)
-				$k=$e->outertext;           
-			}else{
-				$k="";
-			}
-			// get add buttom
-			//echo $k;
-			foreach($html->find('#bnew') as $e)
-				$text .="<th class='buttons'>" . $e->outertext .$k ."</th>";			
-			break;
-			case "r":
-				$text .="";
+				// get csv buttom
+				if ($this->PagImp==1){
+					foreach($html->find('#bcsv') as $e)
+					$k=$e->outertext;           
+				}else{
+					$k="";
+				}
+				// get add buttom
+				//echo $k;
+				foreach($html->find('#bnew') as $e)
+					$text .="<th class='buttons'>"  . PHP_EOL . $e->outertext .$k ."</th>" . PHP_EOL;			
 				break;
-		default:
-			$text .="<th></th>";
-			break;
-	}
+				case "r":
+					$text .="";
+					break;
+			default:
+				$text .="<th></th>" . PHP_EOL;
+				break;
+		}
     
     foreach($html->find('.titleTable') as $e)
         $e ->innertext=$text . "</tr>". PHP_EOL;
@@ -471,7 +471,7 @@ class TableBD{
 	$stmt=$this->querySQL($sql);
 	//print_r($stmt);
   	foreach($stmt as $registo){
-		$text .= "<tr>";
+		$text .= "<tr>" . PHP_EOL;
 		//print_r($registo);
 		//if ($this->chave==$registo['Fie'])
       	//echo "<br>chave=" . $this->chave;
@@ -514,7 +514,7 @@ class TableBD{
             		$campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
           		}
           		$i++;
-				$text .= "<td>$campo</td>";
+				$text .= "<td>$campo</td>" . PHP_EOL;
           		//$p=1;    
         	}else{
           		$p=1;
@@ -534,21 +534,20 @@ class TableBD{
                 foreach($html->find('.bdel') as $e){
                   	$e->data=$chave;
                   	$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
-                  	$text .= $e->outertext ."</td></tr>";
+                  	$text .= $e->outertext ."</td>" . PHP_EOL. "</tr>" . PHP_EOL;
                 } 
                 break;
         	case "u":
         	case "e":
                 foreach($html->find('.bedit') as $e)
                 	$e->onClick="preUp('" . $chave . "')";
-                  	$text .="<td class='buttons'>" . $ver. $e->outertext ."</td></tr>";
+                  	$text .="<td class='buttons'>" . $ver. $e->outertext ."</td>" . PHP_EOL . "</tr>" . PHP_EOL;
                 break;
 			case "r":
 				$text .= "";
                 break;
         	default:
-                $text .= "<td class='buttons'>$ver</td>
-												  </tr>";
+                $text .= "<td class='buttons'>$ver</td>" . PHP_EOL ."</tr>" . PHP_EOL;
                 break;
         }
     }
