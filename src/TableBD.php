@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.6
- * @updated 01-12-2022 21:50:00
+ * @version 9.8.7
+ * @updated 01-08-2023 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
  https://console.developers.google.com/apis/dashboard
@@ -15,7 +15,6 @@
 // The second field should be text because it is used in the delete confirmation window. An unknown problem occurs if the second field is an image.
 
 // roadmap
-//	ver a funcção  prepareSQLtoAction($action) | preparaSQLparaAccao($ accao)
 // erro na 1378 que tem haver com o campo change que não é inicializado em todos os campos 
 
 
@@ -165,20 +164,6 @@ class TableBD{
 		}
 	}
   
-
-  //###################################################################################################################################	
-	/**
-  *
-  * @param $valor    when the value passed is 1 the field is active (visible) and when the field is 0 the field is disabled
-  * @param $accao    sets behavior in see, new, edit
-	*
-  * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
-	*/
-	//private function ativaCampos($valor, $accao){
-	//    $this->fieldsActive($valor, $accao);
-	//}
- 
-
   //###################################################################################################################################
 	/**
 	 * 
@@ -193,10 +178,6 @@ class TableBD{
 		return $database->resultset();	
 	}
   
- // 	public function consultaSQL($sql){
- //   	return $this->querySQL($sql);
-//}
-	  
   	//###################################################################################################################################	
 	
 	/**
@@ -216,7 +197,7 @@ class TableBD{
 	}
 	
 	
-	 	//###################################################################################################################################	
+	//###################################################################################################################################	
 	
 	/**
 	 * 
@@ -390,17 +371,7 @@ class TableBD{
 		}
 	}
 
-//###################################################################################################################################
-  	/**
-	* Faz o que é necessaro para manter a tabela numa página html. Lista os dados e permite inserir novos, editar e apagar registos. Usa um parametro 'do' 
-	* para tomar as decisões
-	*/
-  	// TEM DE SER TODO REFORMULADO
-//	public function fazHTML(){
-//		$this->showHTML();
-//	}
 
-  
    //###################################################################################################################################
   	/**
 	* Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
@@ -1360,34 +1331,7 @@ class TableBD{
     * campos marcados como visíveis na acção escolhida
 	*/
 	public function preparaSQLparaAccao($accao){
-		$resposta= "SELECT " . $this->chave ;
-		$sep=",";
-      	//$key=0;
-		//print_r($this->camposLista);
-		foreach($this->camposLista as $campo){
-		    //echo "<br>Campo1 = ";
-		    //print_r($campo);
-			if ($campo[$accao]==1){
-				//echo $campo['Type'];
-				//if ($campo['Type']=="calc"){
-				if (isset($campo['formula'])){
-					$resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
-				}else{
-					$resposta=$resposta . $sep . $campo['Field']; 
-				}
-				$sep=",";
-			} 	
-		}
-		$resposta= $resposta . " FROM " . $this->tabela;
-      	$resposta = $resposta . " WHERE " . $this->criterio . " order by " . $this->order;
-      	//echo "<br> $resposta <br>";
-		if ($this->limites[0]>0){
-			$resposta.= " Limit ". $this->limites[0];
-		}
-		if ($this->limites[1]>0){
-			$resposta.= " Step ". $this->limites[1];
-		}
-    	return $resposta;
+    	return repareSQLtoAction($accao);
 	}
         
     //###################################################################################################################################	
