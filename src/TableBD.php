@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 9.8.8
+ * @version 10.0
  * @updated 01-08-2023 21:50:00
  https://github.com/alfZone/tabledb
  https://github.com/alfZone/tabledb/wiki
@@ -18,7 +18,7 @@
 
 
 //news of version: 
-//         Problem with the insert after an update
+//         Introduce an enhanced debugging mechanism with the method setDebugShow($value).
 
 
 
@@ -49,7 +49,6 @@ class TableBD{
 // devolveValorDaLista($field, $key) - Finds the value of a field for a given key. $field is the name of the field to be consulted and $key is the id of the 
 //                                     value to be searched.
 // encriptar($text, $cipher = "md5") - Encrypts text using a specified cipher method. $text is the text to be encrypted and $cipher is the type of cipher used.
-// showHTML() - Creates an HTML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
 // fazLista() - Creates an HTML table with all the records, allowing sorting by column, text search, and pagination (25 records per page by default).
 // formulario($record = "") - Displays an HTML form for editing or inserting a record.
 // getCampoValor($campo) - Returns an appropriate string for constructing an SQL field, including quotes and without quotes. $campo is an array with field 
@@ -74,6 +73,9 @@ class TableBD{
 // setAutentication($ value) - Defines user's default permissions: a - all permissions, u - update only, r - read only, e - edit only, n - new only.
 // setAllFieldAtive($action,$value) - Set visibility of all table fields for a given action (list, edit, add). 1 for visible, 0 for hidden.
 // + setCalculatedField($nameField,$sqlCalcFormula) - Add a new calculated field with the name of $nameField, the result of the SQL operation $sqlCalcFormula.
+// setDebugShow($value) - Enable debug mode to view the SQL queries and better comprehend errors. The value is a flag that can take a value of 1 to display SQL strings or 0 to 
+//						  hide them.
+// + setDefaultValue ($ field, $ value) - Set default value for a new entry. Field is the field to set, value is the initial value.
 // setFieldAtive($field, $action, $value) - Show/hide a field for a specific action (list, edit, add). 1 for show, 0 for hide.
 // setFieldsAtive($fields, $action) - Show a list of fields for a specific action (list, csv, edt, new). Fields not listed are hidden.
 // setJSAction($field, $action) - Set JavaScript action for a field ($field). $Field is the name of field to add a javascript action, and $action is the action you want to call
@@ -89,7 +91,6 @@ class TableBD{
 //                                                                   $percentage is image height, $defaultImage is default image.
 // setCriterio($ criterio) - Define view criteria using an SQL "where" clause.
 // setOrder($order) -Set SQL string to order data in the table.
-// + setDefaultValue ($ field, $ value) - Set default value for a new entry. Field is the field to set, value is the initial value.
 // setHTMLid($ id, $ value) - Write to an HTML element on the page with the specified id. The id is the id of the HTML tag and the value is the string to be loaded into the element.
 // setLabel($ field, $ value) - Assign a label to a field, where the field is the field you want to change the label for and the value is the text to be used as the label.
 // setLabels() - Assign the field names in the database as field labels, this function is only executed when preparing the table.
@@ -99,6 +100,7 @@ class TableBD{
 //                                                                If style=0, then the URL is URL?id=keyValue, if style=1, then the URL is URL/keyValue.
 // setTemplate($path) * - Assign a template to the table, where the path is the path to the template file.
 // setTitle($value) | setTitulo($ value) - Set the title of the page or form, where the value is the text for the title.
+// showHTML() - Creates an HTML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
 	
 	
 
@@ -114,7 +116,7 @@ class TableBD{
 	 */
   private $id;
 	
-
+  private $debugS=0;
   private $camposLista;
   private $template="../templates/gestor2/tables.php";
   private $tabela;
@@ -303,7 +305,9 @@ class TableBD{
 		* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
 		*/
 	// TEM DE SER TODO REFORMULADO
+	
 	public function showHTML(){	
+		$linkContinue= '<br><a href="">Continue</a>';
     	//lê o parametro 'do' do form HTML
 		$action=$this->getDo();
     	//echo "<br>Faz: $faz<br><br>";
@@ -324,7 +328,12 @@ class TableBD{
 			case "csv":
 			case "imp":
 				$this->importCSV();
-				$this->redirecciona();
+				if ($this->debugS!=1){
+					$this->redirecciona();
+				}else{
+					//echo $sql . "<br>";
+					echo $linkContinue;
+				}
 				break;
 				//formulario para editar
 			case "e":
@@ -349,7 +358,12 @@ class TableBD{
 				//echo $sql;
 			  	//$this->consultaSQL($sql);
         		$this->ExecuteSQL($sql);
-				$this->redirecciona();
+				if ($this->debugS!=1){
+					$this->redirecciona();
+				}else{
+					echo $sql . "<br>";
+					echo $linkContinue;
+				}
 				break;
 			case "ce":
 				//efectuar a edição
@@ -357,7 +371,12 @@ class TableBD{
 				$sql= $this->preparaSQLupdate();
 				//echo $sql;
 				$this->ExecuteSQL($sql);
-				$this->redirecciona();
+				if ($this->debugS!=1){
+					$this->redirecciona();
+				}else{
+					echo $sql . "<br>";
+					echo $linkContinue;
+				}
 				break;
 			case "cd":
 				//efectuar o apagar
@@ -365,7 +384,12 @@ class TableBD{
 				$sql= $this->preparaSQLdelete();
 				//echo $sql;
 				$this->ExecuteSQL($sql);
-				$this->redirecciona();
+				if ($this->debugS!=1){
+					$this->redirecciona();
+				}else{
+					echo $sql . "<br>";
+					echo $linkContinue;
+				}
 				break;
 		}
 	}
@@ -889,7 +913,7 @@ class TableBD{
 			//echo "update?=$upd; doUpadate:".$_REQUEST['doUpdate'];
 			$txt=$_REQUEST["txtCSV"];
           	$linhas=explode("\n", $txt);
-			print_r($linhas);
+			//print_r($linhas);
 			//$k=0;
           	foreach($linhas as $linha){
 				//echo "<br>K=". $k. "<br>";
@@ -937,7 +961,9 @@ class TableBD{
 				}
              	$sql.=";";
 				//echo "<br>linha j=". $j."<bR>";
-				//echo $sql;
+				if ($this->debugS==1){
+					echo $sql. "<br>";
+				}
 				$this->querySQL($sql);
             	//print_r($this->camposLista);  
 				//return  $sql; 
@@ -1774,7 +1800,16 @@ class TableBD{
 		$this->order=$order;
 	}	
   
-	
+	//###################################################################################################################################	
+	/**
+	* @param value     is a flag that can take a value of 1 to display SQL strings or 0 to hide them.
+  	* 
+	* Enable debug mode to view the SQL queries and better comprehend errors.
+	*/
+	public function setDebugShow($value){
+		$this->debugS=$value;
+	}	
+  	
     //###################################################################################################################################	
 	/**
      * @param campo    is the name of the field in which we want to define an initial value 
