@@ -43,10 +43,12 @@
 
 
 
+
 4 - Known bugs or limitations
 =============================
 
   Problens on the order os colunms on the list table whe the key is not the first field on database table 
+  Do not allowed multiple deletes
 
 5 - License
 ===========
