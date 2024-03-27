@@ -3,22 +3,23 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 10.0
+ * @version 10.1
  * @updated 01-08-2023 21:50:00
- https://github.com/alfZone/tabledb
- https://github.com/alfZone/tabledb/wiki
- https://console.developers.google.com/apis/dashboard
- 
+ * https://github.com/alfZone/tabledb
+ * https://github.com/alfZone/tabledb/wiki
+ * https://console.developers.google.com/apis/dashboard
  */
 
 // problems detected
 // The second field should be text because it is used in the delete confirmation window. An unknown problem occurs if the second field is an image.
 
-// roadmap 
 
+// roadmap 
+//		Json file is in develop
 
 //news of version: 
-//         Introduce an enhanced debugging mechanism with the method setDebugShow($value).
+//		possibility to delete multiple records
+//      Introduce an enhanced debugging mechanism with the method setDebugShow($value).
 
 
 
@@ -37,8 +38,8 @@ class TableBD{
 	// REQUIRES
 	// Database.php
 	
-  // MISSION: generate a table to manage a query to the database. Considers 4 actions: view, new, edit and import
-  
+// MISSION: generate a table to manage a query to the database. Considers 4 actions: view, new, edit and import
+
 // METHODS
 // __construct() - Class Constructor
 // fieldsActive($value, $action) - Makes the fields visible by passing the value = 1 (or without passing a value) and hides it by passing the value = 0. The 
@@ -109,378 +110,378 @@ class TableBD{
 	/**
 	 * This array will receive all the output texts of the class.
 	 */
-  private $textos=array("titulo"=>"Lista de registios da tabela", "import"=>"Os campos tem de ser importados pela seguinte ordem", 
-  											"importline"=>"linhas a serem importadas");
-  /**
+private $textos=array("titulo"=>"Lista de registios da tabela", "import"=>"Os campos tem de ser importados pela seguinte ordem", 
+						"importline"=>"linhas a serem importadas");
+/**
 	 * array of id and value pairs for HTML tag
 	 */
-  private $id;
-	
-  private $debugS=0;
-  private $camposLista;
-  private $template="../templates/gestor2/tables.php";
-  private $tabela;
-  private $sqlGeral;
-  private $chave;
-  private $PagaClose="?do=l";
-  private $PagVer="";
-  private $linkStyle="";
-  private $PagImp=0;
-  private $criterio="(1=1)";
-  private $order="1=1";
-  private $autenticacao="a";  //defines if by default the user has permissions to:
-                                  // a - all have the possibility to view, create new, delete and change
-                                  // u - update Can only change data
-                                  // r - read can only see
-  private $limites=array(0,0);
+private $id;
+private $debugS=0;
+private $camposLista;
+private $template="../templates/gestor2/tables.php";
+private $tabela;
+private $sqlGeral;
+private $chave;
+private $chavePos;
+private $PagaClose="?do=l";
+private $PagVer="";
+private $linkStyle="";
+private $PagImp=0;
+private $criterio="(1=1)";
+private $order="1=1";
+private $multi=false;
+private $autenticacao="a";  //defines if by default the user has permissions to:
+                            // a - all have the possibility to view, create new, delete and change
+                            // u - update Can only change data
+                            // r - read can only see
+private $limites=array(0,0);
 
-  //###################################################################################################################################
-
-	/**
-	 * Construtor de Classe
-	 */
-  public function __construct(){  
-
-  }
-  
+//###################################################################################################################################
+/**
+* Construtor de Classe
+*/
+public function __construct(){  
+}
 //###################################################################################################################################	
-	/**
-  *
-  * @param $value    when the value passed is 1 the field is active (visible) and when the field is 0 the field is disabled
-  * @param $action   sets behavior in see, new, edit
-	*
-  * Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
-	*/
-	private function fieldsActive($value, $action){
-    
-		$action=str_replace("list","ver",$action);
-		$action=str_replace("see","ver",$action);
-		$action=str_replace("new","novo",$action);
-		$action=str_replace("edt","editar",$action);
-		$action=str_replace("editarar","editar",$action);
-		$i=0;
-		foreach($this->camposLista as $campo){
-			$this->camposLista[$i][$action]=$value;
+/**
+*
+* @param $value    when the value passed is 1 the field is active (visible) and when the field is 0 the field is disabled
+* @param $action   sets behavior in see, new, edit
+*
+* Makes the fields to be displayed visible by passing value=1 (or not passing value) and hides passing value=0
+*/
+private function fieldsActive($value, $action){
+	$action=str_replace("list","ver",$action);
+	$action=str_replace("see","ver",$action);
+	$action=str_replace("new","novo",$action);
+	$action=str_replace("edt","editar",$action);
+	$action=str_replace("editarar","editar",$action);
+	$i=0;
+	foreach($this->camposLista as $campo){
+		$this->camposLista[$i][$action]=$value;
+		$i++;
+	}
+}
+//###################################################################################################################################
+/**
+* 
+* @param sql    SQL Instruction
+*
+* given a sql returns a list of data.
+*/
+public function querySQL($sql){
+	$database = new Database(_BDUSER, _BDPASS, _BD);
+    $database->query($sql);
+	return $database->resultset();	
+}
+//###################################################################################################################################	
+/**
+* Analyze the structure of the database table and determine which is the key and in what position it is.
+*/
+private function determinaChave(){
+	//print_r($this->camposLista);
+    //echo "<br>";
+	$i=0;
+	foreach($this->camposLista as $campo){
+        //print_r($campo);
+        //echo "<br>______________________<br>";
+		if ($campo['Key']=="PRI"){
+			$this->chave=$campo['Field'];	
+			$this->chavePos=$i;
+		}
+		$i++;
+	}
+}
+//###################################################################################################################################	
+/**
+* 
+* @param campo   name of the field to be queried for the list of values
+* @param chave   Key of the value to be searched.
+*
+* Search for the value of a field for a given key.
+*/
+private function devolveValorDaListaLIXO($campo, $chave){
+	//$chave="";
+	//print_r($this->camposLista);
+	$devolve=$chave;
+	foreach($this->camposLista as $campo1){
+		if ($campo1['Field']==$campo){
+			//print_r($campo1);
+			foreach($campo1['lista'] as $linha){
+				$i=0;
+				$proximo=0;
+				foreach($linha as $x => $x_value) {
+					//echo $x_value;
+					if (($x_value==$chave) && ($i==0)){
+						$proximo=1;
+					}
+					if (($proximo==1) && ($i==1)){
+						if ($campo1['hideCode']==1){
+							$devolve=$x_value;
+						}else{
+							$devolve=$x_value . " [" . $chave ."]";
+						}
+					}
+					$i++;
+				}
+			}
+		}
+	}
+	return $devolve;
+}
+//###################################################################################################################################	
+/**
+* 
+* @param string $campo   name of the field to search in the list of values
+* @param string $chave   id of the value to be searched for
+*
+* search for the value of a field for a given key.
+*/
+private function devolveValorDaLista($campo, $chave){
+    foreach($this->camposLista as $campo1){
+        if ($campo1['Field'] === $campo){
+            foreach($campo1['lista'] as $linha){
+                foreach($linha as $x => $x_value) {
+                    if ($x_value === $chave){
+                        if ($campo1['hideCode'] === 1){
+                            return $x_value;
+                        } else {
+                            return $x_value . " [" . $chave . "]";
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return $chave; // Retorna a chave se não for encontrada
+}
+//###################################################################################################################################
+/**
+* 
+* @param texto    texto a ser enciptado
+* @param crifra   tipo de cifra usada
+*
+* encripta um texto segundo um método passado.
+*/
+function encriptar($texto, $cifra="md5"){
+	$resposta=$texto;
+	switch ($cifra){
+		case "md5":
+			$resposta=md5(trim($texto));
+			break;
+		case "sha1":
+			$resposta=sha1(trim($texto));
+			break;
+		case "base4":
+			$resposta=base64_encode(trim($texto));
+			break;		
+	}	
+	return $resposta;
+}
+//###################################################################################################################################
+/**
+* 
+* @param sql    instrução SQL
+*
+* dado um sql devolve uma lista de dados.
+*/
+function ExecuteSQL($sql){
+	$database = new Database(_BDUSER, _BDPASS, _BD);
+	$database->query($sql);
+	$database->execute();
+	//return $database->resultset();
+}
+//###################################################################################################################################
+/**
+* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
+*/
+// TEM DE SER TODO REFORMULADO
+public function showHTML(){	
+	$linkContinue= '<br><a href="">Continue</a>';
+   	//lê o parametro 'do' do form HTML
+	$action=$this->getDo();
+   	//echo "<br>Faz: $faz<br><br>";
+	switch($action){
+			//options
+		case "":
+		case "l":
+			//echo $this->prepareSQLtoAction('ver');
+			$this->fazlista();
+			$this->includes();
+			break;
+			//prepara a importação
+		case "dm":
+			//echo $myJSON = json_encode('[{"texto":"ffff"}]');
+			$this->multiDelete();
+			//if ($this->debugS!=1){
+			//	$this->redirecciona();
+			//}else{
+				//echo $sql . "<br>";
+			//	echo $linkContinue;
+			//}
+			break;
+		case "js":
+			$this->prepareJson();
+			break;
+		case "pcsv":
+		case "pimp":
+			$this->includes();
+			$this->formImporta();
+			break;
+		case "csv":
+		case "imp":
+			$this->importCSV();
+			if ($this->debugS!=1){
+				$this->redirecciona();
+			}else{
+				//echo $sql . "<br>";
+				echo $linkContinue;
+			}
+			break;
+			//formulario para editar
+		case "e":
+		case "edit":
+			//echo "recebi";
+			//$chave=$this->getChave();
+			$chave=$this->getId();
+			//echo $chave;
+			$registo=$this->getDadosUpdate($chave);
+			//print_r($registo);
+			//return $registo;
+			echo json_encode($registo);
+			//$this->includes(); 
+			//$this->formulario($registo);
+			break;
+			//formulário para introduzir os valores
+		case "ci":
+			//efectuar a inserção
+        	//echo "ci";
+			$this->getDadosForm();
+			$sql= $this->prepareSQLinsert();
+			//echo $sql;
+		  	//$this->consultaSQL($sql);
+			$this->ExecuteSQL($sql);
+			if ($this->debugS!=1){
+				$this->redirecciona();
+			}else{
+				echo $sql . "<br>";
+				echo $linkContinue;
+			}
+			break;
+		case "ce":
+			//efectuar a edição
+			$this->getDadosForm();
+			$sql= $this->preparaSQLupdate();
+			//echo $sql;
+			$this->ExecuteSQL($sql);
+			if ($this->debugS!=1){
+				$this->redirecciona();
+			}else{
+				echo $sql . "<br>";
+				echo $linkContinue;
+			}
+			break;
+		case "cd":
+			//efectuar o apagar
+			$this->getDadosForm();
+			$sql= $this->preparaSQLdelete();
+			//echo $sql;
+			$this->ExecuteSQL($sql);
+			if ($this->debugS!=1){
+				$this->redirecciona();
+			}else{
+				echo $sql . "<br>";
+				echo $linkContinue;
+			}
+			break;
+	}
+}
+//###################################################################################################################################
+/**
+* Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
+* a set of records (25 by default) and allows browsing pages
+* conjunto de registos (25 por defeito) e permite navegar em páginas
+*/
+public function fazLista(){
+    $html = new simple_html_dom();
+    $html->load_file($this->template);
+    //prepare a modal form to delete
+	foreach($html->find('#deleteKey') as $e)
+		$e->outertext = '<input type="hidden" id="deleteKey" name="txt' .$this->chave . '" value="">'; //tirei o id
+	//prepare a modal csv forma to import
+	foreach($html->find('#importLst') as $e)
+		$e->innertext = $this->fazListaCamposAccao("csv"); 
+	//print_r($this->camposLista);
+	//list of values
+	// table head line
+	$text=PHP_EOL."<tr>". PHP_EOL;
+	$i=0;
+	$pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
+	foreach($this->camposLista as $campo){
+		//print_r($campo);
+		//echo "<hr>";
+		if ($this->chave==$campo['Field'] && $campo['ver']==1){
+			$pi=1;
+		}
+		if ($campo['ver']==1){
+			//echo $campo['label'];
+			$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
+			if ($campo['Type']=="lst"){
+				$carimbo=$campo['Field'];
+				//echo $carimbo;
+			}else {
+				$carimbo=0;
+			}
+			$elista[$i]=$carimbo;
+			if ($campo['Type']=="img"){
+				$carimbo=$campo['Field'];
+				$imgHTMLpre[$i]= '<img src="' . $campo['Path'];
+				$ia=$campo['Field'];
+				//if (($carimbo=="")||$carimbo=null){
+					//$carimbo=$campo['defaultImage'];
+				//}
+				$imgHTMLpos[$i]='" class="img-fluid" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=' . $campo['widthP'] . '%">'.PHP_EOL;
+				//echo $carimbo;
+				$imgDefault[$i]=$campo['defaultImage'];
+			}else {
+				$carimbo=0;
+			}
+			$eImagem[$i]=$carimbo;
 			$i++;
 		}
-	}
-  
-  //###################################################################################################################################
-	/**
-	 * 
-	 * @param sql    SQL Instruction
-	 *
-	 * given a sql returns a list of data.
-	 */
-	public function querySQL($sql){
-		$database = new Database(_BDUSER, _BDPASS, _BD);
-        $database->query($sql);
-			
-		return $database->resultset();	
-	}
-  
-  	//###################################################################################################################################	
-	
-	/**
-	* Analiza a estrutura da tabela da base de dados e determina qual é a chave
-	*/
-	private function determinaChave(){
-		//$chave="";
-		//print_r($this->camposLista);
-        //echo "<br>";
-		foreach($this->camposLista as $campo){
-            //print_r($campo);
-            //echo "<br>______________________<br>";
-			if ($campo['Key']=="PRI"){
-				$this->chave=$campo['Field'];	
+	}  
+    switch ($this->autenticacao){
+		case "a":
+			// get csv buttom
+			if ($this->PagImp==1){
+				foreach($html->find('#bcsv') as $e)
+				$k=$e->outertext;           
+			}else{
+				$k="";
 			}
-		}
-	}
-	
-	
-	//###################################################################################################################################	
-	
-	/**
-	 * 
-	 * @param campo   nome do campo a ser consultada a lista de valores
-	 * @param chave   id do valor a ser procurado
-	 *
-	 * procura o valor de um campo para uma determinada chave.
-	 */
-	private function devolveValorDaLista($campo, $chave){
-		//$chave="";
-		//print_r($this->camposLista);
-		$devolve=$chave;
-		foreach($this->camposLista as $campo1){
-			if ($campo1['Field']==$campo){
-			//print_r($campo1);
-				foreach($campo1['lista'] as $linha){
-					$i=0;
-					$proximo=0;
-					foreach($linha as $x => $x_value) {
-						//echo $x_value;
-						if (($x_value==$chave) && ($i==0)){
-							$proximo=1;
-						}
-						if (($proximo==1) && ($i==1)){
-							if ($campo1['hideCode']==1){
-								$devolve=$x_value;
-							}else{
-								$devolve=$x_value . " [" . $chave ."]";
-							}
-						}
-						$i++;
-					}
-				}
-		
+			// get add buttom
+			//echo $k;
+			$v="";
+			if ($html->find('#bdelm')){
+				foreach($html->find('#bdelm') as $e){
+					$e->onClick="prepareMultiReader()";
+					$v =$e->outertext;	
+				}				
 			}
-		}
-		return $devolve;
+			//break;
+			foreach($html->find('#bnew') as $e)
+				$text .="<th class='buttons'>"  . PHP_EOL . $e->outertext .$k . $v."</th>" . PHP_EOL;			
+			break;
+		case "r":
+			$text .="";
+			break;
+		default:
+			$text .="<th></th>" . PHP_EOL;
+			break;
 	}
-	
-	 	//###################################################################################################################################	
-	
-	/**
-   * 
-   * @param string $campo   name of the field to search in the list of values
-   * @param string $chave   id of the value to be searched for
-   *
-   * search for the value of a field for a given key.
-   */
-  private function devolveValorDaListaNew($campo, $chave){
-    $devolve = $chave;
-    foreach($this->camposLista as $campo1){
-      if ($campo1['Field'] == $campo){
-        foreach($campo1['lista'] as $linha){
-          if ($linha[0] == $chave){
-            $devolve = ($campo1['hideCode'] == 1) ? $linha[1] : $linha[1] . " [" . $chave ."]";
-            break 2;
-          }
-        }
-      }
-    }
-    return $devolve;
-  }
-	//###################################################################################################################################
-	/**
-	 * 
-	 * @param texto    texto a ser enciptado
-	 * @param crifra   tipo de cifra usada
-	 *
-	 * encripta um texto segundo um método passado.
-	 */
-	function encriptar($texto, $cifra="md5"){
-		$resposta=$texto;
-		switch ($cifra){
-			case "md5":
-				$resposta=md5(trim($texto));
-				break;
-			case "sha1":
-				$resposta=sha1(trim($texto));
-				break;
-			case "base4":
-				$resposta=base64_encode(trim($texto));
-				break;
-			}	
-		return $resposta;
-	}
-  
-  
- //###################################################################################################################################
-	/**
-	 * 
-	 * @param sql    instrução SQL
-	 *
-	 * dado um sql devolve uma lista de dados.
-	 */
-	function ExecuteSQL($sql){
-		$database = new Database(_BDUSER, _BDPASS, _BD);
-        $database->query($sql);
-		  $database->execute();
-		//return $database->resultset();
-	}
-	
-	//###################################################################################################################################
-	/**
-		* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
-		*/
-	// TEM DE SER TODO REFORMULADO
-	
-	public function showHTML(){	
-		$linkContinue= '<br><a href="">Continue</a>';
-    	//lê o parametro 'do' do form HTML
-		$action=$this->getDo();
-    	//echo "<br>Faz: $faz<br><br>";
-		switch($action){
-				//options
-			case "":
-			case "l":
-				//echo $this->prepareSQLtoAction('ver');
-				$this->fazlista();
-        		$this->includes();
-				break;
-				//prepara a importação
-			case "pcsv":
-			case "pimp":
-				$this->includes();
-				$this->formImporta();
-				break;
-			case "csv":
-			case "imp":
-				$this->importCSV();
-				if ($this->debugS!=1){
-					$this->redirecciona();
-				}else{
-					//echo $sql . "<br>";
-					echo $linkContinue;
-				}
-				break;
-				//formulario para editar
-			case "e":
-			case "edit":
-				//echo "recebi";
-				//$chave=$this->getChave();
-				$chave=$this->getId();
-				//echo $chave;
-				$registo=$this->getDadosUpdate($chave);
-				//print_r($registo);
-				//return $registo;
-				echo $myJSON = json_encode($registo);
-				//$this->includes(); 
-				//$this->formulario($registo);
-				break;
-				//formulário para introduzir os valores
-			case "ci":
-				//efectuar a inserção
-        		//echo "ci";
-				$this->getDadosForm();
-				$sql= $this->prepareSQLinsert();
-				//echo $sql;
-			  	//$this->consultaSQL($sql);
-        		$this->ExecuteSQL($sql);
-				if ($this->debugS!=1){
-					$this->redirecciona();
-				}else{
-					echo $sql . "<br>";
-					echo $linkContinue;
-				}
-				break;
-			case "ce":
-				//efectuar a edição
-				$this->getDadosForm();
-				$sql= $this->preparaSQLupdate();
-				//echo $sql;
-				$this->ExecuteSQL($sql);
-				if ($this->debugS!=1){
-					$this->redirecciona();
-				}else{
-					echo $sql . "<br>";
-					echo $linkContinue;
-				}
-				break;
-			case "cd":
-				//efectuar o apagar
-				$this->getDadosForm();
-				$sql= $this->preparaSQLdelete();
-				//echo $sql;
-				$this->ExecuteSQL($sql);
-				if ($this->debugS!=1){
-					$this->redirecciona();
-				}else{
-					echo $sql . "<br>";
-					echo $linkContinue;
-				}
-				break;
-		}
-	}
-
-
-   //###################################################################################################################################
-  	/**
-	* Makes an HTML table with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
-  	* a set of records (25 by default) and allows browsing pages
-	* conjunto de registos (25 por defeito) e permite navegar em páginas
-	*/
-	public function fazLista(){
-    
-    	$html = new simple_html_dom();
-    	$html->load_file($this->template);
-     
-		//prepare a form delete
-		foreach($html->find('#deleteKey') as $e)
-			$e->outertext = '<input type="hidden" id="deleteKey" name="txt' .$this->chave . '" value="">'; //tirei o id
-		
-		//prepare a csv import form
-		foreach($html->find('#importLst') as $e)
-			$e->innertext = $this->fazListaCamposAccao("csv"); //tirei o id
-		
-		//print_r($this->camposLista);
-		//list of values
-		// table head line
-		$text=PHP_EOL."<tr>". PHP_EOL;
-		$i=0;
-		$pi=0; //this varible is use to controlo a list os fields when the keyfield is not visible
-		foreach($this->camposLista as $campo){
-			//print_r($campo);
-			//echo "<hr>";
-			if ($this->chave==$campo['Field'] && $campo['ver']==1){
-				$pi=1;
-			}
-			if ($campo['ver']==1){
-				//echo $campo['label'];
-				$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
-				if ($campo['Type']=="lst"){
-					$carimbo=$campo['Field'];
-					//echo $carimbo;
-				}else {
-					$carimbo=0;
-				}
-				$elista[$i]=$carimbo;
-				if ($campo['Type']=="img"){
-					$carimbo=$campo['Field'];
-					$imgHTMLpre[$i]= '<img src="' . $campo['Path'];
-					$ia=$campo['Field'];
-					//if (($carimbo=="")||$carimbo=null){
-						//$carimbo=$campo['defaultImage'];
-					//}
-					$imgHTMLpos[$i]='" class="img-thumbnail" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=20%">'.PHP_EOL;
-					//echo $carimbo;
-					$imgDefault[$i]=$campo['defaultImage'];
-				}else {
-					$carimbo=0;
-				}
-				$eImagem[$i]=$carimbo;
-				$i++;
-			}
-    	}  
-        
-		switch ($this->autenticacao){
-			case "a":
-				// get csv buttom
-				if ($this->PagImp==1){
-					foreach($html->find('#bcsv') as $e)
-					$k=$e->outertext;           
-				}else{
-					$k="";
-				}
-				// get add buttom
-				//echo $k;
-				foreach($html->find('#bnew') as $e)
-					$text .="<th class='buttons'>"  . PHP_EOL . $e->outertext .$k ."</th>" . PHP_EOL;			
-				break;
-				case "r":
-					$text .="";
-					break;
-			default:
-				$text .="<th></th>" . PHP_EOL;
-				break;
-		}
-    
     foreach($html->find('.titleTable') as $e)
         $e ->innertext=$text . "</tr>". PHP_EOL;
-    //___ End of table head
-    
-    
+    //___ End of table head    
     //--- begin of table  
     $text="";
     $bEdit="";
@@ -494,92 +495,95 @@ class TableBD{
     //echo "<br>sql=" . $sql;
 	$stmt=$this->querySQL($sql);
 	//print_r($stmt);
-  	foreach($stmt as $registo){
+	foreach($stmt as $registo){
 		$text .= "<tr>" . PHP_EOL;
 		//print_r($registo);
 		//if ($this->chave==$registo['Fie'])
       	//echo "<br>chave=" . $this->chave;
-      	$chave=$registo[$this->chave];
+		$chave=$registo[$this->chave];
 		$chaveid=$this->chave;
 		$i=0;
       	//verifica se é para mostrar um link para ver um registo usando uma página externa
-      	$ver="";
-      	if ($this->PagVer<>""){
-        	foreach($html->find('.bsee[href]') as $e){
+		$ver="";
+		if ($this->PagVer<>""){
+			//add the link to a see button
+			foreach($html->find('.bsee[href]') as $e){
           		//echo $e;
-		  		if ($this->linkStyle==0){
+				if ($this->linkStyle==0){
 					$e->href=$this->PagVer . "?$chaveid=$chave";
-		  		}else{
+				}else{
 					$e->href=$this->PagVer . "/$chave";
-		  		}
-        	}
-        	foreach($html->find('.bsee') as $e){
-          		$ver =  $e->outertext;
-        	}
+				}
+			}
+			foreach($html->find('.bsee') as $e){
+				$ver =  $e->outertext;
+			}
         	//echo $ver;      
         	//$ver="<a href='" . $this->PagVer . "?$chaveid=$chave' title='ver' \'> <i class='fa fa-eye' aria-hidden='true'></i></a>";
-      	}
+		}
 		//print_r($elista);
-      	$p=$pi;
+		$p=$pi;
 		foreach($registo as $campo){
 			//print_r($campo);
-        	if ($p!=0){
-          		if ($elista[$i] !== 0){
+			if ($p!=0){
+				if ($elista[$i] !== 0){
 					$campo=$this->devolveValorDaLista($elista[$i], $campo);
             		//print_r($campo);
 					 //echo "aqui";
 				}
-          		if ($eImagem[$i] !== 0){
+				if ($eImagem[$i] !== 0){
             		//$campo="isto é uma imagem";
 					if (($campo=="")||($campo==null)){
 						$campo=$imgDefault[$i];
 						//$campo="aaa.img";
 					}
-            		$campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
-          		}
-          		$i++;
+					$campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
+				}
+				$i++;
 				$text .= "<td>$campo</td>" . PHP_EOL;
           		//$p=1;    
-        	}else{
-          		$p=1;
-        	}
-        
-        	if ($i==2){
-          		$dois=$campo;
-        	}		
+			}else{
+				$p=1;
+			}
+			if ($i==2){
+				$dois=$campo;
+			}		
 		}
-      	switch ($this->autenticacao){
-        	case "a":
+		switch ($this->autenticacao){
+			case "a":
                 foreach($html->find('.bedit') as $e){
-                	$e->data=$chave;
-                  	$e->onClick="preUp('" . $chave . "')";
-                  	$text .="<td class='buttons'>" . $ver .  $e->outertext;
+					$e->data=$chave;
+					$e->onClick="preUp('" . $chave . "')";
+					$text .="<td class='buttons'>" . $ver .  $e->outertext;
                 }        
                 foreach($html->find('.bdel') as $e){
-                  	$e->data=$chave;
-                  	$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
-                  	$text .= $e->outertext ."</td>" . PHP_EOL. "</tr>" . PHP_EOL;
+					$e->data=$chave;
+					$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
+					if ($this->multi){
+						$m="<input type='checkbox' class='multi' name='dm" . $chave . "'>";
+					}else{
+						$m="";
+					}
+					$text .= $e->outertext . $m . "</td>" . PHP_EOL. "</tr>" . PHP_EOL;
                 } 
                 break;
-        	case "u":
-        	case "e":
+			case "u":
+			case "e":
                 foreach($html->find('.bedit') as $e)
-                	$e->onClick="preUp('" . $chave . "')";
-                  	$text .="<td class='buttons'>" . $ver. $e->outertext ."</td>" . PHP_EOL . "</tr>" . PHP_EOL;
+					$e->onClick="preUp('" . $chave . "')";
+					$text .="<td class='buttons'>" . $ver. $e->outertext ."</td>" . PHP_EOL . "</tr>" . PHP_EOL;
                 break;
 			case "r":
 				$text .= "";
                 break;
-        	default:
+			default:
                 $text .= "<td class='buttons'>$ver</td>" . PHP_EOL ."</tr>" . PHP_EOL;
                 break;
         }
     }
-    
     foreach($html->find('#bodyTable') as $e)
-    	$e ->innertext=$text . PHP_EOL;  
+		$e ->innertext=$text . PHP_EOL;  
     //--- end of table
-
     $formAU=$this->formulario();    
     foreach($html->find('#frmIU') as $e)
         $e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
@@ -590,76 +594,251 @@ class TableBD{
     //echo "aaaaaa";
     echo $html;
     
-  }
-  
-  
+}
+//###################################################################################################################################
+/**
+* Makes a json with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
+* a set of records (25 by default) and allows browsing pages
+* conjunto de registos (25 por defeito) e permite navegar em páginas
+*/
+public function prepareJson(){
+    
+	echo '[{"id":"12","Remetente":"2490","Destinatario":"26","Mensagem":"aaaabbbbbcccc"}]';
+	/*
+	foreach($this->camposLista as $campo){
+		//print_r($campo);
+		//echo "<hr>";
+		if ($this->chave==$campo['Field'] && $campo['ver']==1){
+			$pi=1;
+		}
+		if ($campo['ver']==1){
+			//echo $campo['label'];
+			$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
+			if ($campo['Type']=="lst"){
+				$carimbo=$campo['Field'];
+				//echo $carimbo;
+			}else {
+				$carimbo=0;
+			}
+			$elista[$i]=$carimbo;
+			if ($campo['Type']=="img"){
+				$carimbo=$campo['Field'];
+				$imgHTMLpre[$i]= '<img src="' . $campo['Path'];
+				$ia=$campo['Field'];
+				//if (($carimbo=="")||$carimbo=null){
+					//$carimbo=$campo['defaultImage'];
+				//}
+				$imgHTMLpos[$i]='" class="img-fluid" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=' . $campo['widthP'] . '%">'.PHP_EOL;
+				//echo $carimbo;
+				$imgDefault[$i]=$campo['defaultImage'];
+			}else {
+				$carimbo=0;
+			}
+			$eImagem[$i]=$carimbo;
+			$i++;
+		}
+	}  
+    switch ($this->autenticacao){
+		case "a":
+			// get csv buttom
+			if ($this->PagImp==1){
+				foreach($html->find('#bcsv') as $e)
+				$k=$e->outertext;           
+			}else{
+				$k="";
+			}
+			// get add buttom
+			//echo $k;
+			$v="";
+			if ($html->find('#bdelm')){
+				foreach($html->find('#bdelm') as $e){
+					$e->onClick="prepareMultiReader()";
+					$v =$e->outertext;	
+				}				
+			}
+			//break;
+			foreach($html->find('#bnew') as $e)
+				$text .="<th class='buttons'>"  . PHP_EOL . $e->outertext .$k . $v."</th>" . PHP_EOL;			
+			break;
+		case "r":
+			$text .="";
+			break;
+		default:
+			$text .="<th></th>" . PHP_EOL;
+			break;
+	}
+    foreach($html->find('.titleTable') as $e)
+        $e ->innertext=$text . "</tr>". PHP_EOL;
+    //___ End of table head    
+    //--- begin of table  
+    $text="";
+    $bEdit="";
+    $bSee="";
+    $bDelete="";
+    // ver que página estamos a ver
+    
+    $pagina = (isset($_REQUEST["p"])?($_REQUEST["p"]):1);		
+
+	$sql=$this->prepareSQLtoAction("ver");
+    //echo "<br>sql=" . $sql;
+	$stmt=$this->querySQL($sql);
+	//print_r($stmt);
+	foreach($stmt as $registo){
+		$text .= "<tr>" . PHP_EOL;
+		//print_r($registo);
+		//if ($this->chave==$registo['Fie'])
+      	//echo "<br>chave=" . $this->chave;
+		$chave=$registo[$this->chave];
+		$chaveid=$this->chave;
+		$i=0;
+      	//verifica se é para mostrar um link para ver um registo usando uma página externa
+		$ver="";
+		if ($this->PagVer<>""){
+			//add the link to a see button
+			foreach($html->find('.bsee[href]') as $e){
+          		//echo $e;
+				if ($this->linkStyle==0){
+					$e->href=$this->PagVer . "?$chaveid=$chave";
+				}else{
+					$e->href=$this->PagVer . "/$chave";
+				}
+			}
+			foreach($html->find('.bsee') as $e){
+				$ver =  $e->outertext;
+			}
+        	//echo $ver;      
+        	//$ver="<a href='" . $this->PagVer . "?$chaveid=$chave' title='ver' \'> <i class='fa fa-eye' aria-hidden='true'></i></a>";
+		}
+		//print_r($elista);
+		$p=$pi;
+		foreach($registo as $campo){
+			//print_r($campo);
+			if ($p!=0){
+				if ($elista[$i] !== 0){
+					$campo=$this->devolveValorDaLista($elista[$i], $campo);
+            		//print_r($campo);
+					 //echo "aqui";
+				}
+				if ($eImagem[$i] !== 0){
+            		//$campo="isto é uma imagem";
+					if (($campo=="")||($campo==null)){
+						$campo=$imgDefault[$i];
+						//$campo="aaa.img";
+					}
+					$campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
+				}
+				$i++;
+				$text .= "<td>$campo</td>" . PHP_EOL;
+          		//$p=1;    
+			}else{
+				$p=1;
+			}
+			if ($i==2){
+				$dois=$campo;
+			}		
+		}
+		switch ($this->autenticacao){
+			case "a":
+                foreach($html->find('.bedit') as $e){
+					$e->data=$chave;
+					$e->onClick="preUp('" . $chave . "')";
+					$text .="<td class='buttons'>" . $ver .  $e->outertext;
+                }        
+                foreach($html->find('.bdel') as $e){
+					$e->data=$chave;
+					$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
+					if ($this->multi){
+						$m="<input type='checkbox' class='multi' name='dm" . $chave . "'>";
+					}else{
+						$m="";
+					}
+					$text .= $e->outertext . $m . "</td>" . PHP_EOL. "</tr>" . PHP_EOL;
+                } 
+                break;
+			case "u":
+			case "e":
+                foreach($html->find('.bedit') as $e)
+					$e->onClick="preUp('" . $chave . "')";
+					$text .="<td class='buttons'>" . $ver. $e->outertext ."</td>" . PHP_EOL . "</tr>" . PHP_EOL;
+                break;
+			case "r":
+				$text .= "";
+                break;
+			default:
+                $text .= "<td class='buttons'>$ver</td>" . PHP_EOL ."</tr>" . PHP_EOL;
+                break;
+        }
+    }
+    foreach($html->find('#bodyTable') as $e)
+		$e ->innertext=$text . PHP_EOL;  
+    //--- end of table
+    $formAU=$this->formulario();    
+    foreach($html->find('#frmIU') as $e)
+        $e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
+    
+    // change te title
+    foreach($html->find('.tbTitle') as $e)
+        $e->innertext = $this->textos['titulo'];
+    //echo "aaaaaa";
+    echo $html;
+    */
+}
 //####################################################################################################################################
-  /*
+/*
   *
   * @param accao    cada campo da tabela pode estar associado a um a acção (ver, editar, apagar, inserir, importar)
 	*
   * Faz uma lista seprada por virgulas de campos por acção
   */
-  private function fazListaCamposAccao($accao="csv"){
+private function fazListaCamposAccao($accao="csv"){
     $texto="";
     $sep="";
     foreach ($this->camposLista as $campo){
       //print_r($campo);
-      if (isset($campo[$accao])){
-         if ($campo[$accao]==1){
-			$aux="";
-			if ($campo['Null']=="NO"){
-				$aux="*";
+		if (isset($campo[$accao])){
+			if ($campo[$accao]==1){
+				$aux="";
+				if ($campo['Null']=="NO"){
+					$aux="*";
+				}
+				$texto=$texto . $sep . $campo['Field'] . $aux;
+				$sep=";";
 			}
-            $texto=$texto . $sep . $campo['Field'] . $aux;
-            $sep=";";
-         }
-      }  
+		}  
     }
     return $texto;
-  }
-  
-
-  
+}
   //###################################################################################################################################
 	/*
 	* Apresenta um formulário HTML para importação de ficheiro csv
 	*/
-  
   //ISTO É PARA SER ADICIONA AO MODELO COM MODAL
-  
 	public function formImporta(){		
 				?>
-	
- 			<div class="container">
-				<section>
-          <h3>Importar         
-          </h3>
-          <p><?php echo $this->getTextos('import');?> <code><?php echo $this->fazListaCamposAccao("csv")?></code>
-          </p>
+		<div class="container">
+			<section>
+				<h3>Importar</h3>
+				<p><?php echo $this->getTextos('import');?> <code><?php echo $this->fazListaCamposAccao("csv")?></code></p>
 				<form action="?do=csv" method="post" role="form" class="form"  id="Form1"> 
-				<div class="row">
-					<div class="col-sm-12" >
-						<div class="form-group">
-                <label for="comment"><?php echo $this->getTextos('importLine');?>:</label>
-               <textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
-            </div>
-	        	
-					</div>
-				</div>
-				<div class="row">
-					<div class="form-group">
-						<input type="button" class="btn btn-info" value="<?php echo $this->getTextos("fechar")?>" onclick="window.location='<?php echo $this->PagaClose?>';">  
-            <button class="btn btn-primary" aria-hidden="true" type="submit"><?php echo $this->getTextos("importa")?></button>
-            </div>
-				</div>
-        </form>
-				</section>
-			</div>
+					<div class="row">
+						<div class="col-sm-12" >
+							<div class="form-group">
+								<label for="comment"><?php echo $this->getTextos('importLine');?>:</label>
+								<textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
+							</div>
+						</div>
+						<div class="col-sm-12" >
+							<div class="form-group">
+								<input type="button" class="btn btn-info" value="<?php echo $this->getTextos("fechar")?>" onclick="window.location='<?php echo $this->PagaClose?>';">  
+								<button class="btn btn-primary" aria-hidden="true" type="submit"><?php echo $this->getTextos("importa")?></button>
+							</div>
+						</div>
+			</form>
+			</section>
+		</div>
 		<?php
 			//$pag->postFormJavascript();		
 	} 
-
 //###################################################################################################################################
 	/*
 	* Apresenta um formulário HTML para editar ou inserir um registo
@@ -668,22 +847,18 @@ class TableBD{
 	public function formulario($toDo="e"){		
 		$html = new simple_html_dom();
 		$html->load_file($this->template);
-    
     // change h3
     foreach($html->find('.tbTitle') as $e)
         $e->innertext = $this->textos['titulo'];
-    
 	$accao="editar";
     if ($toDo=="a"){
-       $accao="novo";
+		$accao="novo";
     }
-    
     $t=""; 
    	//preparing fields 
     //print_r($this->camposLista);
-   	foreach($this->camposLista as $campo){
+	foreach($this->camposLista as $campo){
 		//print_r($campo);
-     
 		//echo "<br>_____________________________<br>";
      	//echo "<br>accao:" . $accao ;
 		if (!isset($campo[$accao])){
@@ -703,14 +878,13 @@ class TableBD{
 				$sub='id="txt' . $this->chave . '"'; 
 				$t=str_replace($sub, 'id="editKey"', $t);
 			}
-    	} 
+		} 
 	}
-   
     foreach($html->find('#frmIOH3') as $e)
         $e->innertext= PHP_EOL. PHP_EOL.$t. PHP_EOL. PHP_EOL;
     
-   	$modalAU="";
-   	foreach($html->find('#frmIU') as $e)
+	$modalAU="";
+	foreach($html->find('#frmIU') as $e)
         $modalAU=$e->outertext;
         
     return $modalAU;
@@ -730,6 +904,13 @@ class TableBD{
 		
 		switch ($aux) {
 			case "int":
+			case "num":
+				$resp=intval($campo['valor']);
+          		//$resp="'" . $resp. "'";
+				//$resp=str_replace(",",".",$resp);
+				//$resp=str_replace(".",",",$resp);
+				//$resp=str_replace("x",".",$resp);
+				break;
 			case "blo":
 			case "enu":
 			case "tin":
@@ -740,10 +921,10 @@ class TableBD{
 			case "dou":
 			//case "dec":
 			case "bit":
-			case "num":
+			//case "num":
 			case "mon":
 			case "rea":
-				$resp=$campo['valor'];
+				$resp=number_format($campo['valor']);
           		//$resp="'" . $resp. "'";
 				$resp=str_replace(",",".",$resp);
 				//$resp=str_replace(".",",",$resp);
@@ -777,7 +958,6 @@ class TableBD{
 		} 
 		return $resp;
 	}
-	
 //###################################################################################################################################
 	/**
 	* Devolve a lista de campos da tabela
@@ -786,19 +966,17 @@ class TableBD{
 		print_r($this->camposLista);
 	}
 	
-  
 	//###################################################################################################################################	
 	/**
 	 *
 	 * lê o parametro chave do registo enviado pelo form HTML e que corresponde ao valor identificado como chave na análise da tabela
 	 */
-  	public function getChave(){
+	public function getChave(){
     
-    	$chave=utf8_encode($_REQUEST[$this->chave]);
+		$chave=utf8_encode($_REQUEST[$this->chave]);
 		//echo "<br><br><br><br><br><br><br><br><br><br>$chave<br>";
 		return $chave;		
-  	}
-  
+	}
  //###################################################################################################################################	
 	/**
 	 *
@@ -813,7 +991,6 @@ class TableBD{
 		//echo "<br>do=$do";
 		return $id;
 	} 
-  
  //###################################################################################################################################
 	/*
 	* dado um valor chave devolve os resultados
@@ -824,7 +1001,6 @@ class TableBD{
 		$sql=$this->sqlGeral . " WHERE " . $this->chave . " = '" . $chave . "'";
 		return $this->querySQL($sql);
 	} 
-  
    //###################################################################################################################################
 	/*
 	* dado um valor chave devolve os resultados
@@ -833,7 +1009,7 @@ class TableBD{
 		$this->determinaChave();
 		$sql=$this->preparaSQLSelectToUpdate();
 		//$sql .= " WHERE " . $this->chave . " = '" . $chave . "' AND " . $this->criterio . ";";
-    	$sql .= " WHERE " . $this->chave . " = '" . $chave . "'; ";
+		$sql .= " WHERE " . $this->chave . " = '" . $chave . "'; ";
     	//echo $sql;
 		return $this->querySQL($sql);
 	} 
@@ -858,7 +1034,28 @@ class TableBD{
 		}
 		//print_r($this->camposLista);
 	} 
-	 
+	 //###################################################################################################################################
+	/*
+	* Search in $_REQUEST for the ids of a multiple  records to delete
+	*/
+	public function multiDelete(){
+		//echo json_encode($_REQUEST);
+		$sql="DELETE FROM " . $this->tabela . " WHERE " . $this->chave . " = " ;
+		$campo['Type']=$this->camposLista[$this->chavePos]['Type'];
+		foreach($_REQUEST as $name=>$val){
+			//echo $name;
+			$aux=explode("dm",$name);
+			if (count($aux)>1){
+				//echo $aux[1];
+				$campo['valor']=$aux[1];
+				$sql1=$sql . $this->getCampoValor($campo) . ";";
+				//echo $sql1 . "<br>";
+				$this->ExecuteSQL($sql1);
+
+			}
+			
+		}
+	} 
 	//###################################################################################################################################	
 	/**
 	 *
@@ -872,7 +1069,6 @@ class TableBD{
 		//echo "<br>do=$do";
 		return $do;
 	}
-  
   //###################################################################################################################################	
 	/**
 	 * 
@@ -882,8 +1078,6 @@ class TableBD{
 	public function getTemplate(){
 		return $this->template;
 	}
-
-  
    //###################################################################################################################################	
 	/**
 	 * 
@@ -894,13 +1088,11 @@ class TableBD{
 	public function getTextos($chave){
 		return $this->textos[$chave];
 	}
-
-  
  //###################################################################################################################################
 	/**
 	* Import a string with field separeted by ;
 	*/ 
-  public function importCSV(){
+public function importCSV(){
     if (isset($_REQUEST["txtCSV"])){       
 		if ($_REQUEST["txtCSV"]!=""){
         	//a txt is passed
@@ -912,27 +1104,25 @@ class TableBD{
 			}
 			//echo "update?=$upd; doUpadate:".$_REQUEST['doUpdate'];
 			$txt=$_REQUEST["txtCSV"];
-          	$linhas=explode("\n", $txt);
+			$linhas=explode("\n", $txt);
 			//print_r($linhas);
 			//$k=0;
-          	foreach($linhas as $linha){
+			foreach($linhas as $linha){
 				//echo "<br>K=". $k. "<br>";
-            	$registo=explode(";", $linha);
-            	$i=0;
-            	$j=0;
+				$registo=explode(";", $linha);
+				$i=0;
+				$j=0;
 				$keyValue="";
-		        foreach($this->camposLista as $campoaux){
+				foreach($this->camposLista as $campoaux){
 					//print_r($campoaux);
-              		if ($campoaux['csv']==1){
-						
-                    	if ($campoaux['Type']=="pas"){
-                      		$registo[$j]=$this->encriptar($registo[$j], $campoaux['cifra']);;
-                    	}
-						
+					if ($campoaux['csv']==1){	
+						if ($campoaux['Type']=="pas"){
+							$registo[$j]=$this->encriptar($registo[$j], $campoaux['cifra']);;
+						}
 						if ($campoaux['Key']=="PRI"){
 							$keyValue=$registo[$j];
-					  	}
-                    	$this->camposLista[$i]["valor"]=$registo[$j];
+						}
+						$this->camposLista[$i]["valor"]=$registo[$j];
 						if ($registo[$j]!=""){
 							$this->camposLista[$i]["change"]=1;
 							//echo $campoaux['Type'] . " - " . $registo[$j];
@@ -948,18 +1138,17 @@ class TableBD{
 								$this->camposLista[$i]["valor"]=$date;
 							}
 						}
-						
-                    	$j++;			
-              		}
-              		$i++;
-		        }
+						$j++;			
+					}
+					$i++;
+				}
 				if ($keyValue!="" and $upd==1){
 					$sql= $this->prepareSQLInsertIfNotExisteUpdateIfExiste($keyValue);
 					
 				}else{
 					$sql= $this->prepareSQLinsert();		
 				}
-             	$sql.=";";
+				$sql.=";";
 				//echo "<br>linha j=". $j."<bR>";
 				if ($this->debugS==1){
 					echo $sql. "<br>";
@@ -967,12 +1156,12 @@ class TableBD{
 				$this->querySQL($sql);
             	//print_r($this->camposLista);  
 				//return  $sql; 
-          	}
+			}
 		} 
 	}
     //echo "ole";
-  }
-  
+}
+
  //###################################################################################################################################
 	/**
 	* Conjunto de includes necessários ao formato da lista de registos da tabela
@@ -980,15 +1169,15 @@ class TableBD{
     //TROCAR PELO AJAX
 	public function includes($path=""){
 		?>
-  <script>
+<script>
 
-  function preDel(id,texto){
-    //alert(id);
-    document.getElementById("delText").innerHTML=texto;
-    document.getElementById("deleteKey").value=id;
-  }
+function preDel(id,texto){
+   	//alert(id);
+	document.getElementById("delText").innerHTML=texto;
+	document.getElementById("deleteKey").value=id;
+}
     
-  async function preUp(id){
+async function preUp(id){
     //alert(id);
     document.getElementById("do").value="ce";
     document.getElementById("editKey").value=id;
@@ -999,31 +1188,58 @@ class TableBD{
     //alert(response);
     //alert(eventos);
     for (const evento of eventos) {
-      for (x in evento) {
-          //alert(x);
-          if ($('textarea').length >1){
-             var markupStr = evento[x];
-            $('textarea#txt'+ x).summernote('code', markupStr);
-          }
-          $("#txt" + x).attr("value", evento[x] )
-          var aux=`select#txt${x}`;
-          //console.log(aux);
-          //console.log($(`select#txt${x}`).length)
-          if ($(`select#txt${x}`).length){
-             $(`#txt${x} option:selected`).attr('selected',false);
-            aux=`#txt${x} option[value='${evento[x]}']`
-            //console.log(aux);
-            $(aux).attr('selected','selected');
-          }
-          
+		for (x in evento) {
+          	//alert(x);
+			if ($('textarea').length >1){
+				var markupStr = evento[x];
+				$('textarea#txt'+ x).summernote('code', markupStr);
+			}
+			$("#txt" + x).attr("value", evento[x] )
+			var aux=`select#txt${x}`;
+          	//console.log(aux);
+          	//console.log($(`select#txt${x}`).length)
+			if ($(`select#txt${x}`).length){
+				$(`#txt${x} option:selected`).attr('selected',false);
+				aux=`#txt${x} option[value='${evento[x]}']`
+            	//console.log(aux);
+				$(aux).attr('selected','selected');
+			}
         }
-      }
-  }
-  </script>
+	}
+}
+
+const prepareMultiReader = async () =>{
+	//alert("bbb");
+	const esc=document.getElementsByClassName("multi");
+	//const dados=[];
+	var lista="";
+	//alert(esc.length)
+	for(var i=0; i<esc.length; i++){
+		//alert(esc[i].checked)
+		//console.log(esc[i])
+		//alert(i)
+		if (esc[i].checked==true){
+			//dados.push(esc[i].name)
+			lista=lista.concat("&",esc[i].name,"=1")
+			//alert(esc[i].name);
+			//alert(lista);
+		}
+	
+	}
+	//alert(lista);
+	let url= window.location.protocol +"//"+ window.location.hostname +  window.location.pathname + "?do=dm" +lista
+    //alert("url: " + url);
+    const response = await fetch(url)
+    //const msg = await response.json()
+	//m0ns3rrconsole.log(msg)
+	//alert(msg.texto)
+	url= window.location.protocol +"//"+ window.location.hostname +  window.location.pathname;
+	window.location.href = url;
+}
+</script>
     
-   <script>
-  
-  $("#bnew").click(function() {
+<script>
+$("#bnew").click(function() {
     var markupStr = "...";
     $("#editKey").attr("value","")
     $('.summernote').summernote('reset');
@@ -1032,32 +1248,30 @@ class TableBD{
     foreach($this->camposLista as $campoaux){
         if (($campoaux['Type']!="lst") && ($campoaux['Type']!="text") && ($campoaux['Type']!="calc") ){
     ?>
-    	$("#txt<?php echo $campoaux['Field']?>").attr("value","<?php echo $campoaux['Default']?>")
+		$("#txt<?php echo $campoaux['Field']?>").attr("value","<?php echo $campoaux['Default']?>")
         <?php  
         }else{
 			if (!isset($campoaux['Default'])){
 				$campoaux['Default']=null;
 			}
-          	if (($campoaux['Type']=="lst") && ($campoaux['Default']!=null)){
+			if (($campoaux['Type']=="lst") && ($campoaux['Default']!=null)){
         ?>
         $("#txt<?php echo $campoaux['Field']?> option[value=<?php echo $campoaux['Default']?>]").attr('selected','selected');
         <?php
-          	}else{
-            	if ($campoaux['Type']=="text"){
+			}else{
+				if ($campoaux['Type']=="text"){
         ?>
 					$('textarea#txt<?php echo $campoaux['Field']?>').summernote('code', "...");
-             	<?php
-            	}
-          	}
+				<?php
+				}
+			}
         }
     }
     ?>
-  });
-     
+	});
 	</script>
 	<?php      
-	}  
-  
+	}
      //###################################################################################################################################	
 	/**
 	* 
@@ -1068,11 +1282,9 @@ class TableBD{
 	*/
 	public function inputHTML($campo, $valor=""){
 		$aux=substr($campo['Type'], 0, 3);
-		
-    	$html = new simple_html_dom();
-    	$html->load_file($this->template);
-    
-    	$t="";
+		$html = new simple_html_dom();
+		$html->load_file($this->template);
+		$t="";
 		$ast="";
 		if ($campo['Null']=='NO'){
 			$ast="*";
@@ -1080,15 +1292,14 @@ class TableBD{
 		//echo "aux: " . $aux;
 		//print_r($campo['lista']);
 		switch ($aux) {
-      		case "lst":
+			case "lst":
                 //echo "aux: " . $aux;
                 foreach($html->find('select[id]') as $e){
-                  $e->id="txt" . $campo['Field'];
-                  $e->name="txt" . $campo['Field'];
+					$e->id="txt" . $campo['Field'];
+					$e->name="txt" . $campo['Field'];
                 }			
                 foreach($html->find('#selectL') as $e)
-                	$e->innertext=$campo['label'] . $ast;                
-              
+					$e->innertext=$campo['label'] . $ast;                
                 $linhaElemento="";
 				foreach($campo['lista'] as $linha){
 					$i=0;
@@ -1103,8 +1314,8 @@ class TableBD{
 							$proximo=1;
 						}
 						if (($proximo==1) && ($i==1)){
-                      		foreach($html->find('#selectLst.option') as $e)
-                         		$e->selected= "selected";
+							foreach($html->find('#selectLst.option') as $e)
+								$e->selected= "selected";
 							//$aux=" selected ";
 						}
 						if ($i==0){
@@ -1114,65 +1325,63 @@ class TableBD{
 							$texto=$x_value;
 						}
 						$i++;
-                  	}  
+					}  
                 	//echo PHP_EOL . 'select#txt'.$campo['Field'] .' option' .PHP_EOL;
-                	foreach($html->find('.select#txt'.$campo['Field'] .' option') as $e){
+					foreach($html->find('.select#txt'.$campo['Field'] .' option') as $e){
                     	$e->value="$valorZ";                    //tirei o txt
-                    	$e->innertext=$texto . "[$valorZ]";
+						$e->innertext=$texto . "[$valorZ]";
                     	//echo "aaaa";
-                	}
+					}
                                     
                 	//$f='#txt'.$campo['Field']
-                	foreach($html->find('#txt'.$campo['Field']) as $e)
-                    	$linhaElemento.=$e->innertext .PHP_EOL; 
+					foreach($html->find('#txt'.$campo['Field']) as $e)
+						$linhaElemento.=$e->innertext .PHP_EOL; 
 				}
 				//echo $html;
                 //echo $linhaElemento;
                 foreach($html->find('#txt'.$campo['Field']) as $e)
-                  	$e->innertext = $linhaElemento;
+					$e->innertext = $linhaElemento;
                 foreach($html->find('.select') as $e)
-                  	$t=$e->outertext;
+					$t=$e->outertext;
 				break;     
 			case "dat":
                 foreach($html->find('input[id]') as $e){
-                  	$e->id="txt" . $campo['Field'];
-                  	$e->name="txt" . $campo['Field'];
+					$e->id="txt" . $campo['Field'];
+					$e->name="txt" . $campo['Field'];
                 } 
                 foreach($html->find('#dateL') as $e)
-                  	$e->outertext=$campo['label']  . $ast ;
+					$e->outertext=$campo['label']  . $ast ;
                 foreach($html->find('.date') as $e)
-                  	$t=$e->outertext;
+					$t=$e->outertext;
 				break;
-        	case "int":
+			case "int":
 			case "var":	
 			case "dec":
 			case "dou":
 			case "tim":
 			case "img":
                 foreach($html->find('input[id]') as $e){
-                  	$e->id="txt" . $campo['Field'];
-                  	$e->name="txt" . $campo['Field'];
+					$e->id="txt" . $campo['Field'];
+					$e->name="txt" . $campo['Field'];
                 }
                 foreach($html->find('#textL') as $e)
-                  	$e->innertext=$campo['label']  . $ast ;
+					$e->innertext=$campo['label']  . $ast ;
                 foreach($html->find('.text') as $e)
-                  	$t=$e->outertext;        
+					$t=$e->outertext;        
 				break;
-        	case "tex":
-        	case "med":
+			case "tex":
+			case "med":
                 foreach($html->find('textarea[id]') as $e){
-                  	$e->id="txt" . $campo['Field'];
-                  	$e->name="txt" . $campo['Field'];
+					$e->id="txt" . $campo['Field'];
+					$e->name="txt" . $campo['Field'];
                 }
-                  
                 foreach($html->find('#textAreaL') as $e)
-                  	$e->innertext=$campo['label']  . $ast;
-        
+					$e->innertext=$campo['label']  . $ast;
                 foreach($html->find('.textArea') as $e)
-                  $t=$e->outertext;
+					$t=$e->outertext;
                   //echo "<br><br>aqui<br>" . $t .  "<br><br>aqui<br>";
 				break;
-        	case "pas":
+			case "pas":
 				// falta tratar o modo para verificar a password
             	// se o campo lido for cifrado não pode ser considerada a password lida da base dados e por isso não se considera nenhuma password e desta forma só é actualizada se o utilizador voltar a 
             	// escrever uma password
@@ -1181,9 +1390,9 @@ class TableBD{
 					$e->name="txt" . $campo['Field'];
 				}
                 foreach($html->find('#passwordL') as $e)
-                  $e->innertext=$campo['label'] . $ast ;
+					$e->innertext=$campo['label'] . $ast ;
                 foreach($html->find('.password') as $e)
-                  $t=$e->outertext;
+					$t=$e->outertext;
 				break;
 		} 
 		if (isset($campo['action'])){
@@ -1192,10 +1401,6 @@ class TableBD{
 		}
 		return $t;
 	}
-  
-  
-  
-    
   	//###################################################################################################################################	
 	/**
 	* Prepara uma string com a instrução SQL da tabela (do tipo SELECT * FROM Tabela). Incluiu todos os campos
@@ -1212,7 +1417,6 @@ class TableBD{
       	//echo "sql: " . $this->sqlGeral;
 		return 	$this->sqlGeral;
 	}
- 
   	//###################################################################################################################################	
 	/**
     *  
@@ -1224,7 +1428,6 @@ class TableBD{
 		$resposta.=$this->preparaSQLupdate(1) ;
 		return $resposta;
 	}
-
 	//###################################################################################################################################	
 	/**
     *  
@@ -1234,15 +1437,14 @@ class TableBD{
 		$resposta= "SELECT " . $this->chave  . " FROM " . $this->tabela . " WHERE " . $this->chave . "='$key'" ;
 		return $resposta;
 	}
-
   	//###################################################################################################################################	
 	/**
     *  
 	* Prepara uma string SQL com os campos escolhidos para edição
 	*/
 	public function preparaSQLSelectToUpdate(){
-    	$campos="";
-      	$sep="";
+		$campos="";
+		$sep="";
 		//echo "<br>chave=$this->chave";
 		//$resto= ") VALUES (";
 		$sep="";
@@ -1256,7 +1458,6 @@ class TableBD{
 		$resposta= "SELECT " . $campos  . " FROM " . $this->tabela ;
 		return $resposta;
 	}     
-  
 	//###################################################################################################################################	
 	/**
     *  
@@ -1298,7 +1499,6 @@ class TableBD{
 		$resposta= $resposta . $resto . ") ";
 		return $resposta;
 	}
-	
   	//###################################################################################################################################	
 	/**
     * 
@@ -1308,7 +1508,6 @@ class TableBD{
     * fields marked as visible in the chosen action
 	*/
 	public function prepareSQLtoAction($action){
-
 		//echo "<br>". $this->chave;
 		if ($this->chave!=""){
 			$sep=",";
@@ -1317,7 +1516,6 @@ class TableBD{
 		}
 		$resposta= "SELECT " . $this->chave ;
 		
-
 		//echo "<br>". $sep;
       	//$key=0;
 		//print_r($this->camposLista);
@@ -1325,11 +1523,11 @@ class TableBD{
 		    //echo "<br>Campo1 = ";
 		    //print_r($campo);
 			if ($campo[$action]==1){
-          		if ($campo['Type']=="calc"){
-            		$resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
-          		}else{
-            		$resposta=$resposta . $sep . $campo['Field']; 
-          		}
+				if ($campo['Type']=="calc"){
+					$resposta=$resposta . $sep . $campo['formula'] . " as ". $campo['Field']; 
+				}else{
+					$resposta=$resposta . $sep . $campo['Field']; 
+				}
 				$sep=",";
 			} 		
 		}
@@ -1342,11 +1540,8 @@ class TableBD{
 		if ($this->limites[1]>0){
 			$resposta.= " Step ". $this->limites[1];
 		}
-
-      	return $resposta;			
+	return $resposta;			
 	}
-  
-  
  	//###################################################################################################################################	
 	/**
     * 
@@ -1356,9 +1551,8 @@ class TableBD{
     * campos marcados como visíveis na acção escolhida
 	*/
 	public function preparaSQLparaAccao($accao){
-    	return repareSQLtoAction($accao);
+		return repareSQLtoAction($accao);
 	}
-        
     //###################################################################################################################################	
 	/**
     *  
@@ -1400,7 +1594,6 @@ class TableBD{
       	//echo $resposta; 
 		return $resposta;
 	}       
-  
     //###################################################################################################################################	
 	/**
 	* 
@@ -1426,20 +1619,20 @@ class TableBD{
 		$this->fieldsActive(1,'novo');  
 		$this->fieldsActive(1,'editar');
 	}
-    //###################################################################################################################################	
+	//###################################################################################################################################	
 	/**
-	* 
-	* @param tabela    nome da tabela na base de dados
+	* LIXOLIXO
+	* @param $table    the name of the database table you want to use
 	*
-	* Prepara uma tabela, criando a lista de campos da tabela, determinando a sua chave, prepara um SQL geral para todos os campos
-	* define as etiquetas
+	* Prepare a table, create the table's field list, determine its key, prepare a general SQL for all fields
 	*/
-	//function preparaTabela($tabela){
-		//prepara o html para gerir a tabela
-  //  	$this->prepareTable($tabela);
-	//}	 
- 
- 
+	function preparMultiReader(){
+		?>
+			function preparMultiReader(){
+				alert("aaaa");
+			}
+		<?php
+	}
 	//###################################################################################################################################	
 	/**
 	* 
@@ -1452,7 +1645,6 @@ class TableBD{
 		<?php	
 		//header("Location: " .  $url);
 	}
-  
 		//###################################################################################################################################	
 	/**
      * 
@@ -1474,9 +1666,6 @@ class TableBD{
 			$i++;
 		}
 	}
-
-
-
   	//###################################################################################################################################	
 	/**
      * 
@@ -1501,21 +1690,6 @@ class TableBD{
 			$i++;
 		}
 	}
-
-	
- 	//###################################################################################################################################	
-	/**
-     * 
-     * @param campo    é o campo que pretendemos activar/desativar
-     * @param accao    é o tipo de acção (listar, editar e adicionar) em que pretendemos activar/desativar o campo
-     * @param valor    é 1 para mostrar e 0 para esconder
-	* Activa/desativa (mostra/esconde) um campo para uma acção
-  	* Este nome é para manter acompatibilidade com o Pt
-	*/
-	//private function setAtivaCampo($campo, $accao, $valor){
-  // 		$this->setFieldAtive($campo, $accao, $valor);
-	//}
-
   	//###################################################################################################################################	
 	/**
      * 
@@ -1530,7 +1704,7 @@ class TableBD{
 		//$action=str_replace("edit","editar",$action);
 		$action=str_replace("edt","editar",$action);
 		$action=str_replace("editarar","editar",$action);
-    	$action=str_replace("edit","editar",$action);
+		$action=str_replace("edit","editar",$action);
 		$this->fieldsActive(0, $action);
 		$fields=str_replace("`","",$fields);
 		$fields=str_replace(" ","",$fields);
@@ -1549,8 +1723,6 @@ class TableBD{
 			$this->PagImp=1;
 		}
 	}
-  
-  
 	//###################################################################################################################################	
 	/**
      * 
@@ -1561,40 +1733,21 @@ class TableBD{
 	//public function setAtivaCampos($campos, $accao){
 	//    $this->setFieldsAtive($campos, $accao);
 	//}
-  
   	//###################################################################################################################################
 	/**
 	* 
 	* @param value    letter with permission to be considered
 	*                       a - all has the ability to view, create new, delete and change
-  	*                       u - update You can only change the data
-  	*                       e - edit It only allows edition
-  	*                       n - new It only allows creating new records                         
-  	*                       r - read Can only see
+	*                       u - update You can only change the data
+	*                       e - edit It only allows edition
+	*                       n - new It only allows creating new records                         
+	*                       r - read Can only see
 	* defines if by default the user has permissions to view, create new, delete and change
-  	*	                  
+	*	                  
 	*/
 	public function setAutentication($value){
 		$this->autenticacao=$value;
 	}
-  
-  
-  	//###################################################################################################################################
-	/**
-	* 
-	* @param valor    letra com tipo a permissão a ser considerado
-	*                       a - all tempo a possibilidade de ver, criar novo, apagar e alterar
-  	*                       u - update Só pode alterar os dados
-    *                      e - edit 
-  	*                       r - read só pode ver
-	* define se por defeito o user tem permissões para ver, criar novo, apagar e alterar
-  	*                  
-	*/
-	//public function setAutenticacao($valor){
-	//	$this->setAutentication($valor);
-	//}
-   
-
   	//###################################################################################################################################	
 	/**
      * @param nameField  is the name for the new field we want to add and that will result from a sql operation
@@ -1608,25 +1761,13 @@ class TableBD{
 		$this->camposLista[$i]['Type']="calc";
 		$this->camposLista[$i]['Field']=$nameField;
 		$this->camposLista[$i]['formula']=$sqlCalcFormula;
-    	$this->camposLista[$i]['label']=$nameField;
-    	$this->camposLista[$i]['Key']="";
-    	$this->camposLista[$i]['ver']=1;
-    	$this->camposLista[$i]['editar']=0;
+		$this->camposLista[$i]['label']=$nameField;
+		$this->camposLista[$i]['Key']="";
+		$this->camposLista[$i]['ver']=1;
+		$this->camposLista[$i]['editar']=0;
     	//echo "<br><br>";
      	//print_r($this->camposLista);
 	}	
-  
- 	//###################################################################################################################################	
-	/**
-     * @param campo   é o nome para o campo que pretendemos adicionar
-	 * @param calculo    é a formula sql que vamos aplicar
-     * 
-	* Adiciona um novo campo calculado
-	*/
-	//public function setCampoCalculado($campo,$calculo){
-	//	$this->setCalculatedField($campo,$calculo);
-	//}	
-  
   	//###################################################################################################################################	
 	/**
      * @param $field    	is the field that we want to change to the image type
@@ -1648,7 +1789,6 @@ class TableBD{
 			$i++;
 		}
 	}	
-  
   	//###################################################################################################################################	
 	/**
      * @param campo         é o campo que pretendemos alterar para o tipo imagem
@@ -1660,7 +1800,6 @@ class TableBD{
 	//public function setCampoImagem($campo,$caminho,$percentagem='100%'){
 	//	$this->setImageField($campo,$caminho,$percentagem);
 	//}	
-  
   	//###################################################################################################################################	
 	/**
      * @param $field      is the field we want to change to list type.
@@ -1677,7 +1816,7 @@ class TableBD{
 		foreach($this->camposLista as $campoaux){
 			if ($campoaux['Field']==$field){
 				//echo "entrie";
-          		$this->camposLista[$i]['hideCode']=$hideCode;
+				$this->camposLista[$i]['hideCode']=$hideCode;
 				$this->camposLista[$i]['Type']="lst";
 				switch($mode){
 					case "1":
@@ -1698,7 +1837,6 @@ class TableBD{
 							$lista[$j]= $aux;
 							$j++;
 						}
-
 						//$lista= array($listaSql);
             			//echo "<br><br>";
 						//print_r($lista);
@@ -1707,7 +1845,6 @@ class TableBD{
 						$par=explode("|", $listOrSql);
 						$listanova=new TableBD();
 						$lista=$listanova->querySQL($par[0]);
-
 						$lista1=explode(",", $par[1]);
 						$j=count($lista);
 						foreach ($lista1 as $ls){
@@ -1728,20 +1865,6 @@ class TableBD{
 		}
 	//echo "passei";
 	} 
-  
-  
-	//###################################################################################################################################	
-	/**
-     * @param campo    é o campo que pretendemos alterar para o tipo lista
-	 * @param modo    modo em que são passados os campos. 1 - SQL; 2 - valores.
-	 * @param listaSql    listaSql é a string sql ou lista de valores a serem passados ( a lista tem o formato por ex: "1=>primeiro,2=>segunto,3=>utilimo,a=>assim")
-     * 
-	* Altera o campo para o tipo lista para ter um descritivo em vez do código e uma combobox na edição e introdução
-	*/
-	//public function setCampoLista($campo,$modo,$listaSql){
-  //      $this->setFieldList($campo,$modo,$listaSql);	
-	//}
-  
   	//###################################################################################################################################	
 	/**
     * @param campo   is the field we want to change to type password
@@ -1751,7 +1874,7 @@ class TableBD{
      *                with the cipher
      * 
 	* Change the field to type password to have hidden text in the intro, and be encrypted before recording. It will include a mode field to 
-  	* determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field with the cipher
+	* determine the way it will be entered so that there are no mistakes (repeat the entry or show) and a field with the cipher
 	*/
 	public function setFieldPass($field,$mode,$cipher){
 		$i=0;
@@ -1765,51 +1888,34 @@ class TableBD{
 			}
 			$i++;
 		}
-	}	  
-	
-	//###################################################################################################################################	
-	/**
-     * @param campo    é o campo que pretendemos alterar para o tipo password
-	 * @param modo    modo de verificação da escrita correcta de nova password. 0 - desligado; 1 - repetir a intodução; 2 - mostrar a password
-	 * @param cifa    modo como o texto é cifrado. "" - desligado; "md5" - md5; "sha1" - sha1; "base64" - base64
-     * 
-	* Altera o campo para o tipo password para ter texto escondido na introdução, e ser encripado antes de gravar. Vai incluir um campo modo
-	* para determinar a forma com será introduzido para na haver enganos (repetir a introdução ou mostrar) e um campo com a cifra
-	*/
-	//public function setCampoPass($campo,$modo,$cifra){
-  //  	$this->setFieldPass($campo,$modo,$cifra);
-	//}	
-
+	}	  																								
   	//###################################################################################################################################	
 	/**
 	* @param criterio    It's an SQL criterion that equals fields to values.
-  	* 
+	* 
 	* define um critério para a accão de ver
 	*/
 	public function setCriterio($criterio){
 		$this->criterio=$criterio;
 	}	
-
   	//###################################################################################################################################	
 	/**
 	* @param order    is a sql string to order tha table
-  	* 
+	* 
 	* define um critério para a accão de ver
 	*/
 	public function setOrder($order){
 		$this->order=$order;
 	}	
-  
 	//###################################################################################################################################	
 	/**
 	* @param value     is a flag that can take a value of 1 to display SQL strings or 0 to hide them.
-  	* 
+	* 
 	* Enable debug mode to view the SQL queries and better comprehend errors.
 	*/
 	public function setDebugShow($value){
 		$this->debugS=$value;
 	}	
-  	
     //###################################################################################################################################	
 	/**
      * @param campo    is the name of the field in which we want to define an initial value 
@@ -1829,7 +1935,6 @@ class TableBD{
 			$i++;
 		}
 	}	
-  
 	//###################################################################################################################################	
 	/**
      * @param field    is the field to add a javascript action
@@ -1885,8 +1990,6 @@ class TableBD{
 			$i++;
 		}
 	}
-
-  
   	//###################################################################################################################################	
 	/**
      * @param $NumReg    número de registos
@@ -1895,10 +1998,9 @@ class TableBD{
 	* Define o número de registos num select
 	*/
 	public function setLimites($NumReg, $LimInf=0){
-    	$this->limites[0]=$NumReg;
-    	$this->limites[1]=$LimInf;
+		$this->limites[0]=$NumReg;
+		$this->limites[1]=$LimInf;
 	}	
- 
   	//###################################################################################################################################
 	/**
 	* Stores the name (url) of the page that should be opened to show une record.
@@ -1910,7 +2012,6 @@ class TableBD{
 		$this->PagVer=$page;
 		$this->linkStyle=$style;
 	}
-  
  	//###################################################################################################################################
 	/**
 	* 
@@ -1921,7 +2022,6 @@ class TableBD{
 	public function setPaginaVer($pagina,$style=0){
 		$this->setLinkPage($pagina,$style);
 	}
-
   	//###################################################################################################################################
 	/**
 	* 
@@ -1933,7 +2033,16 @@ class TableBD{
 	public function setHTMLid($id,$valor){
 		$this->id[$id]=$valor;
 	}
- 
+	//###################################################################################################################################	
+	/**
+	 * 
+   * @param value    value must be false or true. Is is true a checkbox is showed in every line os the table
+	 *
+	 * set a page for tamplate
+	 */
+	public function setMultiple($value){
+		$this->multi=$value;
+	}
   	//###################################################################################################################################	
 	/**
 	 * 
@@ -1941,10 +2050,9 @@ class TableBD{
 	 *
 	 * set a page for tamplate
 	 */
-  	public function setTemplate($page){
-	    $this->template=$page;
-  	}
-  
+	public function setTemplate($page){
+		$this->template=$page;
+	}
  	//###################################################################################################################################
 	/**
 	* 
@@ -1956,7 +2064,6 @@ class TableBD{
 	public function setTextos($texto,$valor){
 		$this->textos[$texto]=$valor;
 	} 
-  
  	//###################################################################################################################################
 	/**
 	 * 
@@ -1964,10 +2071,9 @@ class TableBD{
 	 *
 	 * define the title of the page/or form
 	 */
-  	public function setTitle($value){
-    	$this->setTextos("titulo",$value);      
-  	} 
-  
+	public function setTitle($value){
+		$this->setTextos("titulo",$value);      
+	} 
 	//###################################################################################################################################
 	/**
 	 * 
@@ -1975,9 +2081,9 @@ class TableBD{
 	 *
 	 * define o título da página/ou form
 	 */
-  	public function setTitulo($valor){
-    	$this->setTitle($valor);      
-  	}  
+	public function setTitulo($valor){
+		$this->setTitle($valor);      
+	}  
 }
 
 //###################################################################################################################################
