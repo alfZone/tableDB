@@ -47,8 +47,7 @@
 4 - Known bugs or limitations
 =============================
 
-  Problens on the order os colunms on the list table whe the key is not the first field on database table 
-  Do not allowed multiple deletes
+ Problems with the order of columns in the list table when the key is not the first field in the database table.
 
 5 - License
 ===========
