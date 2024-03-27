@@ -50,7 +50,10 @@ $table->setLabel('passw',"Password");
 $table->setCriterio("type='Admin'");
 
 //Allow multiple delections
-//$tabela->setMultiple(true);
+$table->setMultiple(true);
+
+//Set a default value to a field
+$table->setDefaultValue('fielName',$value);
 
 //Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to make decisions
 $table->showHTML();
