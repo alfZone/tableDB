@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 10.1
- * @updated 01-08-2023 21:50:00
+ * @version 11.0
+ * @updated 27-03-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -15,7 +15,7 @@
 
 
 // roadmap 
-//		Json file is in develop
+//		Json file is in development
 
 //news of version: 
 //		possibility to delete multiple records
