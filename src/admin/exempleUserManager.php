@@ -49,6 +49,9 @@ $table->setLabel('passw',"Password");
 //defines a criterion for the viewing action, where criterion is an sql (where) criterion that equals fields with values
 $table->setCriterio("type='Admin'");
 
+//Allow multiple delections
+//$tabela->setMultiple(true);
+
 //Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to make decisions
 $table->showHTML();
 
