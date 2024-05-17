@@ -55,6 +55,9 @@ $table->setMultiple(true);
 //Set a default value to a field
 $table->setDefaultValue('fielName',$value);
 
+//Active debug mode
+$table->setDebugShow(true);
+
 //Do what is necessary to maintain the table in an html page. Lists the data and allows you to insert new ones, edit and delete records. Use a 'do' parameter to make decisions
 $table->showHTML();
 

@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.2
+ * @version 11.3
  * @updated 27-03-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -1592,7 +1592,8 @@ public function importCSV(){
 						$sep=",";
 						$campo["change"]==0;
 					} else {
-						$criterio=$this->getParameter('id');
+						$criterio=$this->getParameter('txtid');
+						//$criterio=$this->getParameter('id');
 					}		
 				} 
 			}
