@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/imagens/icon.png">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+  <title class="tbTitle">TableDB</title>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Content here -->
+    <h1 class="tbTitle">Table Title</h1>
+    <div class="row">
+      <div class="col-sm-8">
+        <p></p>
+      </div>
+      <div class="col-sm-4">
+        <input class="form-control" id="mySearch" type="text" placeholder="procurar..">
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col-sm-12">
+        <table id="mytable" class="table table-hover">
+          <thead class="titleTable">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">First</th>
+              <th scope="col">Last</th>
+              <th scope="col">
+                <button type="button" class="btn btn-info" id="bnew" data-bs-toggle="modal" data-bs-target="#frmIU" data-do="i"><i class="bi bi-plus"></i></button>
+                <button type="button" class="btn btn-info" id="bcsv" data-bs-toggle="modal" data-bs-target="#frmCSV" data-do="c"><i class="bi bi-inbox"></i></button>
+              </th>
+            </tr>
+          </thead>
+          <tfoot class="titleTable">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">First</th>
+              <th scope="col">Last</th>
+              <th scope="col">
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#frmIU" data-do="i"><i class="bi bi-plus"></i></button>
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#frmCSV" data-do="c"><i class="bi bi-inbox"></i></button>
+              </th>
+            </tr>
+          </tfoot>
+          <tbody id="bodyTable">
+            <tr>
+              <th scope="row">1</th>
+              <td>Mark</td>
+              <td>Otto</td>
+              <td>
+                <a href='' title='ver' class="bsee"><button type="button" class="btn btn-outline-info" data-do="e"><i class="bi bi-eye-fill"></i></button></a>
+                <button type="button" class="btn btn-outline-info bedit" data-bs-toggle="modal" data-bs-target="#frmIU" data-do="e"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-outline-info bdel" data-bs-toggle="modal" data-bs-target="#frmD" data-do="d"><i class="bi bi-trash"></i></button>
+
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>Jacob</td>
+              <td>Thornton</td>
+              <td>
+                <a href='' title='ver' class=""><button type="button" class="btn btn-outline-info" data-do="e"><i class="bi bi-eye-fill"></i></button></a>
+                <button type="button" class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#frmIU" data-do="e"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#frmD" data-do="d"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td colspan="2">Larry the Bird</td>
+              <td>
+                <a href='' title='ver' class=""><button type="button" class="btn btn-outline-info" data-do="e"><i class="bi bi-eye-fill"></i></button></a>
+                <button type="button" class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#frmIU" data-do="e"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#frmD" data-do="d"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- The Modal Inserir ou Actualizar-->
+  <div class="modal" id="frmIU">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="" method="post">
+          <input type="hidden" id="do" name="do" value="ci">
+        
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h1 class="modal-title" id="frmIOTitulo">Add/Update</h1>
+            <button type="button" class="close" data-bs-dismiss="modal">×</button>
+          </div>
+          <!-- Modal body -->
+          <div class="modal-body">
+            <h3 class="tbTitle">Some text to enable scrolling..</h3>
+            <div class="row">
+              <div class="col-sm-12" id="frmIOH3">
+                <div class="text">
+                  <div class="form-group">
+                    <label id="textL">Text input:</label>
+                    <input type="text" class="form-control required" id="txtTarefa" value="">
+                  </div>
+                </div>
+                <div class="password">
+                  <div class="form-group">
+                    <label id="passL">Pass input:</label>
+                    <input type="password" class="form-control required" id="passN" value="">
+                  </div>
+                </div>
+                <div class="select">
+                  <div class="form-group">
+                    <label id="selectL">List:</label>
+                    <select class="form-select" id="selectLst">
+                        <option value="icon-atom"  >ÁtomoXXX [icon-atom]</option>
+                      </select>
+                  </div>
+                </div>
+                <div class="date">
+                  <div class="form-group">
+                    <label id="dataL">Date:</label>
+                    <input type="date" class="form-control required" name="txtData" id="txtData" value="txtData">
+                  </div>
+                </div>
+                <div class="textArea">
+                  <div class="form-group">
+                    <link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.css" rel="stylesheet">
+                    <script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.js"></script>
+                    <label id="textAreaL">Text area:</label>
+                    <textarea id="textAreaN">...</textarea>
+
+                  </div>
+                </div>
+                <div class="check">
+                  <div class="form-group">
+                    <div class="checkbox">
+                      <label>
+                          <input type="checkbox" id="checkN" checked>checkbox sample<br>
+                        </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <div class="form-group">
+              <p id="teste"></p>
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              <button class="btn btn-primary" aria-hidden="true" type="submit">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- The Modal delete-->
+  <div class="modal fade" id="frmD">
+    <div class="modal-dialog">
+      <form action="" method="post">
+        <input type="hidden" name="do" value="cd">
+        <input type="hidden" id="deleteKey" name="id" value="">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">Confirmation</h4>
+            <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+          </div>
+          <!-- Modal body -->
+          <div class="modal-body" id="perguntaT">
+            <p>Do you want delete the record?</p>
+            <p id="delId"></p>
+            <p id="delText"></p>
+          </div>
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Yes</button>
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- The Modal import-->
+  <div class="modal" id="frmCSV">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="" method="post">
+          <input type="hidden" name="do" value="csv">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h1 class="modal-title" id="frmITitulo">Import</h1>
+            <button type="button" class="close" data-bs-dismiss="modal">×</button>
+          </div>
+          <!-- Modal body -->
+          <div class="modal-body">
+            <h3 class="tbTitle">Table Title</h3>
+            <p> The fields must be imported on this order: <code id="importLst">First,Secund,Third,Last</code></p>
+            <p> You may add a <code>,</code> on the end of the line</p>
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <label for="comment">Lines to be added:</label>
+                  <textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <input type="checkbox" id="doUpdate" name="doUpdate" >
+                  <label for="comment">Se existe o registo actualiza-o:</label>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <div class="form-group">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+              <button class="btn btn-primary" aria-hidden="true" type="submit">Import</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+  <script id="textAreaS">
+    //caixa de mensagens
+    $(document).ready(function() {
+      $('#textAreaN').summernote();
+    });
+  </script>
+
+  <script>
+    //Caixa de Procura
+    $(document).ready(function() {
+      $("#mySearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#mytable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+  </script>
+
+
+</body>
+
+</html>
+
+
+<!-- 
+Mandatory elements
+.tbTitle -  page title
+.titleTable -  table header and footer replaced with dataTable attributs
+#bodyTable - table body filled with records
+#bnew - Only one button to add element to the database
+#bcsv - Only one button to import element to database
+The buttons to be repeat each line 
+.bdel - Only one button to delete record into the database
+.bedit - Only one button to edit record into the database
+.bsee - Only one button open an external page to see a select record
+#mytable - id for the table to be filtered
+____
+3 modals:
+#frmIU - Form with one type of input for construct de new/update form modal. Must include:
+              - <input type="hidden" id="do" name="do" value="ci"> - tu flag the action to perform
+              .tbTitle -  for the title of modal
+              <input type="text"
+              <input type="password"
+              <select 
+              <input type="date"
+              <textarea id="textAreaN">
+              <input type="checkbox" 
+#frmD - Form for confirm record delete. Must include:
+              <input type="hidden" name="do" value="cd">
+              <input type="hidden" id="deleteKey" name="id" value="">
+              #delId elemento to presente the key of the record
+              #delText element to show text (record description)
+              .tbTitle -  the table title (optional)
+#frmCSV - Form for importe csv file. Must include:
+              <input type="hidden" name="do" value="csv">
+              <input type="checkbox" id="doUpdate" name="doUpdate" >
+              <textarea id="txtCSV" name="txtCSV"></textarea>
+              #importLst - for update de list of fields
+              .tbTitle -  the table title (optional)
+-->
