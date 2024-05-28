@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.3
- * @updated 27-03-2024 21:50:00
+ * @version 11.4
+ * @updated 27-05-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -19,8 +19,7 @@
 //		Json file is in development
 
 //news of version: 
-//		possibility to delete multiple records
-//      Introduce an enhanced debugging mechanism with the method setDebugShow($value).
+//	On multi deletion the return page is incorrect, if there are a criterion
 
 
 
@@ -96,7 +95,7 @@ class TableBD{
 //																		  Cipher: "", "md5", "sha1", "base64".
 // setImageField($field,$path,$percentage='100%',$defaultImage="") - Change $field to image type for special display in the list. $path is the image location, 
 //                                                                   $percentage is image height, $defaultImage is default image.
-// setCriterio($ criterio) - Define view criteria using an SQL "where" clause.
+// setCriterion($ criterion) - Define view criteria using an SQL "where" clause.
 // setOrder($order) -Set SQL string to order data in the table.
 // setHTMLid($ id, $ value) - Write to an HTML element on the page with the specified id. The id is the id of the HTML tag and the value is the string to be loaded into the element.
 // setLabel($ field, $ value) - Assign a label to a field, where the field is the field you want to change the label for and the value is the text to be used as the label.
@@ -297,6 +296,8 @@ public function showHTML(){
 		case "dm":
 			//echo $myJSON = json_encode('[{"texto":"ffff"}]');
 			$this->multiDelete();
+			//read the sended criterions
+			$this->setCriterionForUrl($_REQUEST['cr']);
 			$this->prepareJsonLinhas();
 			//if ($this->debugS!=1){
 			//	$this->redirecciona();
@@ -1243,13 +1244,24 @@ public function importCSV(){
 		
 		}
 		//alert(lista);
-		let url= window.location.protocol +"//"+ window.location.hostname +  window.location.pathname + "?do=dm" +lista
-		//alert("url: " + url);
+		let url= window.location.protocol +"//"+ window.location.hostname +  window.location.pathname + "?do=dm" +lista + "&cr=" + "<?=$this->getCriterionForUrl()?>";
+		<?php
+		if ($this->debugS){
+			?>
+			console.log("url: " + url);
+			<?php
+		}
+		?>
 		const response = await fetch(url)
 		const msg = await response.json()
-		console.log(msg.rows)
+		<?php
+		if ($this->debugS){
+			?>
+			console.log(msg.rows);
+			<?php
+		}
+		?>
 		document.getElementById("bodyTable").innerHTML=msg.rows;
-		//alert(msg.texto)
 	}
 </script>
     
@@ -1891,12 +1903,57 @@ public function importCSV(){
 	}	  																								
   	//###################################################################################################################################	
 	/**
-	* @param criterio    It's an SQL criterion that equals fields to values.
+	* @param criterion    It's an SQL criterion that equals fields to values.
 	* 
-	* define um critério para a accão de ver
+	* set a sql critério for data dispaly
 	*/
-	public function setCriterio($criterio){
-		$this->criterio=$criterio;
+	public function setCriterion($criterion){
+		$this->criterio=$criterion;
+	}
+	// função de transição de pt para en
+	public function setCriterio($criterion){
+		$this->setCriterion($criterion);
+	}
+
+	//###################################################################################################################################	
+	/**
+	* @param criterion    It's an SQL criterion that equals fields to values.
+	* 
+	* get the a sql critério for data dispaly
+	*/
+	public function getCriterion(){
+		return $this->criterio;
+	}	
+
+	//###################################################################################################################################	
+	/**
+	* @param criterion    It's an SQL criterion that equals fields to values.
+	* 
+	* get the a sql critério for data dispaly
+	*/
+	public function getCriterionForUrl(){
+		$aux=str_replace(" and ",";",$this->getCriterion());
+		$aux=str_replace(" ","",$aux);
+		$aux=str_replace("'",",",$aux);
+		//"type='photo' and  parent_id=$pai"
+		return $aux;
+	}	
+
+	//###################################################################################################################################	
+	/**
+	* @param criterion    It's an SQL criterion that equals fields to values.
+	* 
+	* get the a sql critério for data dispaly
+	*/
+	public function setCriterionForUrl($criterion){
+		//echo "sdfsdfdsfsfs";
+		if ($criterion!=""){
+			$aux=str_replace(",","'",$criterion);
+			$aux=str_replace(";"," and ",$aux);
+			$this->setCriterion($aux);
+			//echo $this->getCriterion();
+		}
+		//"type='photo' and  parent_id=$pai"
 	}	
   	//###################################################################################################################################	
 	/**
