@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.4
+ * @version 11.5
  * @updated 27-05-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -95,7 +95,7 @@ class TableBD{
 //																		  Cipher: "", "md5", "sha1", "base64".
 // setImageField($field,$path,$percentage='100%',$defaultImage="") - Change $field to image type for special display in the list. $path is the image location, 
 //                                                                   $percentage is image height, $defaultImage is default image.
-// setCriterion($ criterion) - Define view criteria using an SQL "where" clause.
+// setCriterion($criterion) - Define view criteria using an SQL "where" clause.
 // setOrder($order) -Set SQL string to order data in the table.
 // setHTMLid($ id, $ value) - Write to an HTML element on the page with the specified id. The id is the id of the HTML tag and the value is the string to be loaded into the element.
 // setLabel($ field, $ value) - Assign a label to a field, where the field is the field you want to change the label for and the value is the text to be used as the label.
@@ -1196,6 +1196,7 @@ public function importCSV(){
 		//alert(id);
 		document.getElementById("delText").innerHTML=texto;
 		document.getElementById("deleteKey").value=id;
+		document.getElementById("deleteKey").innerHTML=id;
 	}
 
 	async function preUp(id){
@@ -1935,6 +1936,8 @@ public function importCSV(){
 		$aux=str_replace(" and ",";",$this->getCriterion());
 		$aux=str_replace(" ","",$aux);
 		$aux=str_replace("'",",",$aux);
+		$aux=str_replace('"',",",$aux);
+		//'publish_up>"2020-01-01" and frontpage=1'
 		//"type='photo' and  parent_id=$pai"
 		return $aux;
 	}	
