@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.5
- * @updated 27-05-2024 21:50:00
+ * @version 11.6
+ * @updated 15-06-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -19,7 +19,7 @@
 //		Json file is in development
 
 //news of version: 
-//	On multi deletion the return page is incorrect, if there are a criterion
+//	Images field are now prpepared to recive local files or complete uris
 
 
 
@@ -552,6 +552,9 @@ private function prepareTableRows(){
 						//$registo[$pos[$i]['Field']]=$imgDefault[$i];
 						$registo[$pos[$i]['Field']]=$pos[$i]['defaultI'];
 						//$campo="aaa.img";
+					}
+					if (stripos($registo[$pos[$i]['Field']], "http")===0){
+						$pos[$i]['pre']= '<img src="';
 					}
 					$registo[$pos[$i]['Field']]=$pos[$i]['pre'] . $registo[$pos[$i]['Field']] . $pos[$i]['pos'];
 				}else{
@@ -1802,17 +1805,7 @@ public function importCSV(){
 			$i++;
 		}
 	}	
-  	//###################################################################################################################################	
-	/**
-     * @param campo         é o campo que pretendemos alterar para o tipo imagem
-     * @param $caminho      é o camiho a ser acrescentado a imagem para chegar ao ficheiro
-     * @param percentagem   é a % da altura da imagem
-     * 
-	* Altera o campo para o tipo imagem para ser visto na lista de forma especial
-	*/
-	//public function setCampoImagem($campo,$caminho,$percentagem='100%'){
-	//	$this->setImageField($campo,$caminho,$percentagem);
-	//}	
+
   	//###################################################################################################################################	
 	/**
      * @param $field      is the field we want to change to list type.
@@ -2148,3 +2141,4 @@ public function importCSV(){
 
 //###################################################################################################################################
 ?>
+
