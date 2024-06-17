@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.6
+ * @version 11.7
  * @updated 15-06-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -1220,14 +1220,19 @@ public function importCSV(){
 					$('textarea#txt'+ x).summernote('code', markupStr);
 				}
 				$("#txt" + x).attr("value", evento[x] )
-				var aux=`select#txt${x}`;
+				//var aux=`select#txt${x}`;
 				//console.log(aux);
 				//console.log($(`select#txt${x}`).length)
 				if ($(`select#txt${x}`).length){
-					$(`#txt${x} option:selected`).attr('selected',false);
-					aux=`#txt${x} option[value='${evento[x]}']`
+					//$(`#txt${x} option:selected`).attr('selected',false);
+					//aux=`#txt${x} option[value='${evento[x]}']`
 					//console.log(aux);
-					$(aux).attr('selected','selected');
+					//$(aux).attr('selected','selected');
+					// Primeiro, redefina a seleção
+					$(`#txt${x}`).val(null);
+                	// Depois, defina a nova seleção
+                	$(`#txt${x}`).val(evento[x]);
+					console.log(evento[x]);
 				}
 			}
 		}
@@ -1850,19 +1855,34 @@ public function importCSV(){
 					case "3":
 						$par=explode("|", $listOrSql);
 						$listanova=new TableBD();
+						//echo "<br>: ". $par[0];
+						$index=explode(",",$par[0]);
+						$index=str_replace("from","FROM",$index[1]);
+						$index=str_replace("From","FROM",$index);
+						$index=str_replace("`","",$index);
+						
+						$index=explode(" FROM", $index);
+						$index=$index[0];
+						$index=str_replace(" ","",$index);
 						$lista=$listanova->querySQL($par[0]);
 						$lista1=explode(",", $par[1]);
 						$j=count($lista);
 						foreach ($lista1 as $ls){
 							$par=explode("=>", $ls);
 							$aux['id']=$par[0];
-							$aux['tx']=$par[1];
+							$aux[$index]=$par[1];
 							$lista[$j]= $aux;
 							$j++;
 						}
+						//echo "<pre>";
+						//print_r($lista);
+						//echo "<pre>";
+						$lista=$this->sortLista($lista, $index);
 						break;
 				}
+				//echo "<pre>";
 				//print_r($lista);
+				//echo "<pre>";
 				//echo "<br>";
           		//arsort($lista);
 				$this->camposLista[$i]['lista']=$lista;
@@ -1871,6 +1891,35 @@ public function importCSV(){
 		}
 	//echo "passei";
 	} 
+
+//###################################################################################################################################	
+	/**
+     * @param $list     an array to be sorted.
+	 * @param $index    the field that must be compared.
+     * 
+	* Order the list to be used on the select construct
+	*/
+
+	function sortLista($list, $index){
+		$change=true;
+		while ($change){
+			$change=false;
+			for ($i=0; $i<count($list)-1; $i++){
+				//echo "<br>atual: ".$list[$i][$index];
+				//echo "<br>proximo: ".$list[$i+1][$index];
+				if (strtoupper($list[$i][$index])>strtoupper($list[$i+1][$index])){
+					$swift=$list[$i];
+					$list[$i]=$list[$i+1];
+					$list[$i+1]=$swift;
+					$change=true;
+				}
+				//echo "<br>troca: $change";
+			}
+			//echo "<br>troca: $change";
+		}
+		return $list;
+	}
+
   	//###################################################################################################################################	
 	/**
     * @param campo   is the field we want to change to type password
@@ -2141,4 +2190,3 @@ public function importCSV(){
 
 //###################################################################################################################################
 ?>
-
