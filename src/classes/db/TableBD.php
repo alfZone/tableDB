@@ -20,6 +20,7 @@
 
 //news of version: 
 //	Images field are now prpepared to recive local files or complete uris
+//	Mix Select are now sorted
 
 
 
