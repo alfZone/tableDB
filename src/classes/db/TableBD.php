@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.7
+ * @version 11.8
  * @updated 15-06-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -19,8 +19,7 @@
 //		Json file is in development
 
 //news of version: 
-//	Images field are now prpepared to recive local files or complete uris
-//	Mix Select are now sorted
+	// Modal form is show into 2 colunms when there are more than 10 filds to show
 
 
 
@@ -108,9 +107,6 @@ class TableBD{
 // setTemplate($path) * - Assign a template to the table, where the path is the path to the template file.
 // setTitle($value) | setTitulo($ value) - Set the title of the page or form, where the value is the text for the title.
 // showHTML() - Creates an HTML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
-// LIXOgetFieldsLIXO() - Returns the list of fields in the table.
-// LIXOgetKeyLIXO() - Reads the key parameter from the HTML form, which corresponds to the key value determined from the table analysis.
-// LIXOgetDataLIXO($key) - Returns results for a given key value.
 
 //########################################## Variaveis ###############################################################################	
 	
@@ -277,7 +273,8 @@ function executeSQL($sql){
 }
 //###################################################################################################################################
 /**
-* It does what is necessary to keep the table in an html page. Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
+* It does what is necessary to keep the table in an html page. 
+* Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
 */
 // TEM DE SER TODO REFORMULADO
 public function showHTML(){	
@@ -829,37 +826,24 @@ private function fazListaCamposAccao($accao="csv"){
     }
     return $texto;
 }
-  //###################################################################################################################################
+ 
+//###################################################################################################################################
 	/*
-	* Apresenta um formulário HTML para importação de ficheiro csv
+	* Get the number of fields to show
 	*/
-  //ISTO É PARA SER ADICIONA AO MODELO COM MODAL
-	public function LIXOformImportaLIXO(){		
-				?>
-		<div class="container">
-			<section>
-				<h3>Importar</h3>
-				<p><?php echo $this->getText('import');?> <code><?php echo $this->fazListaCamposAccao("csv")?></code></p>
-				<form action="?do=csv" method="post" role="form" class="form"  id="Form1"> 
-					<div class="row">
-						<div class="col-sm-12" >
-							<div class="form-group">
-								<label for="comment"><?php echo $this->getText('importLine');?>:</label>
-								<textarea class="form-control" rows="10" id="txtCSV" name="txtCSV"></textarea>
-							</div>
-						</div>
-						<div class="col-sm-12" >
-							<div class="form-group">
-								<input type="button" class="btn btn-info" value="<?php echo $this->getText("fechar")?>" onclick="window.location='<?php echo $this->PagaClose?>';">  
-								<button class="btn btn-primary" aria-hidden="true" type="submit"><?php echo $this->getText("importa")?></button>
-							</div>
-						</div>
-			</form>
-			</section>
-		</div>
-		<?php
-			//$pag->postFormJavascript();		
-	} 
+	
+	private function getNumberOfFieldToShow(){
+		$num=0;
+		//print_r($this->camposLista);
+		foreach($this->camposLista as $campo){
+			if ($campo["editar"]==1){
+				$num++;
+			}
+		}
+		return $num;
+	}
+	
+	
 //###################################################################################################################################
 	/*
 	* Apresenta um formulário HTML para editar ou inserir um registo
@@ -875,9 +859,16 @@ private function fazListaCamposAccao($accao="csv"){
 		if ($toDo=="a"){
 			$accao="novo";
 		}
-		$t=""; 
+		//$t="";
+		$t="<table><tr><td >"; 
 		//preparing fields 
 		//print_r($this->camposLista);
+		$ncc=intval($this->getNumberOfFieldToShow()/2);
+		if ($ncc<5){
+			$ncc=10;
+		}
+		//exit;
+		$cc=0;
 		foreach($this->camposLista as $campo){
 			//print_r($campo);
 			//echo "<br>_____________________________<br>";
@@ -886,6 +877,10 @@ private function fazListaCamposAccao($accao="csv"){
 				$campo[$accao]=0;
 			}
 			if ($campo[$accao]==1){
+				$cc++;
+				if ($cc==$ncc){
+					$t.="</td><td></td><td>";
+				}
 				$aux="";
 				if (isset($campo['Default'])){
 					$aux=$campo['Default'];
@@ -901,6 +896,8 @@ private function fazListaCamposAccao($accao="csv"){
 				}
 			} 
 		}
+		$t.="</td></tr></table>";
+		//print_r($t);
 		foreach($html->find('#frmIOH3') as $e)
 			$e->innertext= PHP_EOL. PHP_EOL.$t. PHP_EOL. PHP_EOL;
 		
@@ -981,39 +978,8 @@ private function fazListaCamposAccao($accao="csv"){
 		} 
 		return $resp;
 	}
-//###################################################################################################################################
-	/**
-	* Devolve a lista de campos da tabela
-	*/
-	public function LIXOgetFieldsLIXO(){
-		print_r($this->camposLista);
-	}
+
 	
-	//###################################################################################################################################	
-	/**
-	 *
-	 * lê o parametro chave do registo enviado pelo form HTML e que corresponde ao valor identificado como chave na análise da tabela
-	 */
-	public function LIXOgetKeyLIXO(){
-    
-		$chave=utf8_encode($_REQUEST[$this->chave]);
-		//echo "<br><br><br><br><br><br><br><br><br><br>$chave<br>";
-		return $chave;		
-	}
- //###################################################################################################################################	
-	/**
-	 *
-	 * Reads the 'id' parameter from the HTML form.
-	 */
-	public function LIXOgetIdLIXO(){
-		$id="";
-		//echo $_REQUEST['id'];
-		if (isset($_REQUEST['id'])){
-			$id=utf8_encode($_REQUEST['id']);
-		}
-		//echo "<br>do=$do";
-		return $id;
-	} 
  //###################################################################################################################################	
 	/**
 	 *
@@ -1028,16 +994,7 @@ private function fazListaCamposAccao($accao="csv"){
 		//echo "<br>do=$do";
 		return $id;
 	} 
- //###################################################################################################################################
-	/*
-	* dado um valor chave devolve os resultados
-	*/
-	public function LIXOgetDataLIXO($chave){
-		$this->findKey();
-		$this->preparaSQLGeral();
-		$sql=$this->sqlGeral . " WHERE " . $this->chave . " = '" . $chave . "'";
-		return $this->querySQL($sql);
-	} 
+
    //###################################################################################################################################
 	/*
 	* Given a value for the key, it returns the records that meet the requirement.
@@ -1092,18 +1049,7 @@ private function fazListaCamposAccao($accao="csv"){
 			
 		}
 	} 
-	//###################################################################################################################################	
-	/**
-	 *
-	 * Reads the 'do' parameter from the HTML form.
-	 */
-	public function LIXOgetDoLIXO(){
-		$do="";
-		if (isset($_REQUEST['do'])){
-			$do=$_REQUEST['do'];
-		}
-		return $do;
-	}
+
   //###################################################################################################################################	
 	/**
 	 * 
