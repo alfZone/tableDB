@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 11.8
- * @updated 15-06-2024 21:50:00
+ * @version 12.0
+ * @updated 15-02-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -19,7 +19,7 @@
 //		Json file is in development
 
 //news of version: 
-	// Modal form is show into 2 colunms when there are more than 10 filds to show
+	// a parameter do=js present a json file with the data
 
 
 
@@ -610,196 +610,18 @@ private function prepareTableRows(){
 
 //###################################################################################################################################
 /**
-* Makes a json with the list of all records in the table. This table allows you to sort by column, search for texts and shows 
-* a set of records (25 by default) and allows browsing pages
-* conjunto de registos (25 por defeito) e permite navegar em páginas
+* Makes a json with the list of all records.
 */
 public function prepareJsonLinhas(){
     
-	$rows['rows']=$this->prepareTableRows();
-	$rows['rows']=str_replace('"',"'",$rows['rows']);
-	//print_r($rows);
-	echo json_encode($rows);
-	//echo '[{"id":"12","Remetente":"2490","Destinatario":"26","Mensagem":"aaaabbbbbcccc"}]';
-
-	/*
-	foreach($this->camposLista as $campo){
-		//print_r($campo);
-		//echo "<hr>";
-		if ($this->chave==$campo['Field'] && $campo['ver']==1){
-			$pi=1;
-		}
-		if ($campo['ver']==1){
-			//echo $campo['label'];
-			$text .= "<th>" . $campo['label']. "</th>" . PHP_EOL;
-			if ($campo['Type']=="lst"){
-				$carimbo=$campo['Field'];
-				//echo $carimbo;
-			}else {
-				$carimbo=0;
-			}
-			$elista[$i]=$carimbo;
-			if ($campo['Type']=="img"){
-				$carimbo=$campo['Field'];
-				$imgHTMLpre[$i]= '<img src="' . $campo['Path'];
-				$ia=$campo['Field'];
-				//if (($carimbo=="")||$carimbo=null){
-					//$carimbo=$campo['defaultImage'];
-				//}
-				$imgHTMLpos[$i]='" class="img-fluid" alt="'. $campo['Field'] .'" style="width:' . $campo['widthP'] . '%; height=' . $campo['widthP'] . '%">'.PHP_EOL;
-				//echo $carimbo;
-				$imgDefault[$i]=$campo['defaultImage'];
-			}else {
-				$carimbo=0;
-			}
-			$eImagem[$i]=$carimbo;
-			$i++;
-		}
-	}  
-    switch ($this->autenticacao){
-		case "a":
-			// get csv buttom
-			if ($this->PagImp==1){
-				foreach($html->find('#bcsv') as $e)
-				$k=$e->outertext;           
-			}else{
-				$k="";
-			}
-			// get add buttom
-			//echo $k;
-			$v="";
-			if ($html->find('#bdelm')){
-				foreach($html->find('#bdelm') as $e){
-					$e->onClick="prepareMultiReader()";
-					$v =$e->outertext;	
-				}				
-			}
-			//break;
-			foreach($html->find('#bnew') as $e)
-				$text .="<th class='buttons'>"  . PHP_EOL . $e->outertext .$k . $v."</th>" . PHP_EOL;			
-			break;
-		case "r":
-			$text .="";
-			break;
-		default:
-			$text .="<th></th>" . PHP_EOL;
-			break;
-	}
-    foreach($html->find('.titleTable') as $e)
-        $e ->innertext=$text . "</tr>". PHP_EOL;
-    //___ End of table head    
-    //--- begin of table  
-    $text="";
-    $bEdit="";
-    $bSee="";
-    $bDelete="";
-    // ver que página estamos a ver
-    
-    $pagina = (isset($_REQUEST["p"])?($_REQUEST["p"]):1);		
-
-	$sql=$this->prepareSQLtoAction("ver");
+    $sql=$this->prepareSQLtoAction("ver");
     //echo "<br>sql=" . $sql;
 	$stmt=$this->querySQL($sql);
+    //echo "<pre>";
 	//print_r($stmt);
-	foreach($stmt as $registo){
-		$text .= "<tr>" . PHP_EOL;
-		//print_r($registo);
-		//if ($this->chave==$registo['Fie'])
-      	//echo "<br>chave=" . $this->chave;
-		$chave=$registo[$this->chave];
-		$chaveid=$this->chave;
-		$i=0;
-      	//verifica se é para mostrar um link para ver um registo usando uma página externa
-		$ver="";
-		if ($this->PagVer<>""){
-			//add the link to a see button
-			foreach($html->find('.bsee[href]') as $e){
-          		//echo $e;
-				if ($this->linkStyle==0){
-					$e->href=$this->PagVer . "?$chaveid=$chave";
-				}else{
-					$e->href=$this->PagVer . "/$chave";
-				}
-			}
-			foreach($html->find('.bsee') as $e){
-				$ver =  $e->outertext;
-			}
-        	//echo $ver;      
-        	//$ver="<a href='" . $this->PagVer . "?$chaveid=$chave' title='ver' \'> <i class='fa fa-eye' aria-hidden='true'></i></a>";
-		}
-		//print_r($elista);
-		$p=$pi;
-		foreach($registo as $campo){
-			//print_r($campo);
-			if ($p!=0){
-				if ($elista[$i] !== 0){
-					$campo=$this->devolveValorDaLista($elista[$i], $campo);
-            		//print_r($campo);
-					 //echo "aqui";
-				}
-				if ($eImagem[$i] !== 0){
-            		//$campo="isto é uma imagem";
-					if (($campo=="")||($campo==null)){
-						$campo=$imgDefault[$i];
-						//$campo="aaa.img";
-					}
-					$campo=$imgHTMLpre[$i] . $campo . $imgHTMLpos[$i];
-				}
-				$i++;
-				$text .= "<td>$campo</td>" . PHP_EOL;
-          		//$p=1;    
-			}else{
-				$p=1;
-			}
-			if ($i==2){
-				$dois=$campo;
-			}		
-		}
-		switch ($this->autenticacao){
-			case "a":
-                foreach($html->find('.bedit') as $e){
-					$e->data=$chave;
-					$e->onClick="preUp('" . $chave . "')";
-					$text .="<td class='buttons'>" . $ver .  $e->outertext;
-                }        
-                foreach($html->find('.bdel') as $e){
-					$e->data=$chave;
-					$e->onClick="preDel('" . $chave . "','" .$chave. " - ". $dois . "')";
-					if ($this->multi){
-						$m="<input type='checkbox' class='multi' name='dm" . $chave . "'>";
-					}else{
-						$m="";
-					}
-					$text .= $e->outertext . $m . "</td>" . PHP_EOL. "</tr>" . PHP_EOL;
-                } 
-                break;
-			case "u":
-			case "e":
-                foreach($html->find('.bedit') as $e)
-					$e->onClick="preUp('" . $chave . "')";
-					$text .="<td class='buttons'>" . $ver. $e->outertext ."</td>" . PHP_EOL . "</tr>" . PHP_EOL;
-                break;
-			case "r":
-				$text .= "";
-                break;
-			default:
-                $text .= "<td class='buttons'>$ver</td>" . PHP_EOL ."</tr>" . PHP_EOL;
-                break;
-        }
-    }
-    foreach($html->find('#bodyTable') as $e)
-		$e ->innertext=$text . PHP_EOL;  
-    //--- end of table
-    $formAU=$this->prepareEditNewForm();    
-    foreach($html->find('#frmIU') as $e)
-        $e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
-    
-    // change te title
-    foreach($html->find('.tbTitle') as $e)
-        $e->innertext = $this->textos['titulo'];
-    //echo "aaaaaa";
-    echo $html;
-    */
+    //echo "</pre>";
+	//$chaveid=$this->chave;
+	echo json_encode($stmt);
 }
 //####################################################################################################################################
 /*
@@ -1691,16 +1513,7 @@ public function importCSV(){
 			$this->PagImp=1;
 		}
 	}
-	//###################################################################################################################################	
-	/**
-     * 
-     * @param campos    é uma lista de campos da tabela sql separados por ; e podem ou não ter ` a delimita-los
-     * @param accao    é o tipo de acção (listar, editar e adicionar) em que pretendemos activar/desativar o campo
-	* Activa (mostra) uma lista de campos separados por virgula para uma acção. Os campos que não estão na lsita são desativados
-	*/
-	//public function setAtivaCampos($campos, $accao){
-	//    $this->setFieldsAtive($campos, $accao);
-	//}
+
   	//###################################################################################################################################
 	/**
 	* 
