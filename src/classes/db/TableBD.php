@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 12.0
- * @updated 15-02-2024 21:50:00
+ * @version 12.1
+ * @updated 23-05-2024 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -174,7 +174,7 @@ private function fieldsActive($value, $action){
 */
 public function querySQL($sql){
 	$database = new Database(_BDUSER, _BDPASS, _BD);
-    $database->query($sql);
+    	$database->query($sql);
 	return $database->resultset();	
 }
 //###################################################################################################################################	
@@ -473,7 +473,7 @@ private function prepareTableRows(){
 	//LINHAS LINHAS LINHAS
 	
 	$html = new simple_html_dom();
-    $html->load_file($this->template);
+    	$html->load_file($this->template);
 	$i=0;
 	foreach($this->camposLista as $campo){
 		//print_r($campo);
@@ -767,7 +767,7 @@ private function fazListaCamposAccao($accao="csv"){
 			case "rea":
 				//$resp=$campo['valor'];
 				$resp=number_format($campo['valor']);
-          		//$resp="'" . $resp. "'";
+          			//$resp="'" . $resp. "'";
 				$resp=str_replace(",",".",$resp);
 				//$resp=str_replace(".",",",$resp);
 				//$resp=str_replace("x",".",$resp);
@@ -1356,7 +1356,7 @@ public function importCSV(){
 	public function preparaSQLparaAccao($accao){
 		return repareSQLtoAction($accao);
 	}
-    //###################################################################################################################################	
+ //###################################################################################################################################	
 	/**
     *  
 	* Prepara uma string SQL para atualizar campos com valor
@@ -1382,7 +1382,7 @@ public function importCSV(){
 						$sep=",";
 						$campo["change"]==0;
 					} else {
-						$criterio=$this->getParameter('txtid');
+						$criterio=$this->getParameter('txt' . $this->chave);
 						//$criterio=$this->getParameter('id');
 					}		
 				} 
