@@ -14,6 +14,7 @@ lê $action = getParameter('do')
 
 ## makeAlist()
 
+```text
 ├── load_file(template)
 ├── fazListaCamposAccao("csv")
 ├── prepareTableRows
@@ -27,3 +28,4 @@ lê $action = getParameter('do')
 │ ├── #frmIU (edit/new form)
 │ └── .tbTitle (page title)
 └── echo $html
+```text
