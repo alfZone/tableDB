@@ -1,10 +1,8 @@
 ## showHTML()
 
-
-┌── lê $action = getParameter('do')
-├─ case "" ou "l"   ➜  lista (makeAlist + includes)
-│
-├─ case "dm"        ➜  prepara modal de importação CSV
+lê $action = getParameter('do')
+    case "" ou "l"   ➜  lista (makeAlist + includes)
+    case "dm"        ➜  prepara modal de importação CSV
 │
 ├─ case "di"        ➜  executa a importação CSV
 │
