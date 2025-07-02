@@ -11,3 +11,19 @@ lê $action = getParameter('do')
     case "ce"        ➜  grava alterações
     case "d"         ➜  pede confirmação de apagar
     case "cd"        ➜  apaga definitivamente e redirecciona
+
+## makeAlist()
+
+├── load_file(template)
+├── fazListaCamposAccao("csv")
+├── prepareTableRows
+│ └── executeSQL ⋯
+├── prepareEditNewForm
+├── translate / inject:
+│ ├── #deleteKey
+│ ├── #importLst
+│ ├── .titleTable (table headers)
+│ ├── #bodyTable (table rows)
+│ ├── #frmIU (edit/new form)
+│ └── .tbTitle (page title)
+└── echo $html
