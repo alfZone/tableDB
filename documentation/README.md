@@ -65,3 +65,44 @@ prepareEditNewForm($toDo = "e")
 ```
 
 
+## inputHTML($campo)
+
+```text
+├── substr($field['Type'], 0, 3)
+├── simple_html_dom()
+│   └── load_file($this->template)
+├── switch (prefixo de $field['Type'])
+│
+│   ├── "lst" (select box)
+│   │   ├── set id, name de <select>
+│   │   ├── inject label em #selectL
+│   │   ├── loop em $field['lista']
+│   │   │   ├── detectar selected
+│   │   │   ├── set <option selected> via .select#txt{Field} option
+│   │   │   └── build options em #txt{Field}
+│   │   └── $e->outertext from .select
+│
+│   ├── "dat" (date input)
+│   │   ├── set id, name de <input>
+│   │   ├── inject label em #dateL
+│   │   └── $e->outertext from .date
+│
+│   ├── "int" / "var" / "dec" / "dou" / "tim" / "img"
+│   │   ├── set id, name de <input>
+│   │   ├── inject label em #textL
+│   │   └── $e->outertext from .text
+│
+│   ├── "tex" / "med" (textarea)
+│   │   ├── set id, name de <textarea>
+│   │   ├── inject label em #textAreaL
+│   │   └── $e->outertext from .textArea
+│
+│   └── "pas" (password input)
+│       ├── set id, name de <input>
+│       ├── inject label em #passwordL
+│       └── $e->outertext from .password
+│
+├── if (isset($field['action']))
+│   └── str_replace para adicionar atributos no input
+└── return $t (string com HTML final)
+```
