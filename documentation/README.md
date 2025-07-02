@@ -42,3 +42,26 @@ lê $action = getParameter('do')
 ```
 
 ## prepareEditNewForm()
+
+Esta função gera dinamicamente um formulário HTML para **editar** ou **criar** um novo registo. Utiliza um template HTML, substitui conteúdos em zonas específicas e retorna a secção do formulário pronta a ser inserida noutro layout.
+
+```text
+prepareEditNewForm($toDo = "e")
+├── load_file($this->template)           # carrega template HTML
+├── define $accao                        # "editar" (e) ou "novo" (a)
+├── calcular ncc                         # nº campos por coluna
+├── loop $this->camposLista:
+│   ├── verificar se campo deve aparecer (com base em $accao)
+│   ├── gerar inputHTML($campo)
+│   ├── se campo é chave primária:
+│   │   ├── se não visível → hidden
+│   │   └── se visível → alterar id para "editKey"
+│   └── distribuir campos em 2 colunas
+├── montar tabela HTML com campos
+├── substituir conteúdo de:
+│   └── #frmIOH3   → insere os inputs gerados
+├── guardar e devolver:
+│   └── #frmIU     → secção completa do formulário
+```
+
+
