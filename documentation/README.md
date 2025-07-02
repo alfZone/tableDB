@@ -21,6 +21,7 @@ lê $action = getParameter('do')
 ├─ case "d"         ➜  pede confirmação de apagar
 │
 └─ case "cd"        ➜  apaga definitivamente e redirecciona
+```
 
 ## makeAlist()
 
