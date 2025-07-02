@@ -2,7 +2,6 @@
 
 
 ┌── lê $action = getParameter('do')
-│
 ├─ case "" ou "l"   ➜  lista (makeAlist + includes)
 │
 ├─ case "dm"        ➜  prepara modal de importação CSV
