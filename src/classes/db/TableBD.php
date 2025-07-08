@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 12.1
- * @updated 23-05-2024 21:50:00
+ * @version 13.0
+ * @updated 25-07-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -12,14 +12,13 @@
 
 // problems detected
 // The second field should be text because it is used in the delete confirmation window. 
-// During the edit and new same fields are showed on the modal
 
 
 // roadmap 
 //		Json file is in development
 
 //news of version: 
-	// a parameter do=js present a json file with the data
+	// varius correction of the code
 
 
 
@@ -387,7 +386,7 @@ public function showHTML(){
 * a set of records (25 by default) and allows browsing pages
 * conjunto de registos (25 por defeito) e permite navegar em páginas
 */
-public function makeAlist(){
+public function makeAlist($withForms=true){
     $html = new simple_html_dom();
     $html->load_file($this->template);
     //prepare a modal form to delete
@@ -452,11 +451,21 @@ public function makeAlist(){
     //--- end of table
 
 	/// Terminam as linhas
-
-    $formAU=$this->prepareEditNewForm();    
-    foreach($html->find('#frmIU') as $e)
-        $e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
-    
+	
+	if ($withForms){
+		//echo "<br>com forms";
+		$formAU=$this->prepareEditNewForm();  
+	}else{
+		//echo "<br>sem forms";
+		$formAU="";
+		foreach($html->find('#frmD') as $e)
+			$e ->outertext= "";
+		foreach($html->find('#frmCSV') as $e)
+			$e ->outertext= "";
+	}  
+		foreach($html->find('#frmIU') as $e)
+			$e ->outertext= PHP_EOL. PHP_EOL. PHP_EOL . $formAU . PHP_EOL. PHP_EOL. PHP_EOL;  
+	
     // change te title
     foreach($html->find('.tbTitle') as $e)
         $e->innertext = $this->textos['titulo'];
@@ -671,7 +680,7 @@ private function fazListaCamposAccao($accao="csv"){
 	* Apresenta um formulário HTML para editar ou inserir um registo
 	* Prepare form to edit or new
 	*/
-	public function prepareEditNewForm($toDo="e"){		
+	public function prepareEditNewForm($toDo="e", $style="table"){		
 		$html = new simple_html_dom();
 		$html->load_file($this->template);
     	// change h3
@@ -682,7 +691,11 @@ private function fazListaCamposAccao($accao="csv"){
 			$accao="novo";
 		}
 		//$t="";
-		$t="<table><tr><td >"; 
+		if ($style=="table"){
+			$t="<table><tr><td >"; 
+		}else{
+			$t="";
+		}	
 		//preparing fields 
 		//print_r($this->camposLista);
 		$ncc=intval($this->getNumberOfFieldToShow()/2);
@@ -703,10 +716,11 @@ private function fazListaCamposAccao($accao="csv"){
 				if ($cc==$ncc){
 					$t.="</td><td></td><td>";
 				}
-				$aux="";
+				/*$aux="";
 				if (isset($campo['Default'])){
+					//print_r($campo);
 					$aux=$campo['Default'];
-				}
+				}*/
 				$t.=$this->inputHTML($campo);
 			}
 			if ($campo['Field']==$this->chave){
@@ -718,7 +732,13 @@ private function fazListaCamposAccao($accao="csv"){
 				}
 			} 
 		}
-		$t.="</td></tr></table>";
+		if ($style=="table"){
+			$t.="</td></tr></table>";
+		}else{
+			$t.="";
+		}
+
+		
 		//print_r($t);
 		foreach($html->find('#frmIOH3') as $e)
 			$e->innertext= PHP_EOL. PHP_EOL.$t. PHP_EOL. PHP_EOL;
@@ -1094,7 +1114,7 @@ public function importCSV(){
 		if ($field['Null']=='NO'){
 			$ast="*";
 		}
-		//echo "aux: " . $aux;
+		//echo "aux: " . $aux . "<br>";
 		//print_r($field['lista']);
 		switch ($aux) {
 			case "lst":
@@ -1134,7 +1154,22 @@ public function importCSV(){
                 	//echo PHP_EOL . 'select#txt'.$campo['Field'] .' option' .PHP_EOL;
 					foreach($html->find('.select#txt'.$field['Field'] .' option') as $e){
                     	$e->value="$valorZ";                    //tirei o txt
-						$e->innertext=$texto . "[$valorZ]";
+						//$aux="";
+						if ($valorZ==$field['Default']){
+							//$aux=" selected ";
+							echo "valorZ: " . $valorZ . "<br>";
+							echo "field: " . $field['Default'] . "<br>";
+							$e->selected= "selected";
+						}else{
+							$e->selected= False;
+						}
+						if ($field['hideCode']==1){
+							$e->innertext=$texto;
+						}else{
+							$e->innertext=$texto . " [$valorZ]";
+						}
+				
+						
                     	//echo "aaaa";
 					}
                                     
@@ -1149,10 +1184,12 @@ public function importCSV(){
                 foreach($html->find('.select') as $e)
 					$t=$e->outertext;
 				break;     
+			case "tim":
 			case "dat":
                 foreach($html->find('input[id]') as $e){
 					$e->id="txt" . $field['Field'];
 					$e->name="txt" . $field['Field'];
+					$e->value=$field['Default'];
                 } 
                 foreach($html->find('#dateL') as $e)
 					$e->outertext=$field['label']  . $ast ;
@@ -1163,11 +1200,13 @@ public function importCSV(){
 			case "var":	
 			case "dec":
 			case "dou":
-			case "tim":
+			//case "tim":
 			case "img":
+				//echo "field: " . $field['Field'] . "<br>";
                 foreach($html->find('input[id]') as $e){
 					$e->id="txt" . $field['Field'];
 					$e->name="txt" . $field['Field'];
+					$e->value=$field['Default'];
                 }
                 foreach($html->find('#textL') as $e)
 					$e->innertext=$field['label']  . $ast ;
@@ -1179,6 +1218,7 @@ public function importCSV(){
                 foreach($html->find('textarea[id]') as $e){
 					$e->id="txt" . $field['Field'];
 					$e->name="txt" . $field['Field'];
+					$e->innertext=$field['Default'];
                 }
                 foreach($html->find('#textAreaL') as $e)
 					$e->innertext=$field['label']  . $ast;
@@ -1193,6 +1233,7 @@ public function importCSV(){
 				foreach($html->find('input[id]') as $e){
 					$e->id="txt" . $field['Field'];
 					$e->name="txt" . $field['Field'];
+					$e->value=$field['Default'];
 				}
                 foreach($html->find('#passwordL') as $e)
 					$e->innertext=$field['label'] . $ast ;
@@ -1950,3 +1991,4 @@ public function importCSV(){
 
 //###################################################################################################################################
 ?>
+
