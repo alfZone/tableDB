@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 13.0
+ * @version 13.2
  * @updated 25-07-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -19,7 +19,7 @@
 
 //news of version: 
 	// varius correction of the code
-
+	// html events on the table
 
 
 
@@ -100,12 +100,15 @@ class TableBD{
 // setLabel($ field, $ value) - Assign a label to a field, where the field is the field you want to change the label for and the value is the text to be used as the label.
 // setLabels() - Assign the field names in the database as field labels, this function is only executed when preparing the table.
 // setLimites($ NumReg, $ LimInf = 0) - Set the number of records in a select statement, where NumReg is the number of records and LimInf is the starting record.
-// setLinkPage($page, $style=0) | setPaginaVer($page, $style=0) - Store the name (URL) of the page to be opened to view a record. The page parameter is the URL 
+// setLinkPage($page, $style=0) | setPaginaVer($page, $style=0) - Store an URL of the page to be opened to view a record. The page parameter is the URL 
 //                                                                of the HTML page to show a record, and the style parameter is how the key value is passed. 
 //                                                                If style=0, then the URL is URL?id=keyValue, if style=1, then the URL is URL/keyValue.
+// setLinkJS($field, $jsCode) - In the table used to list values you can add an html/JavaScript event, such as onClick=action(parameters). The setLinkJS method allows you 
+// 								to assign custom JavaScript code that will be triggered when a specific field is clicked. $field: the name of the database field that will 
+// 								respond to the JavaScript event. $jsCode: the html/JavaScript event to be inserted into the field's HTML.
 // setTemplate($path) * - Assign a template to the table, where the path is the path to the template file.
 // setTitle($value) | setTitulo($ value) - Set the title of the page or form, where the value is the text for the title.
-// showHTML() - Creates an HTML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
+// showHTML() - Creates an HT bML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
 
 //########################################## Variaveis ###############################################################################	
 	
@@ -180,7 +183,7 @@ public function querySQL($sql){
 /**
 * Analyze the structure of the database table and determine which is the key and in what position it is.
 */
-private function findKey(){
+public function findKey(){
 	//print_r($this->camposLista);
     //echo "<br>";
 	$i=0;
@@ -276,7 +279,7 @@ function executeSQL($sql){
 * Lists data and allows you to insert new, edit and delete records. Use a 'do' parameter to make decisions
 */
 // TEM DE SER TODO REFORMULADO
-public function showHTML(){	
+public function showHTML($do="",$id=""){	
 	$linkContinue= '<br><a href="">Continue</a>';
    	//lê o parametro 'do' do form HTML
 	$action=$this->getParameter('do');
@@ -504,6 +507,10 @@ private function prepareTableRows(){
 				$eImagem[$i]=0;
 			}*/
 			//$eImagem[$i]=$carimbo;
+			
+			if (isset($campo['event'])){
+				$pos[$i]['event']=$campo['event'];
+			}
 			$i++;
 		}
 	}  
@@ -520,6 +527,7 @@ private function prepareTableRows(){
 		//print_r($registo);
 		$ver="";
 		//verifica se é para mostrar um link para ver um registo usando uma página externa
+		//echo "<br>PagVer=" . $this->PagVer;
 		if ($this->PagVer<>""){
 			//add the link to a see button
 			foreach($html->find('.bsee[href]') as $e){
@@ -539,6 +547,7 @@ private function prepareTableRows(){
 		
 		$i=0;
 		$chave=$registo[$this->chave];
+		//echo "chave. $chave";
 		//$p=$pi; //controlo da 1º coluna que é o id
 		$textinho="";
 		//echo $p;
@@ -570,18 +579,27 @@ private function prepareTableRows(){
 					}
 				}
 			}
-			
-			$text .= "<td>". $registo[$pos[$i]['Field']]."</td>" . PHP_EOL;			
+			//print_r($pos[$i]);
+			$ev="";
+			if (isset($pos[$i]['event'])){
+				$ev=$pos[$i]['event'];
+				//echo $ev;
+				$ev=str_replace("kKey",$chave,$ev);
+			}
+			$text .= "<td ". $ev . ">". $registo[$pos[$i]['Field']]."</td>" . PHP_EOL;			
 		}
 
 		//echo $text;
 		// coloca os buttões das linhas
+		//echo $ver;
+		//echo "<br>autenticacao: " . $this->autenticacao;
 		switch ($this->autenticacao){
 			case "a":
                 foreach($html->find('.bedit') as $e){
 					$e->data=$chave;
 					$e->onClick="preUp('" . $chave . "')";
 					$text .="<td>" . $ver .  $e->outertext;
+					//echo $text;
                 }        
                 foreach($html->find('.bdel') as $e){
 					$e->data=$chave;
@@ -607,6 +625,7 @@ private function prepareTableRows(){
                 $text .= "<td>$ver</td>" . PHP_EOL ."</tr>" . PHP_EOL;
                 break;
         }
+		//echo $text;
     }
     //foreach($html->find('#bodyTable') as $e)
 	//	$e ->innertext=$text . PHP_EOL;  
@@ -849,18 +868,28 @@ private function fazListaCamposAccao($accao="csv"){
 		return $this->querySQL($sql);
 	} 
 
+//###################################################################################################################################
+	/*
+	* Return the key field name.
+	*/
+	public function getKey(){
+		$this->findKey();
+		return $this->chave;
+	}
+
+
 	 //###################################################################################################################################
 	/*
 	* Procura na $_REQUEST os campos a serem lidos. Serão lidos os que tiverem valor.
 	*/
-	public function getRequestData(){
+	public function getRequestData($prefix="txt"){
 		$i=0;
 		//print_r($_REQUEST);
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		//$t= json_encode($_REQUEST);
 		//$l=new Log($_REQUEST);
 		foreach($this->camposLista as $campoaux){
-			$nomeCampo="txt" . $campoaux['Field'];
+			$nomeCampo=$prefix . $campoaux['Field'];
 			if (isset($_REQUEST[$nomeCampo])){
 				$this->camposLista[$i]["valor"]=$_REQUEST[$nomeCampo];
 				$this->camposLista[$i]["change"]=1;
@@ -1115,7 +1144,7 @@ public function importCSV(){
 			$ast="*";
 		}
 		//echo "aux: " . $aux . "<br>";
-		//print_r($field['lista']);
+		//print_r($field);
 		switch ($aux) {
 			case "lst":
                 //echo "aux: " . $aux;
@@ -1157,8 +1186,8 @@ public function importCSV(){
 						//$aux="";
 						if ($valorZ==$field['Default']){
 							//$aux=" selected ";
-							echo "valorZ: " . $valorZ . "<br>";
-							echo "field: " . $field['Default'] . "<br>";
+							//echo "valorZ: " . $valorZ . "<br>";
+							//echo "field: " . $field['Default'] . "<br>";
 							$e->selected= "selected";
 						}else{
 							$e->selected= False;
@@ -1241,6 +1270,7 @@ public function importCSV(){
 					$t=$e->outertext;
 				break;
 		} 
+		//print_r($field);
 		if (isset($field['action'])){
 			$t=str_replace( '"txt' . $field['Field'] . '">', '"txt' . $field['Field'] . '"' . $field['action'] . ">", $t);
 			//$t.= "<!-- ssssss-->";
@@ -1308,10 +1338,11 @@ public function importCSV(){
 	*/
 	public function prepareSQLdelete(){
 		$resposta= "DELETE FROM " . $this->tabela;
+		//print_r($this->camposLista);
 		foreach($this->camposLista as $campo){
 			if (isset($campo["valor"])){
 				if ($campo["valor"]!=""){
-					if ($campo['Field'] == $this->chave){
+					if ($campo['Field'] == $this->chave){						
 						$criterio=$this->getFieldValue($campo);
 					} 
 				} 
@@ -1403,7 +1434,7 @@ public function importCSV(){
 	* Prepara uma string SQL para atualizar campos com valor
 	* $notable - control if the update need or do not reed the table name. If we are to try to construct a sql introction with a test for duplicate key then we don't neet the table name
 	*/
-	public function preparaSQLupdate($noTable=0){
+	public function preparaSQLupdate($noTable=0, $prefix="txt"){
 		if($noTable==1){
 			$resposta= "UPDATE ";
 		}else{
@@ -1423,7 +1454,7 @@ public function importCSV(){
 						$sep=",";
 						$campo["change"]==0;
 					} else {
-						$criterio=$this->getParameter('txt' . $this->chave);
+						$criterio=$this->getParameter($prefix . $this->chave);
 						//$criterio=$this->getParameter('id');
 					}		
 				} 
@@ -1483,7 +1514,7 @@ public function importCSV(){
      * @param value    is 1 to show and 0 to hide
 	  * Activate/deactivate (show/hide) a field for an action
 	*/
-	private function setAllFieldAtive($action, $value){	
+	public function setAllFieldAtive($action, $value){	
 		$action=str_replace("list","ver",$action);
 		$action=str_replace("see","ver",$action);
 		$action=str_replace("new","novo",$action);
@@ -1493,9 +1524,10 @@ public function importCSV(){
 		$i=0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
 		foreach($this->camposLista as $campoaux){
-				$this->camposLista[$i][$action]=$value;
+			$this->camposLista[$i][$action]=$value;
 			$i++;
 		}
+		//print_r($this->camposLista);
 	}
   	//###################################################################################################################################	
 	/**
@@ -1847,7 +1879,7 @@ public function importCSV(){
 	*/
 	public function setJSAction($field, $action){
 		$i=0;
-		//echo "<br> campo=$campo accao=$accao e valor=$valor";
+		//echo "<br> campo=$field accao=$action";
 		foreach($this->camposLista as $campoaux){
 				if ($campoaux['Field']==$field){
 					//echo "entrie";
@@ -1855,6 +1887,7 @@ public function importCSV(){
 				}			
 				$i++;
 		}
+		//print_r($this->camposLista);
 	}	  
 	
 	//###################################################################################################################################	
@@ -1904,6 +1937,29 @@ public function importCSV(){
 		$this->limites[0]=$NumReg;
 		$this->limites[1]=$LimInf;
 	}	
+
+	//###################################################################################################################################
+	/**
+	* setLinkJS($field, $jsCode) - In the table used to list values you can add an html/JavaScript event, such as onClick=action(parameters). The setLinkJS method allows
+	* 								you to assign custom JavaScript code that will be triggered when a specific field is clicked.
+	*
+	* @param $field    is the database field that respond to a JS event
+	* @param $jsCode   the html/JavaScript event to be inserted into the field's HTML 
+	*/
+	public function setLinkJS($field, $jsCode){
+		$i=0;
+		//echo "<br> campo=$field accao=$action";
+		foreach($this->camposLista as $campoaux){
+				if ($campoaux['Field']==$field){
+					//echo "entrie";
+					//echo $jsCode;
+					$this->camposLista[$i]['event']=$jsCode;
+				}			
+				$i++;
+		}
+	}
+
+	
   	//###################################################################################################################################
 	/**
 	* Stores the name (url) of the page that should be opened to show une record.
@@ -1991,4 +2047,3 @@ public function importCSV(){
 
 //###################################################################################################################################
 ?>
-
