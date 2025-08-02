@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 13.2
- * @updated 25-07-2025 21:50:00
+ * @version 14.0
+ * @updated 31-07-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -15,17 +15,18 @@
 
 
 // roadmap 
-//		Json file is in development
+
 
 //news of version: 
 	// varius correction of the code
-	// html events on the table
+	// upload files to the server
 
 
 
 namespace classes\db;
 use classes\db\Database;
 use classes\simplehtmldom\simple_html_dom;
+use classes\files\UploadC;
 use classes\errors\Log;
 use DOMDocument;
 use DomXPath;
@@ -92,6 +93,7 @@ class TableBD{
 //																											first, 2 => second"
 // setFieldPass($field,$mode,$cipher) - Change field to password type for hidden text and encryption before saving. Mode: 0-off, 1-repeated input, 2-show. 
 //																		  Cipher: "", "md5", "sha1", "base64".
+// setFieldUpload($field,$path) - Change field to upload type for file uploads. $path is the directory where files will be uploaded.
 // setImageField($field,$path,$percentage='100%',$defaultImage="") - Change $field to image type for special display in the list. $path is the image location, 
 //                                                                   $percentage is image height, $defaultImage is default image.
 // setCriterion($criterion) - Define view criteria using an SQL "where" clause.
@@ -273,6 +275,19 @@ function executeSQL($sql){
 	$database->execute();
 	//return $database->resultset();
 }
+
+//###################################################################################################################################
+/**
+* faz a importação do ficheiro enviado por put ou post
+*/
+public function importFicheiro(){
+	$path=$this->getParameter('path');
+	//echo "Faz upload de ficheiro para $path";
+	$a= new UploadC($path);
+    $a->respondeProtocolo();
+}
+
+
 //###################################################################################################################################
 /**
 * It does what is necessary to keep the table in an html page. 
@@ -285,7 +300,11 @@ public function showHTML($do="",$id=""){
 	$action=$this->getParameter('do');
    	//echo "<br>Faz: $faz<br><br>";
 	switch($action){
-			//options
+			//importar ficheiro
+		case "if":
+			//echo "Entrrei no if";
+			$this->importFicheiro();
+			break;
 		case "":
 		case "l":
 			//echo $this->prepareSQLtoAction('ver');
@@ -502,6 +521,7 @@ private function prepareTableRows(){
 				//echo $carimbo;
 				$pos[$i]['defaultI']=$campo['defaultImage'];
 			}
+			// adicionar aqui um link para abrir o ficheiro quendo o campo for do tipo file
 			/*else {
 				//$carimbo=0;
 				$eImagem[$i]=0;
@@ -825,6 +845,7 @@ private function fazListaCamposAccao($accao="csv"){
 			case "med":
 			case "tim":
 			case "img":
+			case "fil":
 				$resp=$campo['valor'];
 				$resp=str_replace('"',"'",$resp);
 				$resp='"' . $resp. '"';
@@ -1090,6 +1111,38 @@ public function importCSV(){
 		?>
 		document.getElementById("bodyTable").innerHTML=msg.rows;
 	}
+
+	const uploadFile = async (EndPoint, fileInputId) => {
+        alert("A fazer upload do arquivo...");
+		//alert(EndPoint);
+		//alert(fileInputId);
+        const fileInput = document.querySelector("#" + fileInputId);
+        const file = fileInput.files[0];
+
+        if (!file) {
+            console.error("Nenhum arquivo selecionado!");
+            return;
+        }
+		//alert("Fazendo upload do arquivo: " + file.name);
+        try {
+            const response = await fetch(EndPoint, {
+                method: "PUT",
+                headers: {
+                    "X-Filename": file.name,
+                    "Content-Type": file.type, // Define o tipo de conteúdo
+                },
+                body: file, // Envia o arquivo diretamente
+            });
+
+            if (!response.ok) throw new Error("Erro ao fazer upload");
+
+            const result = await response.json();
+            console.log("Sucesso:", result);
+        } catch (error) {
+            console.error("Erro:", error);
+        }
+    };
+
 </script>
     
 <script>
@@ -1146,6 +1199,23 @@ public function importCSV(){
 		//echo "aux: " . $aux . "<br>";
 		//print_r($field);
 		switch ($aux) {
+			case "fil":
+				//print_r($field);
+				//echo "aux: " . $aux;
+				$uri=$_SERVER['REQUEST_URI'];
+				//print_r($_SERVER);
+				foreach($html->find('input[id]') as $e){
+					$e->id="txt" . $field['Field'];
+					$e->name="txt" . $field['Field'];
+					$e->value=$field['Default'];
+					//$e->onchange="uploadFile('?do=if&path=" . $field['path']. "', 'txt" . $field['Field'] . "')";
+					$e->onchange="uploadFile('". $uri .	"?do=if&path=" . $field['path']. "', 'txt" . $field['Field'] . "')";
+				}
+				foreach($html->find('#fileL') as $e)
+					$e->innertext=$field['label']  . $ast ;
+				foreach($html->find('.file') as $e)
+					$t=$e->outertext;
+				break;
 			case "lst":
                 //echo "aux: " . $aux;
                 foreach($html->find('select[id]') as $e){
@@ -1776,7 +1846,28 @@ public function importCSV(){
 			}
 			$i++;
 		}
-	}	  																								
+	}	  	
+	
+	//###################################################################################################################################	
+	/**
+    * @param field   is the field we want to change to type file upload
+	* @param path    is the path to be added to a file name to get to the file
+     * 
+	* Change the field to type upload to be able to upload files. It will include a path field to determine the path where the file will be saved.	
+	* The file will be saved with the name of the field and the date and time of the upload.
+	*/
+	public function setFieldUpload($field,$path){
+		$i=0;
+		//echo "<br> campo=$campo accao=$accao e valor=$valor";
+		foreach($this->camposLista as $campoaux){
+			if ($campoaux['Field']==$field){
+				//echo "entrie";
+				$this->camposLista[$i]['Type']="file";
+				$this->camposLista[$i]['path']=$path;
+			}
+			$i++;
+		}
+	}	  				
   	//###################################################################################################################################	
 	/**
 	* @param criterion    It's an SQL criterion that equals fields to values.
