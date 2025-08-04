@@ -3,8 +3,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.0
- * @updated 31-07-2025 21:50:00
+ * @version 14.1
+ * @updated 04-08-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -20,6 +20,7 @@
 //news of version: 
 	// varius correction of the code
 	// upload files to the server
+	//show files with a link to download
 
 
 
@@ -521,6 +522,13 @@ private function prepareTableRows(){
 				//echo $carimbo;
 				$pos[$i]['defaultI']=$campo['defaultImage'];
 			}
+			if ($campo['Type']=="file"){
+				$aux=str_replace($_SERVER['CONTEXT_DOCUMENT_ROOT'],"../",$campo['Path']);
+				$pos[$i]['pre']= '<a href="' . $aux . "/";
+				$pos[$i]['pos']='</a>'.PHP_EOL;
+				//echo $carimbo;
+				//$pos[$i]['defaultI']=$campo['defaultImage'];
+			}
 			// adicionar aqui um link para abrir o ficheiro quendo o campo for do tipo file
 			/*else {
 				//$carimbo=0;
@@ -594,8 +602,19 @@ private function prepareTableRows(){
 					}
 					$registo[$pos[$i]['Field']]=$pos[$i]['pre'] . $registo[$pos[$i]['Field']] . $pos[$i]['pos'];
 				}else{
-					if ($textinho==""){
-						$textinho=$registo[$pos[$i]['Field']];
+					if ($pos[$i]['Type']=="file"){
+						//echo "fil: ". $registo[$pos[$i]['Field']];
+						//print_r($_SERVER);
+						if (($registo[$pos[$i]['Field']]=="")||($registo[$pos[$i]['Field']]==null)){
+							$registo[$pos[$i]['Field']]="";
+						}else{
+							$registo[$pos[$i]['Field']]=$pos[$i]['pre'] . $registo[$pos[$i]['Field']] .'">' . $registo[$pos[$i]['Field']] . $pos[$i]['pos'];
+						}
+						
+					}else{
+						if ($textinho==""){
+							$textinho=$registo[$pos[$i]['Field']];
+						}
 					}
 				}
 			}
@@ -831,6 +850,11 @@ private function fazListaCamposAccao($accao="csv"){
 				//$resp=str_replace(".",",",$resp);
 				//$resp=str_replace("x",".",$resp);
 				break;
+			case "fil":
+				$resp=$campo['valor'];
+				$resp=str_replace('"',"'",$resp);
+				$resp='"' . $resp. '"';
+				break;
 			case "var":	
 			case "dat":
 			case "tex":
@@ -845,7 +869,6 @@ private function fazListaCamposAccao($accao="csv"){
 			case "med":
 			case "tim":
 			case "img":
-			case "fil":
 				$resp=$campo['valor'];
 				$resp=str_replace('"',"'",$resp);
 				$resp='"' . $resp. '"';
@@ -1209,7 +1232,7 @@ public function importCSV(){
 					$e->name="txt" . $field['Field'];
 					$e->value=$field['Default'];
 					//$e->onchange="uploadFile('?do=if&path=" . $field['path']. "', 'txt" . $field['Field'] . "')";
-					$e->onchange="uploadFile('". $uri .	"?do=if&path=" . $field['path']. "', 'txt" . $field['Field'] . "')";
+					$e->onchange="uploadFile('". $uri .	"?do=if&path=" . $field['Path']. "', 'txt" . $field['Field'] . "')";
 				}
 				foreach($html->find('#fileL') as $e)
 					$e->innertext=$field['label']  . $ast ;
@@ -1863,7 +1886,7 @@ public function importCSV(){
 			if ($campoaux['Field']==$field){
 				//echo "entrie";
 				$this->camposLista[$i]['Type']="file";
-				$this->camposLista[$i]['path']=$path;
+				$this->camposLista[$i]['Path']=$path;
 			}
 			$i++;
 		}
