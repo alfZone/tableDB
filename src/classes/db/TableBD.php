@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.3
+ * @version 14.4
  * @updated 04-08-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -782,6 +782,8 @@ private function fazListaCamposAccao($accao="csv"){
 				$t.=$this->inputHTML($campo);
 			}
 			if ($campo['Field']==$this->chave){
+				//adicionei aqui o campo chave duas vezes uma com o seu nome e outra com editKey para jquery
+				$t.= '<input type="hidden" id="txt' . $campo['Field'] . '" value="">'; 
 				if ($campo[$accao]!=1) {
 					$t.= '<input type="hidden" id="editKey" name="txt' . $campo['Field'] . '" value="">';   //tirei o id
 				}else{
@@ -934,6 +936,8 @@ private function fazListaCamposAccao($accao="csv"){
 		//$l=new Log($_REQUEST);
 		foreach($this->camposLista as $campoaux){
 			$nomeCampo=$prefix . $campoaux['Field'];
+			//echo "tipo= ". $this->camposLista[$i]['Type'];
+			//print_r($_REQUEST);
 			if ($this->camposLista[$i]['Type']=="file"){
 				if (isset($_REQUEST[$nomeCampo]) && ($_REQUEST[$nomeCampo]!="")){
 					$this->camposLista[$i]["valor"]=$_REQUEST[$nomeCampo];
