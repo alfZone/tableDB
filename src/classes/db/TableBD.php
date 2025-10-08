@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.4
+ * @version 14.5
  * @updated 04-08-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -21,6 +21,7 @@
 	// varius correction of the code
 	// upload files to the server
 	//show files with a link to download
+	// encoding problems solved
 
 
 
@@ -896,7 +897,8 @@ private function fazListaCamposAccao($accao="csv"){
 		$id="";
 		//echo $_REQUEST['id'];
 		if (isset($_REQUEST[$para])){
-			$id=utf8_encode($_REQUEST[$para]);
+			//$id=utf8_encode($_REQUEST[$para]);
+			$id=mb_convert_encoding($_REQUEST[$para], mb_detect_encoding($_REQUEST[$para]));
 		}
 		//echo "<br>do=$do";
 		return $id;
