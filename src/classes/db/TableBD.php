@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.5
+ * @version 14.6
  * @updated 04-08-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -995,7 +995,7 @@ private function fazListaCamposAccao($accao="csv"){
  * Returns a pre-entered text. $key is the name of the field to get the value for.
  */
 public function getText($key){
-	return $this->textos[$chave];
+	return $this->textos[$key];
 }
 //###################################################################################################################################
 /**
@@ -1034,7 +1034,7 @@ public function importCSV(){
 							$date=str_replace("/","-",$date);
 							$date=str_replace(".","-",$date);
 							$parts=explode("-",$date);
-							if (sizeof($part[0])<4){
+							if (sizeof($parts)<4){
 								$date=implode('-', array_reverse(explode('-', $date))); 
 							}
 							//echo "date = $date <br>";
@@ -1533,7 +1533,7 @@ public function importCSV(){
     * campos marcados como visíveis na acção escolhida
 	*/
 	public function preparaSQLparaAccao($accao){
-		return repareSQLtoAction($accao);
+		return $this->prepareSQLtoAction($accao);
 	}
  //###################################################################################################################################	
 	/**
