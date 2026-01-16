@@ -4,8 +4,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.7
- * @updated 04-01-2026 21:50:00
+ * @version 14.8
+ * @updated 04-08-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -1363,6 +1363,7 @@ class TableBD
 			case "var":
 			case "dec":
 			case "dou":
+			case "flo":
 				//case "tim":
 			case "img":
 				//echo "field: " . $field['Field'] . "<br>";
