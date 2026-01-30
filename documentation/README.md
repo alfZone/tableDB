@@ -67,9 +67,6 @@ projeto/
 
 └── templates/
 
-└── gestor2/
-
-└── tables.php
 
 ## **Métodos Principais**
 
@@ -453,89 +450,58 @@ exit;
 | Método | Descrição | Parâmetros |
 | --- | --- | --- |
 | prepareTable(\$table) | Prepara a tabela para uso | \$table: nome da tabela |
-| --- | --- | --- |
 | setTitle(\$value) | Define título da página | \$value: texto do título |
-| --- | --- | --- |
 | setAutentication(\$value) | Define permissões | \$value: "a","u","e","n","r" |
-| --- | --- | --- |
 | setCriterion(\$criterion) | Define critério WHERE | \$criterion: string SQL |
-| --- | --- | --- |
 | setOrder(\$order) | Define ordenação | \$order: string SQL |
-| --- | --- | --- |
 | setDebugShow(\$value) | Ativa/desativa debug | \$value: 0 ou 1 |
-| --- | --- | --- |
 | setTemplate(\$page) | Define template | \$page: caminho do arquivo |
-| --- | --- | --- |
+
 
 ### **Configuração de Campos**
 
 | Método | Descrição | Parâmetros |
 | --- | --- | --- |
 | setFieldsAtive(\$fields, \$action) | Ativa campos para ação | \$fields: lista separada por vírgulas, \$action: "list","new","edit","csv" |
-| --- | --- | --- |
 | setAllFieldAtive(\$action, \$value) | Ativa/desativa todos campos | \$action: tipo de ação, \$value: 0 ou 1 |
-| --- | --- | --- |
 | setFieldList(\$field, \$mode, \$listOrSql, \$hideCode) | Configura campo lista | \$field: nome campo, \$mode: 1,2,3, \$listOrSql: dados, \$hideCode: 0 ou 1 |
-| --- | --- | --- |
 | setImageField(\$field, \$path, \$percentage, \$defaultImage) | Configura campo imagem | \$field: nome campo, \$path: caminho, \$percentage: tamanho, \$defaultImage: imagem padrão |
-| --- | --- | --- |
 | setFieldUpload(\$field, \$path) | Configura upload de arquivo | \$field: nome campo, \$path: diretório |
-| --- | --- | --- |
 | setFieldPass(\$field, \$mode, \$cipher) | Configura campo password | \$field: nome campo, \$mode: 0,1,2, \$cipher: tipo cifra |
-| --- | --- | --- |
 | setCalculatedField(\$nameField, \$sqlCalcFormula) | Adiciona campo calculado | \$nameField: nome, \$sqlCalcFormula: fórmula SQL |
-| --- | --- | --- |
 | setDefaultValue(\$field, \$valor) | Define valor padrão | \$field: nome campo, \$valor: valor |
-| --- | --- | --- |
 | setJSAction(\$field, \$action) | Adiciona ação JavaScript | \$field: nome campo, \$action: código JS |
-| --- | --- | --- |
 | setLinkJS(\$field, \$jsCode) | Adiciona link JavaScript | \$field: nome campo, \$jsCode: código |
-| --- | --- | --- |
 
 ### **Métodos de Exibição**
 
 | Método | Descrição | Parâmetros |
 | --- | --- | --- |
 | showHTML() | Exibe interface completa | \-  |
-| --- | --- | --- |
 | makeAlist(\$withForms) | Gera lista HTML | \$withForms: incluir formulários |
-| --- | --- | --- |
 | prepareEditNewForm(\$toDo, \$style) | Prepara formulário | \$toDo: "e" ou "a", \$style: "table" |
-| --- | --- | --- |
-| prepareJsonLinhas() | Retorna dados JSON | \-  |
-| --- | --- | --- |
+| prepareJsonLinhas() | Retorna dados JSON | \-  ||
 
 ### **Operações CRUD**
 
 | Método | Descrição | Parâmetros |
 | --- | --- | --- |
 | querySQL(\$sql) | Executa query SELECT | \$sql: instrução SQL |
-| --- | --- | --- |
 | executeSQL(\$sql) | Executa query genérica | \$sql: instrução SQL |
-| --- | --- | --- |
 | importCSV() | Importa dados CSV | \-  |
-| --- | --- | --- |
 | multiDelete() | Exclusão múltipla | \-  |
-| --- | --- | --- |
 | getWhereData(\$keyValue) | Busca registro por chave | \$keyValue: valor da chave |
-| --- | --- | --- |
 
 ### **Métodos Auxiliares**
 
 | Método | Descrição | Parâmetros |
 | --- | --- | --- |
 | getKey() | Retorna nome da chave primária | \-  |
-| --- | --- | --- |
 | getParameter(\$para) | Obtém parâmetro da requisição | \$para: nome parâmetro |
-| --- | --- | --- |
 | redirecciona(\$url) | Redireciona para URL | \$url: destino |
-| --- | --- | --- |
 | setLimites(\$NumReg, \$LimInf) | Define paginação | \$NumReg: registros por página, \$LimInf: início |
-| --- | --- | --- |
 | setLinkPage(\$page, \$style) | Define link para página externa | \$page: URL, \$style: 0 ou 1 |
-| --- | --- | --- |
 | setMultiple(\$value) | Habilita exclusão múltipla | \$value: true/false |
-| --- | --- | --- |
 
 ## **Estrutura da Tabela de Campos**
 
