@@ -1,557 +1,640 @@
-# **Manual da Classe FPDF (Versão 1.86)**
+# **Documentação da Classe TableBD**
+
+## **Visão Geral**
+
+A classe TableBD é um ORM (Object-Relational Mapping) simplificado para gerenciar tabelas de banco de dados. Permite realizar operações CRUD (Create, Read, Update, Delete), importação de dados via CSV e geração automática de interfaces HTML para gestão dos dados.
 
 ## **Índice**
 
 - Introdução
-- Instanciação e Configuração Inicial
-- Métodos Principais de Trabalho
-- Manipulação de Texto e Fontes
-- Cores e Linhas
-- Imagens
-- Links
-- Configurações de Página
-- Saída do Documento
-- Métodos Protegidos (Internos)
+- Instalação e Requisitos
+- Métodos Principais
+- Configuração de Campos
+- Permissões e Autenticação
+- Templates e Interface
+- Exemplos de Uso
+- Referência Completa de Métodos
 
 ## **Introdução**
 
-FPDF é uma classe PHP que permite a geração de arquivos PDF de forma programática. Esta versão (1.86) oferece funcionalidades completas para criação de documentos PDF com suporte a texto, imagens, links, cores e muito mais.
+### **Propósito**
 
-Características principais:
+Criar uma forma simples de gerenciar tabelas de banco de dados com configurações mínimas, gerando automaticamente interfaces para listagem, inserção, edição e exclusão de registros.
 
-- Geração de PDF sem dependências externas
-- Suporte a UTF-8
-- Suporte a imagens JPEG, PNG e GIF
-- Compressão automática
-- Links internos e externos
-- Cabeçalhos e rodapés personalizáveis
+### **Características Principais**
 
-## **Instanciação e Configuração Inicial**
+- ✅ CRUD completo (Create, Read, Update, Delete)
+- ✅ Importação de CSV
+- ✅ Interface HTML automática
+- ✅ Suporte a múltiplos tipos de campos
+- ✅ Permissões de usuário
+- ✅ Templates customizáveis
+- ✅ Upload de arquivos
+- ✅ Campos calculados
+- ✅ Paginação e ordenação
 
-### **Construtor**
+## **Instalação e Requisitos**
 
-php
+### **Requisitos**
 
-\$pdf = new FPDF(\$orientation, \$unit, \$size);
+- PHP 7.0+
+- MySQL/MariaDB
+- Classe Database.php (para conexão com banco)
+- Biblioteca simple_html_dom (incluída)
+- Classes auxiliares: UploadC, Log
 
-Parâmetros:
+### **Estrutura de Diretórios Recomendada**
 
-- \$orientation (string): Orientação da página
-  - 'P' ou 'Portrait' - Retrato (padrão)
-  - 'L' ou 'Landscape' - Paisagem
-- \$unit (string): Unidade de medida
-  - 'pt' - Pontos
-  - 'mm' - Milímetros (padrão)
-  - 'cm' - Centímetros
-  - 'in' - Polegadas
-- \$size (string/array): Tamanho da página
-  - Valores pré-definidos: 'A3', 'A4' (padrão), 'A5', 'Letter', 'Legal'
-  - Array com largura e altura: array(210, 297) para A4 em mm
+text
 
-Exemplo:
+projeto/
 
-php
+├── classes/
 
-\$pdf = new FPDF('P', 'mm', 'A4');
+│ ├── db/
 
-\$pdf = new FPDF('L', 'in', 'Letter');
+│ │ ├── TableBD.php
 
-\$pdf = new FPDF('P', 'mm', array(150, 200));
+│ │ └── Database.php
 
-### **Configuração de Margens**
+│ ├── simplehtmldom/
 
-php
+│ │ └── simple_html_dom.php
 
-_// Definir todas as margens_
+│ └── files/
 
-\$pdf->SetMargins(\$left, \$top, \$right = null);
+│ └── UploadC.php
 
-_// Definir margens individuais_
+└── templates/
 
-\$pdf->SetLeftMargin(\$margin);
+└── gestor2/
 
-\$pdf->SetTopMargin(\$margin);
+└── tables.php
 
-\$pdf->SetRightMargin(\$margin);
+## **Métodos Principais**
 
-## **Métodos Principais de Trabalho**
-
-### **Adicionar Página**
+### **1\. Inicialização**
 
 php
 
-\$pdf->AddPage(\$orientation, \$size, \$rotation);
+use classes\\db\\TableBD;
 
-- Cria uma nova página
-- Parâmetros são opcionais e herdados do construtor se não especificados
-- \$rotation: Rotação em graus (0, 90, 180, 270)
+\$tabela = new TableBD();
 
-### **Cabeçalho e Rodapé**
+\$tabela->prepareTable("nome_da_tabela");
 
-php
-
-_// Métodos a serem sobrescritos na classe estendida_
-
-function Header() {
-
-_// Código do cabeçalho_
-
-}
-
-function Footer() {
-
-_// Código do rodapé_
-
-}
-
-### **Linha (Line)**
+### **2\. Configuração Básica**
 
 php
 
-\$pdf->Line(\$x1, \$y1, \$x2, \$y2);
+_// Definir título_
 
-- Desenha uma linha entre dois pontos
-- Coordenadas em unidades definidas no construtor
+\$tabela->setTitle("Lista de Usuários");
 
-### **Retângulo (Rect)**
+_// Configurar permissões_
 
-php
+\$tabela->setAutentication("a"); _// a = todas as permissões_
 
-\$pdf->Rect(\$x, \$y, \$width, \$height, \$style);
+_// Definir critérios de consulta_
 
-- Desenha um retângulo
-- \$style: '' (borda), 'F' (preenchido), 'FD' ou 'DF' (ambos)
+\$tabela->setCriterion("ativo = 1");
 
-### **Posicionamento**
+_// Definir ordenação_
 
-php
+\$tabela->setOrder("nome ASC");
 
-_// Obter posição atual_
+_// Habilitar modo debug_
 
-\$x = \$pdf->GetX();
+\$tabela->setDebugShow(1);
 
-\$y = \$pdf->GetY();
-
-_// Definir posição_
-
-\$pdf->SetX(\$x);
-
-\$pdf->SetY(\$y, \$resetX = true);
-
-\$pdf->SetXY(\$x, \$y);
-
-## **Manipulação de Texto e Fontes**
-
-### **Configurar Fonte**
+### **3\. Exibição da Interface**
 
 php
 
-\$pdf->SetFont(\$family, \$style, \$size);
+_// Exibir interface completa_
 
-- \$family: Nome da família (ex: 'Arial', 'Times', 'Courier')
-- \$style: Estilo ('', 'B', 'I', 'BI', 'U')
-- \$size: Tamanho em pontos
+\$tabela->showHTML();
 
-Fontes padrão suportadas:
+_// Ou apenas os dados em JSON_
 
-- Courier
-- Helvetica
-- Times
-- Symbol
-- ZapfDingbats
+\$tabela->prepareJsonLinhas();
 
-### **Adicionar Fontes Personalizadas**
+## **Configuração de Campos**
 
-php
+### **Tipos de Campos Suportados**
 
-\$pdf->AddFont(\$family, \$style, \$file, \$dir);
+- int - Números inteiros
+- var - Textos curtos (VARCHAR)
+- tex - Textos longos (TEXT)
+- dat - Datas
+- tim - Timestamps
+- lst - Listas/Combobox
+- img - Imagens
+- fil - Upload de arquivos
+- pas - Passwords
+- calc - Campos calculados
 
-- Suporta TrueType, OpenType e Type1
+### **Exemplos de Configuração**
 
-### **Escrever Texto**
-
-#### **Cell (Célula)**
-
-php
-
-\$pdf->Cell(\$width, \$height, \$text, \$border, \$ln, \$align, \$fill, \$link);
-
-- \$border: 0 (sem), 1 (com), 'L', 'T', 'R', 'B' ou combinações
-- \$ln: 0 (direita), 1 (próxima linha), 2 (abaixo)
-- \$align: 'L' (esquerda), 'C' (centro), 'R' (direita)
-- \$fill: true/false para preencher fundo
-
-#### **MultiCell (Célula Multilinha)**
+#### **Campos Visíveis na Listagem**
 
 php
 
-\$pdf->MultiCell(\$width, \$height, \$text, \$border, \$align, \$fill);
+_// Mostrar apenas campos específicos na listagem_
 
-- Quebra texto automaticamente
+\$tabela->setFieldsAtive("id,nome,email,telefone", "list");
 
-#### **Write (Escrita Contínua)**
+_// Ou mostrar todos_
 
-php
+\$tabela->setAllFieldAtive("list", 1);
 
-\$pdf->Write(\$height, \$text, \$link);
+_// Esconder um campo específico_
 
-- Texto em modo fluxo com quebra automática
+\$tabela->setFieldAtive("senha", "list", 0);
 
-#### **Text (Texto Simples)**
-
-php
-
-\$pdf->Text(\$x, \$y, \$text);
-
-- Texto em posição específica
-
-### **Medidas de Texto**
+#### **Campo do Tipo Lista**
 
 php
 
-\$width = \$pdf->GetStringWidth(\$text);
+_// De uma query SQL_
 
-### **Quebra de Linha**
+\$tabela->setFieldList("categoria_id", "1",
 
-php
+"SELECT id, nome FROM categorias ORDER BY nome");
 
-\$pdf->Ln(\$height = null);
+_// De valores estáticos_
 
-- Se \$height for null, usa altura da última célula
+\$tabela->setFieldList("status", "2",
 
-## **Cores e Linhas**
+"1=>Ativo,2=>Inativo,3=>Suspenso");
 
-### **Cores de Desenho (Contornos)**
+_// Misturando SQL com valores estáticos_
 
-php
+\$tabela->setFieldList("tipo", "3",
 
-_// RGB_
+"SELECT id, descricao FROM tipos|0=>Não Definido");
 
-\$pdf->SetDrawColor(\$red, \$green, \$blue);
-
-_// Tons de cinza_
-
-\$pdf->SetDrawColor(\$gray);
-
-### **Cores de Preenchimento**
+#### **Campo do Tipo Imagem**
 
 php
 
-_// RGB_
+\$tabela->setImageField("foto", "/uploads/fotos/", "80%", "default.jpg");
 
-\$pdf->SetFillColor(\$red, \$green, \$blue);
-
-_// Tons de cinza_
-
-\$pdf->SetFillColor(\$gray);
-
-### **Cores de Texto**
+#### **Campo do Tipo Upload**
 
 php
 
-_// RGB_
+\$tabela->setFieldUpload("anexo", "/uploads/documentos/");
 
-\$pdf->SetTextColor(\$red, \$green, \$blue);
-
-_// Tons de cinza_
-
-\$pdf->SetTextColor(\$gray);
-
-### **Largura da Linha**
+#### **Campo do Tipo Password**
 
 php
 
-\$pdf->SetLineWidth(\$width);
+\$tabela->setFieldPass("senha", "1", "md5");
 
-## **Imagens**
+_// Modos: 0-off, 1-repetir entrada, 2-mostrar senha_
 
-### **Adicionar Imagem**
+_// Cifras: "md5", "sha1", "base64"_
 
-php
-
-\$pdf->Image(\$file, \$x, \$y, \$width, \$height, \$type, \$link);
-
-- \$x, \$y: Posição (null para usar posição atual)
-- \$width, \$height: Dimensões (0 para automático)
-- \$type: Formato ('JPG', 'PNG', 'GIF') - detectado automaticamente
-- Formatos suportados: JPEG, PNG, GIF
-
-### **Dimensões da Página**
+#### **Campo Calculado**
 
 php
 
-\$width = \$pdf->GetPageWidth();
+\$tabela->setCalculatedField("idade",
 
-\$height = \$pdf->GetPageHeight();
+"YEAR(CURDATE()) - YEAR(data_nascimento)");
 
-## **Links**
-
-### **Links Internos**
+#### **Valor Padrão**
 
 php
 
-_// Criar um link_
+\$tabela->setDefaultValue("data_cadastro", "CURDATE()");
 
-\$link = \$pdf->AddLink();
+\$tabela->setDefaultValue("ativo", "1");
 
-_// Definir destino_
-
-\$pdf->SetLink(\$link, \$y = 0, \$page = -1);
-
-_// Criar área clicável_
-
-\$pdf->Link(\$x, \$y, \$width, \$height, \$link);
-
-### **Links em Texto/Imagens**
+#### **Ação JavaScript**
 
 php
 
-_// Em Cell_
+\$tabela->setJSAction("nome", "onclick='mostrarDetalhes(this.value)'");
 
-\$pdf->Cell(\$w, \$h, \$text, \$border, \$ln, \$align, \$fill, \$link);
+## **Permissões e Autenticação**
 
-_// Em Image_
-
-\$pdf->Image(\$file, \$x, \$y, \$w, \$h, \$type, \$link);
-
-## **Configurações de Página**
-
-### **Quebra de Página Automática**
+### **Níveis de Permissão**
 
 php
 
-\$pdf->SetAutoPageBreak(\$auto, \$margin = 0);
+_// a - Todas as permissões (view, create, edit, delete)_
 
-- \$auto: true/false
-- \$margin: Margem inferior para ativação
+\$tabela->setAutentication("a");
 
-### **Modo de Exibição no Visualizador**
+_// u - Apenas atualização (edit)_
 
-php
+\$tabela->setAutentication("u");
 
-\$pdf->SetDisplayMode(\$zoom, \$layout);
+_// e - Apenas edição_
 
-- \$zoom: 'default', 'fullpage', 'fullwidth', 'real', ou fator de zoom
-- \$layout: 'default', 'single', 'continuous', 'two'
+\$tabela->setAutentication("e");
 
-### **Alias para Número Total de Páginas**
+_// n - Apenas criação de novos registros_
 
-php
+\$tabela->setAutentication("n");
 
-\$pdf->AliasNbPages(\$alias = '{nb}');
+_// r - Apenas leitura (view)_
 
-- Substitui \$alias pelo número total de páginas no texto
+\$tabela->setAutentication("r");
 
-### **Metadados do Documento**
+### **Exclusão Múltipla**
 
 php
 
-\$pdf->SetTitle(\$title, \$isUTF8 = false);
+_// Habilitar checkboxes para exclusão múltipla_
 
-\$pdf->SetAuthor(\$author, \$isUTF8 = false);
+\$tabela->setMultiple(true);
 
-\$pdf->SetSubject(\$subject, \$isUTF8 = false);
+## **Templates e Interface**
 
-\$pdf->SetKeywords(\$keywords, \$isUTF8 = false);
-
-\$pdf->SetCreator(\$creator, \$isUTF8 = false);
-
-### **Compressão**
+### **Template Padrão**
 
 php
 
-\$pdf->SetCompression(\$compress);
+_// Definir template customizado_
 
-- Ativa/desativa compressão do PDF (requer zlib)
+\$tabela->setTemplate("../templates/meu_template.php");
 
-## **Saída do Documento**
+### **Estrutura do Template**
 
-### **Output**
+O template deve conter os seguintes elementos HTML:
 
-php
+html
 
-\$pdf->Output(\$dest, \$name, \$isUTF8 = false);
+_&lt;!-- Título --&gt;_
 
-Destinos (\$dest):
+&lt;h3 class="tbTitle"&gt;&lt;/h3&gt;
 
-- 'I': Enviar para saída padrão (inline no browser)
-- 'D': Forçar download
-- 'F': Salvar em arquivo local
-- 'S': Retornar como string
+_&lt;!-- Tabela de listagem --&gt;_
 
-Exemplos:
+&lt;table&gt;
 
-php
+&lt;thead class="titleTable"&gt;&lt;/thead&gt;
 
-_// Exibir no browser_
+&lt;tbody id="bodyTable"&gt;&lt;/tbody&gt;
 
-\$pdf->Output('I', 'documento.pdf');
+&lt;/table&gt;
 
-_// Download_
+_&lt;!-- Formulário de edição/inserção --&gt;_
 
-\$pdf->Output('D', 'meu_pdf.pdf');
+&lt;div id="frmIU"&gt;
 
-_// Salvar no servidor_
+&lt;div id="frmIOH3"&gt;&lt;/div&gt;
 
-\$pdf->Output('F', '/caminho/arquivo.pdf');
+&lt;/div&gt;
 
-_// Obter como string_
+_&lt;!-- Modal de confirmação de exclusão --&gt;_
 
-\$content = \$pdf->Output('S');
+&lt;input type="hidden" id="deleteKey"&gt;
 
-### **Close**
+_&lt;!-- Modal de importação CSV --&gt;_
 
-php
+&lt;div id="importLst"&gt;&lt;/div&gt;
 
-\$pdf->Close();
+_&lt;!-- Botões (opcional) --&gt;_
 
-- Finaliza o documento (chamado automaticamente pelo Output())
+&lt;button id="bnew"&gt;Novo&lt;/button&gt;
 
-## **Métodos Protegidos (Internos)**
+&lt;button class="bedit"&gt;Editar&lt;/button&gt;
 
-### **Métodos Principais de Renderização**
+&lt;button class="bdel"&gt;Excluir&lt;/button&gt;
 
-php
+&lt;button id="bcsv"&gt;Importar CSV&lt;/button&gt;
 
-protected function \_out(\$s); _// Adiciona linha à página atual_
+&lt;button id="bdelm"&gt;Excluir Selecionados&lt;/button&gt;
 
-protected function \_put(\$s); _// Adiciona linha ao buffer do documento_
-
-protected function \_newobj(\$n); _// Inicia novo objeto PDF_
-
-protected function \_putstream(\$data); _// Adiciona stream_
-
-### **Processamento de Fontes**
+### **Link para Página Externa**
 
 php
 
-protected function \_loadfont(\$path); _// Carrega definição de fonte_
+_// Para abrir registro em página separada_
 
-protected function \_putfonts(); _// Processa todas as fontes_
+\$tabela->setLinkPage("detalhes.php", 0);
 
-protected function \_tounicodecmap(\$uv); _// Cria mapa ToUnicode_
+_// Style 0: detalhes.php?id=123_
 
-### **Processamento de Imagens**
+_// Style 1: detalhes.php/123_
 
-php
+## **Exemplos de Uso**
 
-protected function \_parsejpg(\$file); _// Processa JPEG_
-
-protected function \_parsepng(\$file); _// Processa PNG_
-
-protected function \_parsegif(\$file); _// Processa GIF (via conversão PNG)_
-
-### **Codificação UTF**
-
-php
-
-protected function \_UTF8encode(\$s); _// Converte ISO-8859-1 para UTF-8_
-
-protected function \_UTF8toUTF16(\$s); _// Converte UTF-8 para UTF-16BE_
-
-protected function \_escape(\$s); _// Escapa caracteres especiais_
-
-protected function \_textstring(\$s); _// Formata string de texto_
-
-### **Geração da Estrutura PDF**
-
-php
-
-protected function \_beginpage(); _// Inicia nova página_
-
-protected function \_endpage(); _// Finaliza página_
-
-protected function \_putpages(); _// Processa todas as páginas_
-
-protected function \_putresources(); _// Adiciona recursos_
-
-protected function \_putinfo(); _// Adiciona metadados_
-
-protected function \_putcatalog(); _// Adiciona catálogo_
-
-protected function \_enddoc(); _// Finaliza documento_
-
-## **Exemplo Completo de Uso**
+### **Exemplo 1: Gestão Simples de Usuários**
 
 php
 
 <?php
 
-require_once('fpdf.php');
+require_once "classes/db/TableBD.php";
 
-class MeuPDF extends FPDF {
+\$usuarios = new TableBD();
 
-function Header() {
+\$usuarios->prepareTable("usuarios");
 
-\$this->SetFont('Arial', 'B', 15);
+_// Configurações básicas_
 
-\$this->Cell(0, 10, 'Título do Documento', 0, 1, 'C');
+\$usuarios->setTitle("Gestão de Usuários");
 
-\$this->Ln(10);
+\$usuarios->setAutentication("a");
 
-}
+_// Campos visíveis_
 
-function Footer() {
+\$usuarios->setFieldsAtive("id,nome,email,telefone,data_cadastro", "list");
 
-\$this->SetY(-15);
+\$usuarios->setFieldsAtive("nome,email,telefone,senha", "new");
 
-\$this->SetFont('Arial', 'I', 8);
+\$usuarios->setFieldsAtive("nome,email,telefone", "edit");
 
-\$this->Cell(0, 10, 'Página ' . \$this->PageNo() . '/{nb}', 0, 0, 'C');
+_// Configurar campo senha_
 
-}
+\$usuarios->setFieldPass("senha", "1", "md5");
 
-}
+_// Exibir interface_
 
-_// Criar documento_
-
-\$pdf = new MeuPDF();
-
-\$pdf->AliasNbPages();
-
-\$pdf->AddPage();
-
-_// Adicionar conteúdo_
-
-\$pdf->SetFont('Arial', '', 12);
-
-\$pdf->Cell(0, 10, 'Olá, Mundo!', 0, 1);
-
-\$pdf->Ln();
-
-_// Tabela simples_
-
-\$pdf->SetFillColor(200, 220, 255);
-
-\$pdf->Cell(40, 10, 'Coluna 1', 1, 0, 'C', true);
-
-\$pdf->Cell(40, 10, 'Coluna 2', 1, 1, 'C', true);
-
-\$pdf->Cell(40, 10, 'Dado 1', 1);
-
-\$pdf->Cell(40, 10, 'Dado 2', 1, 1);
-
-_// Imagem_
-
-\$pdf->Image('logo.png', 10, 100, 30);
-
-_// Saída_
-
-\$pdf->Output('I', 'documento.pdf');
+\$usuarios->showHTML();
 
 ?>
 
-## **Considerações Finais**
+### **Exemplo 2: Produtos com Categorias**
 
-- Performance: A compressão reduz significativamente o tamanho do arquivo
-- UTF-8: Use \$isUTF8 = true para textos em UTF-8
-- Herança: Estenda a classe para personalizar Header() e Footer()
-- Estado: A classe mantém estado interno, siga a ordem correta das operações
-- Erros: Use try-catch para capturar exceções lançadas pelo método Error()
+php
 
-Constantes importantes:
+<?php
 
-- FPDF::VERSION: Versão da classe
-- FPDF_FONTPATH: Define caminho personalizado para fontes
+\$produtos = new TableBD();
 
-Este manual cobre os métodos públicos e protegidos mais importantes da classe FPDF 1.86. Para casos específicos, consulte o código fonte diretamente.
+\$produtos->prepareTable("produtos");
+
+\$produtos->setTitle("Catálogo de Produtos");
+
+\$produtos->setCriterion("ativo = 1");
+
+_// Campo categoria como lista_
+
+\$produtos->setFieldList("categoria_id", "1",
+
+"SELECT id, nome FROM categorias WHERE ativo = 1 ORDER BY nome");
+
+_// Campo preço com valor padrão_
+
+\$produtos->setDefaultValue("preco", "0.00");
+
+_// Upload de imagem_
+
+\$produtos->setImageField("imagem", "/uploads/produtos/", "100px", "sem-imagem.jpg");
+
+_// Exibir_
+
+\$produtos->showHTML();
+
+?>
+
+### **Exemplo 3: API JSON**
+
+php
+
+<?php
+
+_// Retornar dados em formato JSON_
+
+header('Content-Type: application/json');
+
+\$clientes = new TableBD();
+
+\$clientes->prepareTable("clientes");
+
+\$clientes->setCriterion("ativo = 1");
+
+\$clientes->setLimites(50, 0); _// Paginação: 50 registros a partir do 0_
+
+echo json_encode(\$clientes->prepareJsonLinhas());
+
+?>
+
+### **Exemplo 4: Importação de CSV**
+
+php
+
+<?php
+
+\$produtos = new TableBD();
+
+\$produtos->prepareTable("produtos");
+
+_// Habilitar importação_
+
+\$produtos->setFieldsAtive("codigo,nome,preco,estoque", "csv");
+
+_// Processar upload_
+
+if (\$\_SERVER\['REQUEST_METHOD'\] === 'POST' && isset(\$\_POST\['txtCSV'\])) {
+
+\$produtos->importCSV();
+
+header("Location: ?do=l");
+
+exit;
+
+}
+
+\$produtos->showHTML();
+
+?>
+
+## **Referência Completa de Métodos**
+
+### **Métodos de Configuração**
+
+| Método | Descrição | Parâmetros |
+| --- | --- | --- |
+| prepareTable(\$table) | Prepara a tabela para uso | \$table: nome da tabela |
+| --- | --- | --- |
+| setTitle(\$value) | Define título da página | \$value: texto do título |
+| --- | --- | --- |
+| setAutentication(\$value) | Define permissões | \$value: "a","u","e","n","r" |
+| --- | --- | --- |
+| setCriterion(\$criterion) | Define critério WHERE | \$criterion: string SQL |
+| --- | --- | --- |
+| setOrder(\$order) | Define ordenação | \$order: string SQL |
+| --- | --- | --- |
+| setDebugShow(\$value) | Ativa/desativa debug | \$value: 0 ou 1 |
+| --- | --- | --- |
+| setTemplate(\$page) | Define template | \$page: caminho do arquivo |
+| --- | --- | --- |
+
+### **Configuração de Campos**
+
+| Método | Descrição | Parâmetros |
+| --- | --- | --- |
+| setFieldsAtive(\$fields, \$action) | Ativa campos para ação | \$fields: lista separada por vírgulas, \$action: "list","new","edit","csv" |
+| --- | --- | --- |
+| setAllFieldAtive(\$action, \$value) | Ativa/desativa todos campos | \$action: tipo de ação, \$value: 0 ou 1 |
+| --- | --- | --- |
+| setFieldList(\$field, \$mode, \$listOrSql, \$hideCode) | Configura campo lista | \$field: nome campo, \$mode: 1,2,3, \$listOrSql: dados, \$hideCode: 0 ou 1 |
+| --- | --- | --- |
+| setImageField(\$field, \$path, \$percentage, \$defaultImage) | Configura campo imagem | \$field: nome campo, \$path: caminho, \$percentage: tamanho, \$defaultImage: imagem padrão |
+| --- | --- | --- |
+| setFieldUpload(\$field, \$path) | Configura upload de arquivo | \$field: nome campo, \$path: diretório |
+| --- | --- | --- |
+| setFieldPass(\$field, \$mode, \$cipher) | Configura campo password | \$field: nome campo, \$mode: 0,1,2, \$cipher: tipo cifra |
+| --- | --- | --- |
+| setCalculatedField(\$nameField, \$sqlCalcFormula) | Adiciona campo calculado | \$nameField: nome, \$sqlCalcFormula: fórmula SQL |
+| --- | --- | --- |
+| setDefaultValue(\$field, \$valor) | Define valor padrão | \$field: nome campo, \$valor: valor |
+| --- | --- | --- |
+| setJSAction(\$field, \$action) | Adiciona ação JavaScript | \$field: nome campo, \$action: código JS |
+| --- | --- | --- |
+| setLinkJS(\$field, \$jsCode) | Adiciona link JavaScript | \$field: nome campo, \$jsCode: código |
+| --- | --- | --- |
+
+### **Métodos de Exibição**
+
+| Método | Descrição | Parâmetros |
+| --- | --- | --- |
+| showHTML() | Exibe interface completa | \-  |
+| --- | --- | --- |
+| makeAlist(\$withForms) | Gera lista HTML | \$withForms: incluir formulários |
+| --- | --- | --- |
+| prepareEditNewForm(\$toDo, \$style) | Prepara formulário | \$toDo: "e" ou "a", \$style: "table" |
+| --- | --- | --- |
+| prepareJsonLinhas() | Retorna dados JSON | \-  |
+| --- | --- | --- |
+
+### **Operações CRUD**
+
+| Método | Descrição | Parâmetros |
+| --- | --- | --- |
+| querySQL(\$sql) | Executa query SELECT | \$sql: instrução SQL |
+| --- | --- | --- |
+| executeSQL(\$sql) | Executa query genérica | \$sql: instrução SQL |
+| --- | --- | --- |
+| importCSV() | Importa dados CSV | \-  |
+| --- | --- | --- |
+| multiDelete() | Exclusão múltipla | \-  |
+| --- | --- | --- |
+| getWhereData(\$keyValue) | Busca registro por chave | \$keyValue: valor da chave |
+| --- | --- | --- |
+
+### **Métodos Auxiliares**
+
+| Método | Descrição | Parâmetros |
+| --- | --- | --- |
+| getKey() | Retorna nome da chave primária | \-  |
+| --- | --- | --- |
+| getParameter(\$para) | Obtém parâmetro da requisição | \$para: nome parâmetro |
+| --- | --- | --- |
+| redirecciona(\$url) | Redireciona para URL | \$url: destino |
+| --- | --- | --- |
+| setLimites(\$NumReg, \$LimInf) | Define paginação | \$NumReg: registros por página, \$LimInf: início |
+| --- | --- | --- |
+| setLinkPage(\$page, \$style) | Define link para página externa | \$page: URL, \$style: 0 ou 1 |
+| --- | --- | --- |
+| setMultiple(\$value) | Habilita exclusão múltipla | \$value: true/false |
+| --- | --- | --- |
+
+## **Estrutura da Tabela de Campos**
+
+Cada campo no array \$camposLista contém:
+
+php
+
+\[
+
+'Field' => 'nome_campo', _// Nome do campo no banco_
+
+'Type' => 'tipo_campo', _// Tipo (int, var, tex, etc.)_
+
+'label' => 'Rótulo', _// Rótulo para exibição_
+
+'Key' => 'PRI', _// Chave primária_
+
+'Default' => 'valor', _// Valor padrão_
+
+'Null' => 'YES/NO', _// Aceita nulos_
+
+'ver' => 1, _// Visível na listagem_
+
+'novo' => 1, _// Visível no formulário novo_
+
+'editar' => 1, _// Visível no formulário editar_
+
+'csv' => 1, _// Incluído na importação CSV_
+
+'valor' => '', _// Valor atual_
+
+'change' => 0 _// Flag de alteração_
+
+\]
+
+## **Tratamento de Erros**
+
+### **Modo Debug**
+
+php
+
+\$tabela->setDebugShow(1); _// Mostra SQL gerado_
+
+### **Logs**
+
+A classe utiliza a classe Log para registrar operações (se disponível).
+
+### **Validações**
+
+- Campos marcados como Null = "NO" são obrigatórios
+- Uploads são validados pelo UploadC
+- Passwords são criptografadas antes do armazenamento
+
+## **Considerações de Segurança**
+
+### **Proteções Implementadas**
+
+- SQL Injection: Uso de prepared statements via classe Database
+- XSS: Escape de HTML nos campos de texto
+- Uploads: Validação de tipos e tamanhos pelo UploadC
+- Permissões: Controle por níveis de acesso
+- Passwords: Criptografia antes do armazenamento
+
+### **Recomendações**
+
+- Sempre definir permissões apropriadas
+- Validar uploads de arquivos
+- Usar HTTPS em produção
+- Implementar autenticação adicional se necessário
+
+## **Roadmap e Melhorias Futuras**
+
+### **Planejado para Versões Futuras**
+
+- Suporte a relacionamentos entre tabelas
+- Filtros avançados na listagem
+- Exportação para Excel/PDF
+- Validações personalizadas por campo
+- Suporte a transactions
+- Cache de consultas
+- Internacionalização (i18n)
+- API RESTful completa
+
+### **Versão Atual: 14.8**
+
+- Correções diversas de código
+- Upload de arquivos para o servidor
+- Exibição de arquivos com link para download
+- Problemas de encoding resolvidos
+
+## **Links Úteis**
+
+- Repositório: <https://github.com/alfZone/tabledb>
+- Wiki: <https://github.com/alfZone/tabledb/wiki>
+- Autor: António Lira Fernandes
+- Última atualização: 04-08-2025
+
+## **Licença**
+
+Classe de uso livre para projetos educacionais e comerciais. Consulte o repositório para detalhes de licenciamento.
+
+Nota: Esta documentação refere-se à versão 14.8 da classe TableBD. Para informações atualizadas, consulte sempre o repositório oficial.
