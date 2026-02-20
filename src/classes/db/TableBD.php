@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.9
+ * @version 14.10
  * @updated 04-08-2025 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -19,10 +19,8 @@
 
 
 //news of version: 
-// varius correction of the code
-// upload files to the server
-//show files with a link to download
-// encoding problems solved
+// enable/ desable summernote editor for text fields, with the possibility to disable it for specific tables or fields.
+// the modal form have 1 ou 2 colununs depending on the number of fields to be edited or created. If there are more than 8 fields, the form will have 2 columns, otherwise it will have 1 column.
 
 
 
@@ -115,6 +113,7 @@ class TableBD
 // 								respond to the JavaScript event. $jsCode: the html/JavaScript event to be inserted into the field's HTML.
 // setTemplate($path) * - Assign a template to the table, where the path is the path to the template file.
 // setTitle($value) | setTitulo($ value) - Set the title of the page or form, where the value is the text for the title.
+// setSummernote($value) - If $value is true, enables the summernote editor for text fields in the table. If $value is false, disables the summernote editor for text fields in the table.
 // showHTML() - Creates an HT bML table with the data, allowing for record insertion, editing, and deletion. Uses a 'do' parameter to make decisions.
 
 //########################################## Variaveis ###############################################################################	
@@ -150,6 +149,7 @@ class TableBD
 	// u - update Can only change data
 	// r - read can only see
 	private $limites = array(0, 0);
+	private $summernote = true; //true if we want to use summernote editor in the fields of type text
 
 //###################################################################################################################################
 	/**
@@ -492,7 +492,11 @@ class TableBD
 
 		if ($withForms) {
 			//echo "<br>com forms";
-			$formAU = $this->prepareEditNewForm();
+			if ($this->countFieldsForAction() > 8) {
+				$formAU = $this->prepareEditNewForm();
+			} else {		
+				$formAU = $this->prepareEditNewForm("e","");
+			}
 		} else {
 			//echo "<br>sem forms";
 			$formAU = "";
@@ -999,6 +1003,24 @@ class TableBD
 		}
 	} 
 
+
+	//###################################################################################################################################
+	/*
+	* Count the number of fielads ative for an action (ver, editar, apagar, inserir, importar)
+	*/
+
+	public function countFieldsForAction($action = "novo"){
+		$count = 0;
+		foreach ($this->camposLista as $campo) {
+			if (isset($campo[$action])) {
+				if ($campo[$action] == 1) {
+					$count++;
+				}
+			}
+		}
+		return $count;
+	}
+
   //###################################################################################################################################	
 	/**
 	 * 
@@ -1117,7 +1139,18 @@ class TableBD
 						//alert(x);
 						if ($('textarea').length > 1) {
 							var markupStr = evento[x];
-							$('textarea#txt' + x).summernote('code', markupStr);
+							<?php
+							if ($this->summernote){
+							?>
+								$('textarea#txt' + x).summernote('code', markupStr);
+								<?php
+							}else {
+								?>
+								$('textarea#txt' + x).val(markupStr);
+							<?php
+							}
+							?>
+							
 						}
 						$("#txt" + x).attr("value", evento[x])
 						//var aux=`select#txt${x}`;
@@ -1210,7 +1243,17 @@ class TableBD
 			$("#bnew").click(function() {
 				var markupStr = "...";
 				$("#editKey").attr("value", "")
-				$('.summernote').summernote('reset');
+				<?php
+				if ($this->summernote){
+				?>
+					$('.summernote').summernote('reset');
+				<?php
+				}else{
+				?>
+					$('textarea.summernote').val("");
+				<?php
+				}	
+				?>
 				<?php
 				//print_r($this->camposLista);
 				foreach ($this->camposLista as $campoaux) {
@@ -1228,8 +1271,16 @@ class TableBD
 							<?php
 						} else {
 							if ($campoaux['Type'] == "text") {
-							?>
-								$('textarea#txt<?php echo $campoaux['Field'] ?>').summernote('code', "...");
+								if ($this->summernote){
+								?>
+									$('textarea#txt<?php echo $campoaux['Field'] ?>').summernote('code', "...");
+								<?php
+								}else {
+								?>
+									$('textarea#txt<?php echo $campoaux['Field'] ?>').val("...");	
+									<?php
+								}	
+								?>
 				<?php
 							}
 						}
@@ -1955,7 +2006,20 @@ class TableBD
 			}
 			$i++;
 		}
-	}	  				
+	}	  	
+	
+	//###################################################################################################################################	
+	/**
+	 * @param value    By default, it is true. If set to false, the summernote editor will not be used in the fields of type text.
+	 * 
+	 * Enable/disable the summernote editor in the fields of type text. By default, it is true. If set to false, the summernote editor will not be used in the fields of type text.
+	 */
+	public function setSummernote($value)
+	{
+		$this->summernote = $value;
+	}
+	
+
   	//###################################################################################################################################	
 	/**
 	 * @param criterion    It's an SQL criterion that equals fields to values.
