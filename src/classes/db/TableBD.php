@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.10
+ * @version 14.11
  * @updated 20-02-2026 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -542,10 +542,15 @@ class TableBD
 					$pos[$i]['defaultI'] = $campo['defaultImage'];
 				}
 				if ($campo['Type'] == "file") {
-					$aux = str_replace($_SERVER['CONTEXT_DOCUMENT_ROOT'], "../", $campo['Path']);
-					$pos[$i]['pre'] = '<a href="' . $aux . "/";
-					$pos[$i]['pos'] = '</a>' . PHP_EOL;
+					$aux = str_replace($_SERVER['CONTEXT_DOCUMENT_ROOT'], "/", $campo['Path']);
+					//print_r($_SERVER);
+					//echo "aux: $aux";
+					//$pos[$i]['pre'] = '<a href="' . $aux . "/";
+					$pos[$i]['pre'] =  $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME'].$aux . "/";
+					//$pos[$i]['pos'] = '</a>' . PHP_EOL;
+					$pos[$i]['pos'] = '' . PHP_EOL;
 					//echo $carimbo;
+					//echo "pre: " . $pos[$i]['pre'];
 					//$pos[$i]['defaultI']=$campo['defaultImage'];
 				}
 				// adicionar aqui um link para abrir o ficheiro quendo o campo for do tipo file
@@ -569,6 +574,7 @@ class TableBD
 		//print_r($stmt);
 		//$chaveid=$this->chave;
 		$text = "";
+		//print_r($pos);
 		foreach ($stmt as $registo) {
 			$text .= "<tr>" . PHP_EOL;
 			//print_r($registo);
@@ -605,6 +611,8 @@ class TableBD
 			//echo "<pre>";
 			//print_r($pos);
 			//echo "<\pre>";
+			$up=new UploadC();
+
 			for ($i = 0; $i < count($pos); $i++) {
 				//echo "<br>i=$i<br>";
 				if ($pos[$i]['Type'] == "lst") {
@@ -627,7 +635,17 @@ class TableBD
 							if (($registo[$pos[$i]['Field']] == "") || ($registo[$pos[$i]['Field']] == null)) {
 								$registo[$pos[$i]['Field']] = "";
 							} else {
-								$registo[$pos[$i]['Field']] = $pos[$i]['pre'] . $registo[$pos[$i]['Field']] . '">' . $registo[$pos[$i]['Field']] . $pos[$i]['pos'];
+								//aux = $pos[$i]['pre'];
+								 if (stripos($registo[$pos[$i]['Field']], "http") === 0) {
+								 	$aux = '';
+								 }else {
+								 	$aux = $pos[$i]['pre'];
+								 }	
+								
+								$registo[$pos[$i]['Field']] = $up->getFilePreviewHTML($aux . $registo[$pos[$i]['Field']]);
+								//$registo[$pos[$i]['Field']] = $aux . $registo[$pos[$i]['Field']] . '">' . $registo[$pos[$i]['Field']] . $pos[$i]['pos'];
+								//echo "registo: " . $registo[$pos[$i]['Field']];
+								//echo "pre: " . $pos[$i]['pre'];
 							}
 						} else {
 							if ($textinho == "") {
@@ -1213,6 +1231,9 @@ class TableBD
 				//alert(fileInputId);
 				const fileInput = document.querySelector("#" + fileInputId);
 				const file = fileInput.files[0];
+				//alert("Arquivo selecionado: " + file.name);
+				//console.log("Arquivo selecionado:", file);
+				//console.log("EndPoint:", EndPoint);
 
 				if (!file) {
 					console.error("Nenhum arquivo selecionado!");
@@ -1235,6 +1256,7 @@ class TableBD
 					console.log("Sucesso:", result);
 				} catch (error) {
 					console.error("Erro:", error);
+					alert("Erro ao fazer upload do arquivo: " + error.message);
 				}
 			};
 		</script>
@@ -1994,7 +2016,7 @@ class TableBD
 	 * Change the field to type upload to be able to upload files. It will include a path field to determine the path where the file will be saved.	
 	 * The file will be saved with the name of the field and the date and time of the upload.
 	 */
-	public function setFieldUpload($field, $path)
+	public function setFieldUpload($field, $path, $size=30)
 	{
 		$i = 0;
 		//echo "<br> campo=$campo accao=$accao e valor=$valor";
@@ -2003,6 +2025,7 @@ class TableBD
 				//echo "entrie";
 				$this->camposLista[$i]['Type'] = "file";
 				$this->camposLista[$i]['Path'] = $path;
+				$this->camposLista[$i]['widthP'] = $size;
 			}
 			$i++;
 		}
