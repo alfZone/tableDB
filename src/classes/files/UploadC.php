@@ -16,6 +16,25 @@ namespace classes\files;
 //          type (e.g., images, documents, etc.). The class should be flexible enough to allow configuration of the target upload directory and handle errors gracefully.
 
 // METHODS
+// __construct($targetDir) - Class constructer that initializes the target directory for uploads. If the directory does not exist, it creates it. $targetDir is the full 
+//                           path on file system (e.g. /home/USER/public_html/FOLDER_FOR_UPLOAD
+// respondeProtocolo() - Method to handle incoming HTTP requests and route them to the appropriate upload or listing method based on the request method (POST, PUT, GET).
+// uploadUsingPOST() - Method to handle file uploads sent via POST requests. It processes the uploaded file from the $_FILES superglobal, moves it to the target directory, 
+//                     and returns a JSON response indicating success or failure.
+// uploadUsingPUT() - Method to handle file uploads sent via PUT requests. It reads the raw input stream, saves the file to the target directory, and returns a JSON response.
+// listFiles() - Method to list all files in the target directory. It returns a JSON array with details of each file (name, size, modification date).
+// formatarTamanho($bytes) - Helper method to format file sizes into human-readable strings (e.g., KB, MB).
+// JSUploadFileUsingPOST($EndPoint) - Method that generates JavaScript code for uploading a file using a POST request to the specified endpoint.
+// JSUploadFileUsingPUT($EndPoint) - Method that generates JavaScript code for uploading a file using a PUT request to the specified endpoint.
+// getFilePreviewHTML($url, $options) - Method that generates HTML for displaying a file preview based on its type. It checks the file extension and returns appropriate HTML 
+//                                      (e.g., an <img> tag for images or an icon for documents) with options for customization.
+// generateImageHTML($url, $filename, $options) - Helper method to generate HTML for displaying an image file, including support for lazy loading and optional download links.
+// generateFileIconHTML($url, $extension, $filename, $options) - Helper method to generate HTML with an SVG icon for non-image files, based on their extension. It includes a 
+//                                                               mapping of common file types to specific icons.
+// getDownloadAttributes($url, $filename, $options) - Helper method to generate attributes for download links, including the 'download' attribute if specified in options.
+// getFilePreviewCSS() - Method that returns CSS styles for the file preview elements, allowing for consistent styling across different file types.
+// toString() - Method to return a string representation of the class, typically for debugging purposes.
+
 
 
 
@@ -27,8 +46,8 @@ class UploadC {
 	var $targetDir = "/home/turma12r/public_html/alf/caderneta/images/cromos/";
 
     /**
-     * Construtor da classe
-     * @param string $targetDir Caminho para o diretório de upload
+     * Class constructer that initializes the target directory for uploads. If the directory does not exist, it creates it. 
+     * @param string $targetDir s the full path on file system (e.g. /home/USER/public_html/FOLDER_FOR_UPLOAD
      */
     function __construct($targetDir = "/home/turma12r/public_html/alf/caderneta/images/cromos/") {
         $this->targetDir = $targetDir;
@@ -57,8 +76,7 @@ function respondeProtocolo(){
                 if ($_REQUEST['a']=="lf") {
                     $this->listFiles();
                 } 
-            }
-            
+            }           
             break;
         default:
             http_response_code(405);
@@ -654,42 +672,6 @@ function getFilePreviewCSS() {
     ';
 }
 
-// Exemplos de uso:
-/*
-// Incluir CSS
-echo getFilePreviewCSS();
-
-// Imagem (clicável para download)
-echo getFilePreviewHTML('https://exemplo.com/foto.jpg', [
-    'width' => '300',
-    'height' => '200',
-    'class' => 'minha-imagem'
-]);
-
-// PDF com link de download
-echo getFilePreviewHTML('https://exemplo.com/documento.pdf', [
-    'icon_size' => '48',
-    'download_text' => 'Descarregar PDF'
-]);
-
-// Vídeo com download
-echo getFilePreviewHTML('https://exemplo.com/video.mp4', [
-    'show_filename' => true,
-    'target' => '_self' // Descarregar na mesma janela
-]);
-
-// Desativar botão de download (apenas ícone clicável)
-echo getFilePreviewHTML('https://exemplo.com/arquivo.zip', [
-    'show_download_button' => false,
-    'icon_size' => '64'
-]);
-
-// Desativar atributo download (abre em vez de descarregar)
-echo getFilePreviewHTML('https://exemplo.com/relatorio.pdf', [
-    'download_attribute' => false,
-    'target' => '_blank'
-]);
-*/
 
 
 //#######################################################################
@@ -707,10 +689,45 @@ echo getFilePreviewHTML('https://exemplo.com/relatorio.pdf', [
 }
 
 //####################################################################
-// exemplos de utiliza��o
+// Samples of UserCode
 //echo "teste";
 
 //$a= new UploadC();
 //$a->respondeProtocolo();
+/*
+// Include CSS
+echo $a->getFilePreviewCSS();
+
+// Image (aviable for download usinig a click on the image)
+echo $a->getFilePreviewHTML('https://exemplo.com/foto.jpg', [
+    'width' => '300',
+    'height' => '200',
+    'class' => 'minha-imagem'
+]);
+
+// PDF with link to download
+echo $a->getFilePreviewHTML('https://exemplo.com/documento.pdf', [
+    'icon_size' => '48',
+    'download_text' => 'Descarregar PDF'
+]);
+
+// Vídeo for download
+echo $a->getFilePreviewHTML('https://exemplo.com/video.mp4', [
+    'show_filename' => true,
+    'target' => '_self' // Descarregar na mesma janela
+]);
+
+// Desable download button
+echo getFilePreviewHTML('https://exemplo.com/arquivo.zip', [
+    'show_download_button' => false,
+    'icon_size' => '64'
+]);
+
+// Desable download attribute (opens instead of downloading)
+echo $a->getFilePreviewHTML('https://exemplo.com/relatorio.pdf', [
+    'download_attribute' => false,
+    'target' => '_blank'
+]);
+*/
 
 ?>
