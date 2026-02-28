@@ -6,7 +6,7 @@ namespace classes\files;
  *
  * @author Ant�nio Lira Fernandes
  * @version 2.0
- * @updated 09-Jan-2025 18:10:03
+ * @updated 28-02-2026 18:10:03
  */
 
 	// REQUIRES
