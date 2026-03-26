@@ -4,8 +4,8 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.11
- * @updated 20-02-2026 21:50:00
+ * @version 14.12
+ * @updated 28-02-2026 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
  * https://console.developers.google.com/apis/dashboard
@@ -40,6 +40,8 @@ class TableBD
 {
 	// REQUIRES
 	// Database.php
+	// UploadC.php
+	// simple_html_dom.php
 	
 // MISSION: generate a table to manage a query to the database. Considers 4 actions: view, new, edit and import
 
