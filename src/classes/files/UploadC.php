@@ -5,11 +5,11 @@ namespace classes\files;
  * Esta classe trata o upload de ficheiros
  *
  * @author Ant�nio Lira Fernandes
- * @version 2.0
- * @updated 28-02-2026 18:10:03
+ * @version 2.1
+ * @updated 27-03-2026 18:10:03
  */
 
-	// REQUIRES
+// REQUIRES
 	
 // MISSION: manager the upload of files to a specific directory. It should support both POST and PUT methods for uploading, and also provide a way to list the uploaded 
 //          files with their details (name, size, modification date). Additionally, it should have a method to generate HTML for displaying file previews based on their 
@@ -37,24 +37,26 @@ namespace classes\files;
 
 
 
-
 class UploadC {
 
     /**
 	 * Caminho para o diretório de upload
 	 */
-	var $targetDir = "/home/turma12r/public_html/alf/caderneta/images/cromos/";
+	var $targetDir = "/home/{USER}/public_html/{PATH_TO_UPLOAD}/";
 
     /**
-     * Class constructer that initializes the target directory for uploads. If the directory does not exist, it creates it. 
-     * @param string $targetDir s the full path on file system (e.g. /home/USER/public_html/FOLDER_FOR_UPLOAD
+     * Construtor da classe
+     * @param string $targetDir Caminho para o diretório de upload
      */
-    function __construct($targetDir = "/home/turma12r/public_html/alf/caderneta/images/cromos/") {
-        $this->targetDir = $targetDir;
-        //echo "Diretório de upload: " . $this->targetDir . "<br>";
-        if (!file_exists($targetDir)) {
-            mkdir($targetDir, 0777, true); // cria a pasta se não existir
+    function __construct($targetDir = "/home/{USER}/public_html/{PATH_TO_UPLOAD}/") {
+        if ($targetDir!=""){
+             $this->targetDir = $targetDir;
+            //echo "Diretório de upload: " . $this->targetDir . "<br>";
+            if (!file_exists($targetDir)) {
+                mkdir($targetDir, 0777, true); // cria a pasta se não existir
+            }
         }
+       
         //echo  $this->targetDir;
     }
   
@@ -76,7 +78,8 @@ function respondeProtocolo(){
                 if ($_REQUEST['a']=="lf") {
                     $this->listFiles();
                 } 
-            }           
+            }
+            
             break;
         default:
             http_response_code(405);
@@ -87,28 +90,126 @@ function respondeProtocolo(){
 /*
  * Método para fazer upload de um arquivo via PUT
  */ 
-function uploadUsingPOST(){
-    //echo $this->$targetDir;
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-            $fileTmp = $_FILES['file']['tmp_name'];
-            $fileName = basename($_FILES['file']['name']);
-            $targetFile = $this->targetDir . $fileName;
-            //echo $targetFile;
-            if (move_uploaded_file($fileTmp, $targetFile)) {
-                //echo json_encode(["message" => "Upload feito com sucesso!"],["ficheiro" => $targetFile]);
-                echo json_encode(["message" => "Upload feito com sucesso!","ficheiro" => $targetFile,"pasta" => $this->targetDir]);
-            } else {
+function uploadUsingPOST() {
+    // Verificar se é método POST 
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['msg' => 'Erro: Método não permitido. Use POST.', 'status' => '405']);
+        return;
+    }
+
+    // Verificar se o diretório existe, se não, criar
+    if (!empty($this->targetDir)) {
+        if (!file_exists($this->targetDir)) {
+            if (!mkdir($this->targetDir, 0777, true)) {
                 http_response_code(500);
-                echo json_encode(["error" => "Erro ao mover o arquivo."]);
+                echo json_encode(['msg' => "Não foi possível criar o diretório: " . $this->targetDir, 'status' => '500']);
+                return;
             }
-        } else {
-            http_response_code(400);
-            echo json_encode(["error" => "Nenhum arquivo enviado ou erro no upload."]);
         }
     } else {
-        http_response_code(405);
-        echo json_encode(["error" => "Método não permitido."]);
+        http_response_code(500);
+        echo json_encode(['msg' => "Diretório target não definido", 'status' => '500']);
+        return;
+    }
+
+    //echo json_encode(["msg" => "Aqui."]);
+    // DEBUG - Ver o que foi recebido
+    $debug = [
+        'post' => $_POST,
+        'files' => $_FILES,
+        'target_dir' => $this->targetDir
+    ];
+    
+    // Verificar se o ficheiro foi enviado
+    if (!isset($_FILES['file'])) {
+        http_response_code(400);
+        echo json_encode([
+            "error" => "Nenhum arquivo enviado (file não encontrado no FILES)",
+            "debug" => $debug,
+            'status' => '400'
+        ]);
+        return;
+    }
+    
+    if ($_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        $errorMsg = $this->getUploadErrorMessage($_FILES['file']['error']);
+        http_response_code(400);
+        echo json_encode([
+            "error" => $errorMsg,
+            "debug" => $debug,
+            'status' => '400'
+        ]);
+        return;
+    }
+    
+    $file = $_FILES['file'];
+    $fileTmp = $file['tmp_name'];
+    $originalName = $file['name'];
+    
+    // Obter nome personalizado se enviado
+    $customName = isset($_POST['filename']) ? $_POST['filename'] : null;
+    $fileName = !empty($customName) ? basename($customName) : $originalName;
+    
+    // Limpar nome do ficheiro
+    $fileName = preg_replace('/[^a-zA-Z0-9._-]/', '', $fileName);
+    if (empty($fileName)) {
+        $fileName = 'arquivo_' . time();
+        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+        if (!empty($ext)) {
+            $fileName .= '.' . $ext;
+        }
+    }
+    
+    $targetFile = rtrim($this->targetDir, '/') . '/' . $fileName;
+    
+    // Mover o ficheiro
+    if (move_uploaded_file($fileTmp, $targetFile)) {
+        echo json_encode([
+            "success" => true,
+            "message" => "Upload feito com sucesso!",
+            "ficheiro" => $targetFile,
+            "original_name" => $originalName,
+            "saved_name" => $fileName,
+            "pasta" => $this->targetDir,
+            "size" => $file['size'],
+            'status' => '200'
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            "error" => "Erro ao mover o arquivo.",
+            "debug" => [
+                "tmp" => $fileTmp,
+                "target" => $targetFile,
+                "target_dir" => $this->targetDir,
+                "permissions" => substr(sprintf('%o', fileperms($this->targetDir)), -4),
+                "post" => $_POST,
+                "files" => $_FILES,
+                'status' => '500'
+            ]
+        ]);
+    }
+}
+
+private function getUploadErrorMessage($errorCode) {
+    switch ($errorCode) {
+        case UPLOAD_ERR_INI_SIZE:
+            return "O arquivo excede o tamanho máximo do servidor.";
+        case UPLOAD_ERR_FORM_SIZE:
+            return "O arquivo excede o tamanho máximo do formulário.";
+        case UPLOAD_ERR_PARTIAL:
+            return "O upload foi feito parcialmente.";
+        case UPLOAD_ERR_NO_FILE:
+            return "Nenhum arquivo foi enviado.";
+        case UPLOAD_ERR_NO_TMP_DIR:
+            return "Pasta temporária não encontrada.";
+        case UPLOAD_ERR_CANT_WRITE:
+            return "Falha ao escrever o arquivo.";
+        case UPLOAD_ERR_EXTENSION:
+            return "Upload bloqueado por extensão PHP.";
+        default:
+            return "Erro desconhecido: " . $errorCode;
     }
 }
     
@@ -120,8 +221,12 @@ function uploadUsingPUT(){
     //echo "aaa: " . $this->targetDir;
     if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     
+    //$file = isset($_FILES['file']) ? $_FILES['file'] : null;
+    //$fileName = isset($_POST['filename']) ? $_POST['filename'] : 'arquivo_recebido.bin';
+
         $headers = getallheaders();
         $fileName = isset($headers['X-Filename']) ? basename($headers['X-Filename']) : 'arquivo_recebido.bin';
+        //$filename = $_SERVER['HTTP_X_FILENAME'] ?? null; 
 
         // segurança básica
         $fileName = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $fileName);
@@ -206,34 +311,56 @@ function formatarTamanho($bytes) {
 /*
  * JavaScript para fazer upload de um arquivo usando POST
  */
-function JSUploadFileUsingPOST($EndPoint) {
+function JSUploadFileUsingPOST() {
     ?>
-        const uploadFile = async () => {
-            const fileInput = document.querySelector("#fileInput");
-            const file = fileInput.files[0];
+        const uploadFile = async (EndPoint, fileInputId) => {
+				alert("A fazer upload do arquivo...");
+				//alert(EndPoint);
+				//alert(fileInputId);
+				const fileInput = document.querySelector("#" + fileInputId);
+				const file = fileInput.files[0];
+				//alert("Arquivo selecionado: " + file.name);
+				console.log("Arquivo selecionado:", file);
+				console.log("EndPoint:", EndPoint);
 
-            if (!file) {
-                console.error("Nenhum arquivo selecionado!");
-                return;
-            }
+				if (!file) {
+					console.error("Nenhum arquivo selecionado!");
+					 alert("Por favor, selecione um arquivo.");
+					return;
+				}
 
-            const formData = new FormData();
-            formData.append("file", file);
+				console.log("Arquivo selecionado:", file.name, file.size, file.type);
 
-            try {
-                const response = await fetch("<?=$EndPoint?>", {
-                    method: "POST",
-                    body: formData,
-                });
+				const formData = new FormData();
+    			formData.append('file', file);
+    			formData.append('filename', file.name);
 
-                if (!response.ok) throw new Error("Erro ao fazer upload");
+				//alert("Fazendo upload do arquivo: " + file.name);
+				try {
+					const response = await fetch(EndPoint, {
+						method: "POST",
+						//headers: {
+						//	"X-Filename": file.name,
+						//	"Content-Type": file.type, // Define o tipo de conteúdo
+						//},
+						body: formData, // Envia o arquivo diretamente
+					});
 
-                const result = await response.json();
-                console.log("Sucesso:", result);
-            } catch (error) {
-                console.error("Erro:", error);
-            }
-        };
+					console.log("response:", response);
+					if (!response.ok) {
+						const errorText = await response.text();
+						console.error("Erro resposta:", errorText);
+						throw new Error(`Erro ao fazer upload: ${response.status}`);
+					}
+
+					const result = await response.json();
+					console.log("Sucesso:", result);
+					alert("Upload concluído: " + (result.message || "Sucesso!"));
+				} catch (error) {
+					console.error("Erro:", error);
+					alert("Erro ao fazer upload do arquivo: " + error.message);
+				}
+			};
     <?php
 }
 
@@ -241,41 +368,45 @@ function JSUploadFileUsingPOST($EndPoint) {
 /*
  * JavaScript para fazer upload de um arquivo usando PUT
  */
-function JSUploadFileUsingPUT($EndPoint) {
+function JSUploadFileUsingPUT() {
     ?>
-    const uploadFile = async () => {
-        alert("Fazendo upload do arquivo...");
-        const fileInput = document.querySelector("#fileInput");
-        const file = fileInput.files[0];
+    const uploadFile = async (EndPoint, fileInputId) => {
+				alert("A fazer upload do arquivo...");
+				//alert(EndPoint);
+				//alert(fileInputId);
+				const fileInput = document.querySelector("#" + fileInputId);
+				const file = fileInput.files[0];
+				//alert("Arquivo selecionado: " + file.name);
+				//console.log("Arquivo selecionado:", file);
+				//console.log("EndPoint:", EndPoint);
 
-        if (!file) {
-            console.error("Nenhum arquivo selecionado!");
-            return;
-        }
+				if (!file) {
+					console.error("Nenhum arquivo selecionado!");
+					return;
+				}
+				//alert("Fazendo upload do arquivo: " + file.name);
+				try {
+					const response = await fetch(EndPoint, {
+						method: "PUT",
+						headers: {
+							"X-Filename": file.name,
+							"Content-Type": file.type, // Define o tipo de conteúdo
+						},
+						body: file, // Envia o arquivo diretamente
+					});
 
-        try {
-            const response = await fetch("<?=$EndPoint?>", {
-                method: "PUT",
-                headers: {
-                    "X-Filename": file.name,
-                    "Content-Type": file.type, // Define o tipo de conteúdo
-                },
-                body: file, // Envia o arquivo diretamente
-            });
+					if (!response.ok) throw new Error("Erro ao fazer upload");
 
-            if (!response.ok) throw new Error("Erro ao fazer upload");
-
-            const result = await response.json();
-            console.log("Sucesso:", result);
-        } catch (error) {
-            console.error("Erro:", error);
-        }
-    };
+					const result = await response.json();
+					console.log("Sucesso:", result);
+				} catch (error) {
+					console.error("Erro:", error);
+					alert("Erro ao fazer upload do arquivo: " + error.message);
+				}
+			};
     <?php
 }
 
-
-//#######################################################################
 /**
  * Gera HTML para exibir uma imagem ou ícone representativo baseado no tipo de ficheiro
  * 
@@ -673,7 +804,6 @@ function getFilePreviewCSS() {
 }
 
 
-
 //#######################################################################
 
 	/**
@@ -689,7 +819,6 @@ function getFilePreviewCSS() {
 }
 
 //####################################################################
-// Samples of UserCode
 //echo "teste";
 
 //$a= new UploadC();
