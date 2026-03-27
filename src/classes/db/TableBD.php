@@ -4,7 +4,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.12
+ * @version 14.13
  * @updated 28-02-2026 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -106,13 +106,14 @@ class TableBD
 // setHTMLid($ id, $ value) - Write to an HTML element on the page with the specified id. The id is the id of the HTML tag and the value is the string to be loaded into the element.
 // setLabel($ field, $ value) - Assign a label to a field, where the field is the field you want to change the label for and the value is the text to be used as the label.
 // setLabels() - Assign the field names in the database as field labels, this function is only executed when preparing the table.
-// setLimites($ NumReg, $ LimInf = 0) - Set the number of records in a select statement, where NumReg is the number of records and LimInf is the starting record.
+// setLimits($ NumReg, $ LimInf = 0) - Set the number of records in a select statement, where NumReg is the number of records and LimInf is the starting record.
 // setLinkPage($page, $style=0) | setPaginaVer($page, $style=0) - Store an URL of the page to be opened to view a record. The page parameter is the URL 
 //                                                                of the HTML page to show a record, and the style parameter is how the key value is passed. 
 //                                                                If style=0, then the URL is URL?id=keyValue, if style=1, then the URL is URL/keyValue.
 // setLinkJS($field, $jsCode) - In the table used to list values you can add an html/JavaScript event, such as onClick=action(parameters). The setLinkJS method allows you 
 // 								to assign custom JavaScript code that will be triggered when a specific field is clicked. $field: the name of the database field that will 
 // 								respond to the JavaScript event. $jsCode: the html/JavaScript event to be inserted into the field's HTML.
+// setText($text, $value) - Saves a text field and its corresponding value where fieldName is the name of the field where the value will be saved and value is the String value to be saved
 // setTemplate($path) * - Assign a template to the table, where the path is the path to the template file.
 // setTitle($value) | setTitulo($ value) - Set the title of the page or form, where the value is the text for the title.
 // setSummernote($value) - If $value is true, enables the summernote editor for text fields in the table. If $value is false, disables the summernote editor for text fields in the table.
@@ -2207,13 +2208,12 @@ class TableBD
 	}
   	//###################################################################################################################################	
 	/**
-	 * @param $NumReg    número de registos
-	 * @param $LimInf    registo inicial
+	 * @param $NumReg    Number of records to retrieve
+	 * @param $LimInf    Starting record index / Offset
 	 * 
-	 * Define o número de registos num select
+	 * Sets the number of records to be returned by the select query
 	 */
-	public function setLimites($NumReg, $LimInf = 0)
-	{
+	public function setLimits($NumReg, $LimInf = 0){
 		$this->limites[0] = $NumReg;
 		$this->limites[1] = $LimInf;
 	}	
@@ -2226,8 +2226,7 @@ class TableBD
 	 * @param $field    is the database field that respond to a JS event
 	 * @param $jsCode   the html/JavaScript event to be inserted into the field's HTML 
 	 */
-	public function setLinkJS($field, $jsCode)
-	{
+	public function setLinkJS($field, $jsCode){
 		$i = 0;
 		//echo "<br> campo=$field accao=$action";
 		foreach ($this->camposLista as $campoaux) {
@@ -2239,8 +2238,6 @@ class TableBD
 			$i++;
 		}
 	}
-
-	
   	//###################################################################################################################################
 	/**
 	 * Stores the name (url) of the page that should be opened to show une record.
@@ -2248,8 +2245,7 @@ class TableBD
 	 * @param $page    is the address (url) for a html page to show a record
 	 * @param $style    is the way that the key value are passed. if style=0 then the url to see is url?id=keyValue. if style=1 then the url is url/keyValue
 	 */
-	public function setLinkPage($page, $style = 0)
-	{
+	public function setLinkPage($page, $style = 0){
 		$this->PagVer = $page;
 		$this->linkStyle = $style;
 	}
@@ -2301,14 +2297,13 @@ class TableBD
  	//###################################################################################################################################
 	/**
 	 * 
-	 * @param texto    é o nome do campo que pretendemos guardar o valor
-	 * @param valor    string com o texto que deve ser apresentado
+	 * @param text    Name of the field where the value will be saved
+	 * @param value   String value to be saved
 	 *
-	 * Guarda um tipo de texto e o seu valor
+	 * Saves a text field and its corresponding value
 	 */
-	public function setTextos($texto, $valor)
-	{
-		$this->textos[$texto] = $valor;
+	public function setText($text, $value){
+		$this->textos[$text] = $value;
 	} 
  	//###################################################################################################################################
 	/**
@@ -2317,21 +2312,10 @@ class TableBD
 	 *
 	 * define the title of the page/or form
 	 */
-	public function setTitle($value)
-	{
-		$this->setTextos("titulo", $value);
+	public function setTitle($value){
+		$this->setText("titulo", $value);
 	} 
-	//###################################################################################################################################
-	/**
-	 * 
-	 * @param valor    é a string com o texto que queremos ter na lista da tabela
-	 *
-	 * define o título da página/ou form
-	 */
-	public function setTitulo($valor)
-	{
-		$this->setTitle($valor);
-	}
+
 }
 
 //###################################################################################################################################
