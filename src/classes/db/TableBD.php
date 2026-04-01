@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.15
+ * @version 14.16
  * @updated 27-03-2026 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -19,10 +19,7 @@
 
 
 //news of version: 
-	// enable/ desable summernote editor for text fields, with the possibility to disable it for specific tables or fields.
-	// the modal form have 1 ou 2 colununs depending on the number of fields to be edited or created. If there are more than 8 fields, the form will have 2 columns, otherwise it will have 1 column.
-	// upload files to the server
-	//show files with a link to download
+	// Upload field
 
 
 
@@ -541,6 +538,7 @@ private function prepareTableRows(){
 				$pos[$i]['pre'] =  $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME'];
 				$pos[$i]['pos']='</a>'.PHP_EOL;
 				$pos[$i]['Path']=$campo['Path'];
+				$pos[$i]['width']=$campo['widthP'];
 					//print_r($_SERVER);
 					//echo "aux: $aux";
 
@@ -639,7 +637,9 @@ private function prepareTableRows(){
 							}else {
 								$aux = $pos[$i]['pre'];
 							}		
-								$registo[$pos[$i]['Field']] = $up->getFilePreviewHTML($aux . $registo[$pos[$i]['Field']]);
+								$opt['width'] = $pos[$i]['width'];
+								$opt['height'] = $pos[$i]['width'];
+								$registo[$pos[$i]['Field']] = $up->getFilePreviewHTML($aux . $registo[$pos[$i]['Field']], $opt);
 								//$registo[$pos[$i]['Field']] = $aux . $registo[$pos[$i]['Field']] . '">' . $registo[$pos[$i]['Field']] . $pos[$i]['pos'];
 								//echo "registo: " . $registo[$pos[$i]['Field']];
 								//echo "pre: " . $pos[$i]['pre'];
