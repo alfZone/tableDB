@@ -5,7 +5,7 @@ namespace classes\files;
  * Esta classe trata o upload de ficheiros
  *
  * @author Ant�nio Lira Fernandes
- * @version 2.1
+ * @version 2.2
  * @updated 27-03-2026 18:10:03
  */
 
@@ -43,12 +43,14 @@ class UploadC {
 	 * Caminho para o diretório de upload
 	 */
 	var $targetDir = "/home/{USER}/public_html/{PATH_TO_UPLOAD}/";
+    var $fileName = "";
 
     /**
      * Construtor da classe
      * @param string $targetDir Caminho para o diretório de upload
      */
-    function __construct($targetDir = "/home/{USER}/public_html/{PATH_TO_UPLOAD}/") {
+    function __construct($targetDir = "/home/{USER}/public_html/{PATH_TO_UPLOAD}/", $fileName ="") {
+        $this->fileName = $fileName;
         if ($targetDir!=""){
              $this->targetDir = $targetDir;
             //echo "Diretório de upload: " . $this->targetDir . "<br>";
@@ -151,6 +153,9 @@ function uploadUsingPOST() {
     $customName = isset($_POST['filename']) ? $_POST['filename'] : null;
     $fileName = !empty($customName) ? basename($customName) : $originalName;
     
+    if ($this->fileName != "") {
+        $fileName = basename($this->fileName);
+    }   
     // Limpar nome do ficheiro
     $fileName = preg_replace('/[^a-zA-Z0-9._-]/', '', $fileName);
     if (empty($fileName)) {
@@ -227,7 +232,10 @@ function uploadUsingPUT(){
         $headers = getallheaders();
         $fileName = isset($headers['X-Filename']) ? basename($headers['X-Filename']) : 'arquivo_recebido.bin';
         //$filename = $_SERVER['HTTP_X_FILENAME'] ?? null; 
-
+ 
+        if ($this->fileName != "") {
+                $fileName = basename($this->fileName);
+            } 
         // segurança básica
         $fileName = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $fileName);
 
