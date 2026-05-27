@@ -38,6 +38,9 @@ $table->setFieldList("active",2,"1=>Active,0=>Inactive");
 //the fiekd to be present as an image
 $table->setImageField("photo","../fotos/thumbs/",30);
 
+//or if it's used form uplaod files. In the exemple the method used is put - new route is need
+$table->setFieldUpload("imagem","/home/colecao/public_html/images/mundial2026/","20%","PUT");
+
 //Link each record on the listo to external page passing the key value
 $table->setLinkPage("/public/perfil.php");
 
