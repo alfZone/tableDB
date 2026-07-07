@@ -3,7 +3,7 @@
  * The idea for this object is to provide a simple way to manage a database table. With some configurations we can list a tables, add a new record, change and update a record, delete 
  * a record and insert several records using a csv file.
  * @author António Lira Fernandes
- * @version 14.16
+ * @version 14.17
  * @updated 27-03-2026 21:50:00
  * https://github.com/alfZone/tabledb
  * https://github.com/alfZone/tabledb/wiki
@@ -19,7 +19,7 @@
 
 
 //news of version: 
-	// Upload field
+	// Solve the date problem when importing a csv file. The date must be in the format yyyy-mm-dd, otherwise it will not be imported correctly.
 
 
 
@@ -1134,52 +1134,58 @@ public function includes($path = ""){
 			}
 
 			async function preUp(id) {
-				//alert(id);
 				document.getElementById("do").value = "ce";
 				document.getElementById("editKey").value = id;
 				let url = window.location.protocol + "//" + window.location.hostname + window.location.pathname + "?do=e&id=" + id
-				//alert("url: " + url);
+				
 				const response = await fetch(url)
 				const eventos = await response.json()
-				//alert(response);
-				//alert(eventos);
+				
 				for (const evento of eventos) {
 					for (x in evento) {
-						//alert(x);
+						// Textarea com Summernote
 						if ($('textarea').length > 1) {
 							var markupStr = evento[x];
-							<?php
-							if ($this->summernote){
-							?>
+							<?php if ($this->summernote) { ?>
 								$('textarea#txt' + x).summernote('code', markupStr);
-								<?php
-							}else {
-								?>
+							<?php } else { ?>
 								$('textarea#txt' + x).val(markupStr);
-							<?php
-							}
-							?>
-							
+							<?php } ?>
 						}
-						$("#txt" + x).attr("value", evento[x])
-						//var aux=`select#txt${x}`;
-						//console.log(aux);
-						//console.log($(`select#txt${x}`).length)
-						if ($(`img#txt2${x}`).length){
+						
+						// VERIFICAÇÃO ESPECIAL PARA CAMPOS DE DATA
+						// Se o elemento for um input do tipo date
+						if ($(`#txt${x}`).is('input[type="date"]')) {
+							let dataValor = evento[x];
+							// Se tiver valor e não for CURRENT_TIMESTAMP
+							if (dataValor && dataValor !== 'CURRENT_TIMESTAMP') {
+								// Remove a hora se existir
+								if (typeof dataValor === 'string') {
+									if (dataValor.includes('T')) {
+										dataValor = dataValor.split('T')[0];
+									} else if (dataValor.includes(' ') && dataValor.split(' ')[0].includes('-')) {
+										dataValor = dataValor.split(' ')[0];
+									}
+								}
+								$(`#txt${x}`).val(dataValor);
+							} else {
+								$(`#txt${x}`).val('');
+							}
+						} else {
+							// Para todos os outros campos, usa .val()
+							$(`#txt${x}`).val(evento[x]);
+						}
+						
+						// Imagens
+						if ($(`img#txt2${x}`).length) {
 							$("#txt2" + x).attr("src", evento[x])
 						}
+						
+						// Selects
 						if ($(`select#txt${x}`).length) {
-							//$(`#txt${x} option:selected`).attr('selected',false);
-							//aux=`#txt${x} option[value='${evento[x]}']`
-							//console.log(aux);
-							//$(aux).attr('selected','selected');
-							// Primeiro, redefina a seleção
 							$(`#txt${x}`).val(null);
-							// Depois, defina a nova seleção
 							$(`#txt${x}`).val(evento[x]);
-							//console.log(evento[x]);
 						}
-
 					}
 				}
 			}
@@ -1396,7 +1402,13 @@ public function includes($path = ""){
                 foreach($html->find('input[id]') as $e){
 					$e->id="txt" . $field['Field'];
 					$e->name="txt" . $field['Field'];
-					$e->value=$field['Default'];
+					if ($field['Default']!="CURRENT_TIMESTAMP"){
+						$e->value=$field['Default'];
+					}else{
+						$e->value="";
+			
+					}
+					
                 } 
                 foreach($html->find('#dateL') as $e)
 					$e->outertext=$field['label']  . $ast ;
